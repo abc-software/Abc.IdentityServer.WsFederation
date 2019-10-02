@@ -8,6 +8,10 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.WsFederation.Stores;
 using Microsoft.IdentityModel.Protocols.WsFederation;
+using IdentityServer4.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication;
+using Newtonsoft.Json;
 
 namespace IdentityServer4.WsFederation.Validation
 {
@@ -16,17 +20,26 @@ namespace IdentityServer4.WsFederation.Validation
         private readonly IClientStore _clients;
         private readonly IRelyingPartyStore _relyingParties;
         private readonly WsFederationOptions _options;
+        private readonly ISystemClock _clock;
+        private readonly ILogger _logger;
 
-        public SignInValidator(WsFederationOptions options, IClientStore clients, IRelyingPartyStore relyingParties)
+        public SignInValidator(
+            WsFederationOptions options, 
+            IClientStore clients,
+            IRelyingPartyStore relyingParties,
+            ISystemClock clock,
+            ILogger<SignInValidator> logger)
         {
             _options = options;
             _clients = clients;
             _relyingParties = relyingParties;
+            _clock = clock;
+            _logger = logger;
         }
 
         public async Task<SignInValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user)
         {
-            //Logger.Info("Start WS-Federation signin request validation");
+            _logger.LogInformation("Start WS-Federation signin request validation");
             var result = new SignInValidationResult
             {
                 WsFederationMessage = message
@@ -77,9 +90,24 @@ namespace IdentityServer4.WsFederation.Validation
                 user.Identity.IsAuthenticated == false)
             {
                 result.SignInRequired = true;
+                return result;
             }
 
             result.User = user;
+
+            if (!string.IsNullOrEmpty(message.Wfresh))
+            {
+                if (int.TryParse(message.Wfresh, out int maxAgeInMinutes))
+                {
+                    var authTime = user.GetAuthenticationTime();
+                    if (_clock.UtcNow > authTime.AddMinutes(maxAgeInMinutes))
+                    {
+                        _logger.LogInformation("Showing login: Requested wfresh time exceeded.");
+                        result.SignInRequired = true;
+                        return result;
+                    }
+                }
+            }
             
             LogSuccess(result);
             return result;
@@ -87,14 +115,14 @@ namespace IdentityServer4.WsFederation.Validation
 
         private void LogSuccess(SignInValidationResult result)
         {
-            //var log = new SignInValidationLog(result);
-            //Logger.InfoFormat("End WS-Federation signin request validation\n{0}", log.ToString());
+            var log = JsonConvert.SerializeObject(result, Formatting.Indented);
+            _logger.LogInformation("End WS-Federation signin request validation\n{0}", log.ToString());
         }
 
         private void LogError(string message, SignInValidationResult result)
         {
-            //var log = new SignInValidationLog(result);
-            //Logger.ErrorFormat("{0}\n{1}", message, log.ToString());
+            var log = JsonConvert.SerializeObject(result, Formatting.Indented);
+            _logger.LogError("{0}\n{1}", message, log.ToString());
         }
     }
 }
