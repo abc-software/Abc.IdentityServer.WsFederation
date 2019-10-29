@@ -66,7 +66,7 @@ namespace IdentityServer4.WsFederation
             var isSignout = message.IsSignOutMessage;
             if (isSignout)
             {
-                return ProcessSignOutAsync(message);
+                return ProcessSignOut(message);
             }
 
             return BadRequest("Invalid WS-Federation request");
@@ -112,7 +112,7 @@ namespace IdentityServer4.WsFederation
             }
         }
 
-        private IActionResult ProcessSignOutAsync(WsFederationMessage signout)
+        private IActionResult ProcessSignOut(WsFederationMessage signout)
         {
             return Redirect("~/connect/endsession");
         }
