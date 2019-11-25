@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Xunit;
@@ -18,6 +19,7 @@ using System.Net;
 using Microsoft.IdentityModel.Tokens.Saml;
 using System;
 using System.Linq;
+using IdentityServer4.Extensions;
 
 namespace IdentityServer4.WsFederation.Tests
 {
@@ -104,14 +106,14 @@ namespace IdentityServer4.WsFederation.Tests
         }
 
         [Fact]
-        public async Task WsFederation_signin_request_with_wfresh_user_is_authenticated_wfresh_exceeded_redirect_to_login_page_success()
+        public async Task WsFederation_signin_request_with_wfresh_set_to_0_user_is_authenticated_wfresh_exceeded_redirect_to_login_page_success()
         {
             // login user
             var subjectId = "user1";
             var loginUrl = string.Format("/account/login?subjectId={0}", WebUtility.UrlEncode(subjectId));
             var loginResponse = await _client.GetAsync(loginUrl);
 
-            // create ws fed sigin message with wfresh=0
+            // create ws fed sigin message with wfresh
             var wsMessage = new WsFederationMessage
             {
                 Wa = "wsignin1.0",
@@ -129,8 +131,78 @@ namespace IdentityServer4.WsFederation.Tests
             var response = await _client.SendAsync(request);
 
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            var expectedLocation = "/Account/Login?ReturnUrl=%2Fwsfederation%3Fwa%3Dwsignin1.0%26wtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wfresh%3D0";
+            var expectedLocation = "/Account/Login?ReturnUrl=%2Fwsfederation%3Fwa%3Dwsignin1.0%26wtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
+        }
+
+        [Fact]
+        public async Task WsFederation_signin_request_with_wfresh_set_to_0_user_is_authenticated_force_resignin_return_assertion_success()
+        {
+            // login user
+            var subjectId = "user1";
+            var loginUrl = string.Format("/account/login?subjectId={0}", WebUtility.UrlEncode(subjectId));
+            var loginResponse = await _client.GetAsync(loginUrl);
+            var authTime = DateTime.UtcNow;
+
+            Thread.Sleep(3000); // TODO: bad workaround to sumulate login for 3 seconds
+
+            // create ws fed sigin message with wfresh
+            var wsMessage = new WsFederationMessage
+            {
+                Wa = "wsignin1.0",
+                IssuerAddress = "/wsfederation",
+                Wtrealm = "urn:owinrp",
+                Wreply = "http://localhost:10313/",
+                Wfresh = "0",
+            };
+            var uri = wsMessage.CreateSignInUrl();
+            var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            // test server doesnt save cookies between requests,
+            // so we set them explicitly for the next request
+            request.SetCookiesFromResponse(loginResponse);
+
+            // make auth request, for allready logged in user
+            var response = await _client.SendAsync(request);
+
+            // redirect to sign in package because we enforce it with wfresh=0
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+
+            uri = response.Headers.Location.OriginalString + "&subjectId=" + subjectId;
+            request = new HttpRequestMessage(HttpMethod.Get, uri);
+            request.SetCookiesFromResponse(response);
+
+            // login again to satisfy wfresh=0
+            response = await _client.SendAsync(request);
+
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+
+            uri = response.Headers.Location.OriginalString;
+            request = new HttpRequestMessage(HttpMethod.Get, uri);
+            request.SetCookiesFromResponse(response);
+
+            // do the redirect to auth endpoint
+            response = await _client.SendAsync(request);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var contentAsText = await response.Content.ReadAsStringAsync();
+            Assert.NotEqual(String.Empty, contentAsText);
+            Assert.Contains("action=\"http://localhost:10313/\"", contentAsText);
+
+            // extract wreturn to use it later to check if our token is a valid token
+            var wreturn = ExtractInBetween(contentAsText, "wresult\" value=\"", "\"");
+            var wsResponseMessage = new WsFederationMessage 
+            {
+                Wresult = WebUtility.HtmlDecode(wreturn),
+            };
+            var tokenString = wsResponseMessage.GetToken();
+            var handler = new SamlSecurityTokenHandler();
+            var canReadToken = handler.CanReadToken(tokenString);
+            Assert.True(canReadToken);
+            var token = handler.ReadSamlToken(tokenString);
+            var authStatements = token.Assertion.Statements.OfType<SamlAuthenticationStatement>();
+            Assert.Equal(1, authStatements.Count());
+            var authStatement = authStatements.First();
+            Assert.True(authStatement.AuthenticationInstant <= authTime.AddMinutes(5));
         }
 
         [Fact]
@@ -180,7 +252,6 @@ namespace IdentityServer4.WsFederation.Tests
             var authStatement = authStatements.First();
             Assert.True(authStatement.AuthenticationInstant <= authTime.AddMinutes(5));
         }
-
 
         [Fact]
         public async Task WsFederation_sigin_request_for_logged_in_user_return_assertion_success()

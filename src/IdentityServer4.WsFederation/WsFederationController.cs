@@ -12,6 +12,8 @@ using IdentityServer4.WsFederation.Validation;
 using IdentityServer4.Configuration;
 using IdentityServer4.Services;
 using Microsoft.IdentityModel.Protocols.WsFederation;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace IdentityServer4.WsFederation
 {
@@ -95,7 +97,9 @@ namespace IdentityServer4.WsFederation
             if (result.SignInRequired)
             {
                 var returnUrl = Url.Action("Index");
-                returnUrl = returnUrl.AddQueryString(Request.QueryString.Value);
+                // remove wfresh parameter to ensure we don't trigger sign in after the user signes in
+                var query = Request.Query.Where(q => !q.Key.Equals("wfresh", StringComparison.OrdinalIgnoreCase));
+                returnUrl = returnUrl.AddQueryString(QueryString.Create(query).Value);
 
                 var loginUrl = Request.PathBase + _options.UserInteraction.LoginUrl;
                 var url = loginUrl.AddQueryString(_options.UserInteraction.LoginReturnUrlParameter, returnUrl);

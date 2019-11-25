@@ -99,8 +99,15 @@ namespace IdentityServer4.WsFederation.Validation
             {
                 if (int.TryParse(message.Wfresh, out int maxAgeInMinutes))
                 {
+                    if (maxAgeInMinutes == 0)
+                    {
+                        _logger.LogInformation("Showing login: Requested wfresh=0.");
+                        message.Wfresh = null;
+                        result.SignInRequired = true;
+                        return result;
+                    }
                     var authTime = user.GetAuthenticationTime();
-                    if (_clock.UtcNow.UtcDateTime >= authTime.AddMinutes(maxAgeInMinutes))
+                    if (_clock.UtcNow.UtcDateTime > authTime.AddMinutes(maxAgeInMinutes))
                     {
                         _logger.LogInformation("Showing login: Requested wfresh time exceeded.");
                         result.SignInRequired = true;
