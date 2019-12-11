@@ -30,6 +30,7 @@ namespace AspNetCoreSecurity
                     options.RequireHttpsMetadata = false;
 
                     options.Wtrealm = "urn:aspnetcorerp";
+                    options.Wreply = "http://localhost:10314/";
 
                     options.CallbackPath = "/";
                     options.SkipUnrecognizedRequests = true;
