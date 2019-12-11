@@ -303,5 +303,34 @@ namespace IdentityServer4.WsFederation.Tests
             var result = source.Substring(startIndex, length);
             return result;
         }
+        
+        [Fact]
+        public async Task WsFederation_signout_request_with_no_wtrealm_redirect_to_logout_page_success()
+        {
+            // login user
+            var subjectId = "user1";
+            var loginUrl = string.Format("/account/login?subjectId={0}", WebUtility.UrlEncode(subjectId));
+            var loginResponse = await _client.GetAsync(loginUrl);
+
+            // create ws fed sigin message with wfresh
+            var wsMessage = new WsFederationMessage
+            {
+                Wa = "wsignout1.0",
+                IssuerAddress = "/wsfederation",
+                // Wtrealm = "urn:owinrp",
+                Wreply = "http://localhost:10313/",
+            };
+            var signOutUrl = wsMessage.CreateSignOutUrl();
+            var request = new HttpRequestMessage(HttpMethod.Get, signOutUrl);
+            // test server doesnt save cookies between requests,
+            // so we set them explicitly for the next request
+            request.SetCookiesFromResponse(loginResponse);
+
+            var response = await _client.SendAsync(request);
+
+            Assert.Equal(HttpStatusCode.Found, response.StatusCode);
+            var expectedLocation = "/Account/Logout";
+            Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
+        }
     }
 }
