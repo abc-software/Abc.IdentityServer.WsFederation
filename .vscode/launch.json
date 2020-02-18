@@ -5,32 +5,45 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": ".NET Core Launch (web)",
+            "name": "sample client (aspnet core)",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
+            "preLaunchTask": "buildClientCore",
             "program": "${workspaceFolder}/samples/clients/AspNetCoreWsFederation/bin/Debug/netcoreapp2.0/AspNetCoreWsFederation.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/samples/clients/AspNetCoreWsFederation",
+            "cwd": "${workspaceFolder}/samples/clients/AspNetCoreWsFederation/",
             "stopAtEntry": false,
-            // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
                 "action": "openExternally",
-                "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"                
+                "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
             }
         },
         {
-            "name": ".NET Core Attach",
+            "name": "sample server",
             "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
-        }
+            "request": "launch",
+            "preLaunchTask": "buildServer",
+            "program": "${workspaceFolder}/samples/server/IdentityServer4.WsFederation/bin/Debug/netcoreapp2.1/IdentityServer4.WsFederation.Server.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/samples/server/IdentityServer4.WsFederation/",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5000;https://localhost:5001"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
     ]
 }

@@ -1,46 +1,45 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
 using IdentityServer4.Stores;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.WsFederation.Stores;
 using Microsoft.IdentityModel.Protocols.WsFederation;
-using IdentityServer4.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication;
-using Newtonsoft.Json;
+using IdentityServer4.Services;
 
 namespace IdentityServer4.WsFederation.Validation
 {
-    public class SignInValidator
+    public class SignOutValidator
     {
         private readonly IClientStore _clients;
         private readonly IRelyingPartyStore _relyingParties;
         private readonly WsFederationOptions _options;
         private readonly ISystemClock _clock;
+        private readonly IUserSession _userSession;
         private readonly ILogger _logger;
 
-        public SignInValidator(
+
+        public SignOutValidator(
             WsFederationOptions options, 
             IClientStore clients,
             IRelyingPartyStore relyingParties,
             ISystemClock clock,
-            ILogger<SignInValidator> logger)
+            IUserSession userSession,
+            ILogger<SignOutValidator> logger)
         {
             _options = options;
             _clients = clients;
             _relyingParties = relyingParties;
             _clock = clock;
+            _userSession = userSession;
             _logger = logger;
         }
 
-        public async Task<SignInValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user)
+        public async Task<SignOutValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user)
         {
-            _logger.LogInformation("Start WS-Federation signin request validation");
-            var result = new SignInValidationResult
+            _logger.LogInformation("Start WS-Federation signout request validation");
+            var result = new SignOutValidationResult
             {
                 WsFederationMessage = message
             };
@@ -52,7 +51,7 @@ namespace IdentityServer4.WsFederation.Validation
             {
                 LogError("Client not found: " + message.Wtrealm, result);
 
-                return new SignInValidationResult
+                return new SignOutValidationResult
                 {
                     Error = "invalid_relying_party"
                 };
@@ -61,7 +60,7 @@ namespace IdentityServer4.WsFederation.Validation
             {
                 LogError("Client is disabled: " + message.Wtrealm, result);
 
-                return new SignInValidationResult
+                return new SignOutValidationResult
                 {
                     Error = "invalid_relying_party"
                 };
@@ -70,7 +69,7 @@ namespace IdentityServer4.WsFederation.Validation
             {
                 LogError("Client is not configured for WS-Federation", result);
 
-                return new SignInValidationResult
+                return new SignOutValidationResult
                 {
                     Error = "invalid_relying_party"
                 };
@@ -98,44 +97,29 @@ namespace IdentityServer4.WsFederation.Validation
             if (user == null ||
                 user.Identity.IsAuthenticated == false)
             {
-                result.SignInRequired = true;
+                result.SignOutRequired = false;
                 return result;
+            }
+            else
+            {
+                result.SessionId = await _userSession.GetSessionIdAsync();
+                result.ClientIds = await _userSession.GetClientListAsync();
+                result.SignOutRequired = true;
             }
 
             result.User = user;
 
-            if (!string.IsNullOrEmpty(message.Wfresh))
-            {
-                if (int.TryParse(message.Wfresh, out int maxAgeInMinutes))
-                {
-                    if (maxAgeInMinutes == 0)
-                    {
-                        _logger.LogInformation("Showing login: Requested wfresh=0.");
-                        message.Wfresh = null;
-                        result.SignInRequired = true;
-                        return result;
-                    }
-                    var authTime = user.GetAuthenticationTime();
-                    if (_clock.UtcNow.UtcDateTime > authTime.AddMinutes(maxAgeInMinutes))
-                    {
-                        _logger.LogInformation("Showing login: Requested wfresh time exceeded.");
-                        result.SignInRequired = true;
-                        return result;
-                    }
-                }
-            }
-            
             LogSuccess(result);
             return result;
         }
 
-        private void LogSuccess(SignInValidationResult result)
+        private void LogSuccess(SignOutValidationResult result)
         {
             // var log = JsonConvert.SerializeObject(result, Formatting.Indented);
             // _logger.LogInformation("End WS-Federation signin request validation\n{0}", log.ToString());
         }
 
-        private void LogError(string message, SignInValidationResult result)
+        private void LogError(string message, SignOutValidationResult result)
         {
             // var log = JsonConvert.SerializeObject(result, Formatting.Indented);
             // _logger.LogError("{0}\n{1}", message, log.ToString());

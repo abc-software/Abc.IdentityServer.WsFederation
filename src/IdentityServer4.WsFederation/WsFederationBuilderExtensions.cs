@@ -27,6 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<MetadataResponseGenerator>();
             builder.Services.AddTransient<SignInResponseGenerator>();
             builder.Services.AddTransient<SignInValidator>();
+            builder.Services.AddTransient<SignOutValidator>();
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
 

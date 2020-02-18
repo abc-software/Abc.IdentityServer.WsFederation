@@ -4,11 +4,29 @@ using System.Collections.Generic;
 using static IdentityServer4.IdentityServerConstants;
 using IdentityServer4.WsFederation.Stores;
 using System.Security.Claims;
+using IdentityServer4.Test;
 
 namespace IdentityServer4.WsFederation
 {
     public static class Config
     {
+        public static List<TestUser> GetTestUsers()
+        {
+            return new List<TestUser> { 
+                new TestUser
+                {
+                    SubjectId = "user1",
+                    Username = "testName",
+                    Password = "testPassword",
+                    Claims = {
+                        new Claim(JwtClaimTypes.Subject, "user1"),
+                        new Claim(JwtClaimTypes.Name, "testName"),
+                        new Claim(JwtClaimTypes.Email, "testUser1@email.com"),
+                    }
+                }
+            };
+        }
+
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {
             return new[]
@@ -56,6 +74,7 @@ namespace IdentityServer4.WsFederation
                         { JwtClaimTypes.Subject , ClaimTypes.NameIdentifier },
                         { JwtClaimTypes.Name , ClaimTypes.Name },
                         { JwtClaimTypes.Email , ClaimTypes.Email },
+                        { JwtClaimTypes.AuthenticationTime, ClaimTypes.AuthenticationInstant }
                     },
                 },
             };

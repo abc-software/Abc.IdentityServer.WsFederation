@@ -131,7 +131,7 @@ namespace IdentityServer4.WsFederation
             }
 
             // authentication instant claim is required
-            outboundClaims.Add(new Claim(ClaimTypes.AuthenticationInstant, XmlConvert.ToString(DateTime.UtcNow, "yyyy-MM-ddTHH:mm:ss.fffZ"), ClaimValueTypes.DateTime));
+            outboundClaims.Add(new Claim(ClaimTypes.AuthenticationInstant, XmlConvert.ToString(result.User.GetAuthenticationTime(), "yyyy-MM-ddTHH:mm:ss.fffZ"), ClaimValueTypes.DateTime));
 
             return new ClaimsIdentity(outboundClaims, "idsrv");
         }
@@ -158,6 +158,30 @@ namespace IdentityServer4.WsFederation
             }
 
             var handler = CreateTokenHandler(result.RelyingParty.TokenType);
+            return CreateToken(handler, descriptor);
+        }
+
+        private SecurityToken CreateToken(SecurityTokenHandler handler, SecurityTokenDescriptor descriptor)
+        {
+            if (descriptor.Subject.HasClaim(c => c.Type == ClaimTypes.AuthenticationMethod) &&
+                descriptor.Subject.HasClaim(c => c.Type == ClaimTypes.AuthenticationInstant))
+            {
+                // if we have authentication information set via claims
+                // create AuthenticationInformation from the corresponding namespaces
+                // and pass it to the right handler
+                var authMethod = descriptor.Subject.Claims.Single(x => x.Type == ClaimTypes.AuthenticationMethod).Value;
+                var authTime = descriptor.Subject.Claims.Single(x => x.Type == ClaimTypes.AuthenticationInstant).Value;
+                if (handler is SamlSecurityTokenHandler)
+                {
+                    var auth = new Microsoft.IdentityModel.Tokens.Saml.AuthenticationInformation(new Uri(authMethod), DateTime.Parse(authTime));
+                    return ((SamlSecurityTokenHandler)handler).CreateToken(descriptor, auth);
+                }
+                if (handler is Saml2SecurityTokenHandler)
+                {
+                    var auth = new Microsoft.IdentityModel.Tokens.Saml2.AuthenticationInformation(new Uri(authMethod), DateTime.Parse(authTime));
+                    return ((Saml2SecurityTokenHandler)handler).CreateToken(descriptor, auth);
+                }
+            }
             return handler.CreateToken(descriptor);
         }
 
