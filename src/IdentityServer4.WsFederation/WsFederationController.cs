@@ -12,6 +12,11 @@ using IdentityServer4.WsFederation.Validation;
 using IdentityServer4.Configuration;
 using IdentityServer4.Services;
 using Microsoft.IdentityModel.Protocols.WsFederation;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
+using IdentityServer4.Models;
+using IdentityServer4.Stores;
+using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer4.WsFederation
 {
@@ -23,20 +28,29 @@ namespace IdentityServer4.WsFederation
         private readonly MetadataResponseGenerator _metadata;
         private readonly IdentityServerOptions _options;
         private readonly SignInValidator _signinValidator;
+        private readonly SignOutValidator _signoutValidator;
+        private readonly ISystemClock _clock;
+        private readonly IMessageStore<LogoutMessage> _logoutMessageStore;
 
         public WsFederationController(
             MetadataResponseGenerator metadata, 
             SignInValidator signinValidator, 
+            SignOutValidator signoutValidator, 
             IdentityServerOptions options,
             SignInResponseGenerator generator,
             IUserSession userSession,
+            ISystemClock clock,
+            IMessageStore<LogoutMessage> logoutMessageStore,
             ILogger<WsFederationController> logger)
         {
             _metadata = metadata;
             _signinValidator = signinValidator;
+            _signoutValidator = signoutValidator;
+            _logoutMessageStore = logoutMessageStore;
             _options = options;
             _generator = generator;
             _userSession = userSession;
+            _clock = clock;
             _logger = logger;
         }
 
@@ -66,7 +80,7 @@ namespace IdentityServer4.WsFederation
             var isSignout = message.IsSignOutMessage;
             if (isSignout)
             {
-                return ProcessSignOutAsync(message);
+                return await ProcessSignOutAsync(message);
             }
 
             return BadRequest("Invalid WS-Federation request");
@@ -84,7 +98,7 @@ namespace IdentityServer4.WsFederation
                 _logger.LogDebug("No user present in WS-Federation signin request");
             }
 
-            // validate request
+            // validate request 
             var result = await _signinValidator.ValidateAsync(signin, user);
 
             if (result.IsError)
@@ -95,7 +109,9 @@ namespace IdentityServer4.WsFederation
             if (result.SignInRequired)
             {
                 var returnUrl = Url.Action("Index");
-                returnUrl = returnUrl.AddQueryString(Request.QueryString.Value);
+                // remove wfresh parameter to ensure we don't trigger sign in after the user signes in
+                var query = Request.Query.Where(q => !q.Key.Equals("wfresh", StringComparison.OrdinalIgnoreCase));
+                returnUrl = returnUrl.AddQueryString(QueryString.Create(query).Value);
 
                 var loginUrl = Request.PathBase + _options.UserInteraction.LoginUrl;
                 var url = loginUrl.AddQueryString(_options.UserInteraction.LoginReturnUrlParameter, returnUrl);
@@ -112,9 +128,59 @@ namespace IdentityServer4.WsFederation
             }
         }
 
-        private IActionResult ProcessSignOutAsync(WsFederationMessage signout)
+        private async Task<IActionResult> ProcessSignOutAsync(WsFederationMessage message)
         {
-            return Redirect("~/connect/endsession");
+            if (string.IsNullOrWhiteSpace(message.Wreply) ||
+                string.IsNullOrWhiteSpace(message.Wtrealm))
+            {
+                return RedirectToLogOut();
+            }
+
+            var result = await _signoutValidator.ValidateAsync(message, User);
+            if (result.IsError)
+            {
+                throw new Exception(result.Error);
+            }
+
+            return await RedirectToLogOutAsync(result);
+        }
+
+        private IActionResult RedirectToLogOut()
+        {
+            return Redirect(_options.UserInteraction.LogoutUrl);
+        }
+
+        private async Task<IActionResult> RedirectToLogOutAsync(SignOutValidationResult validatedResult)
+        {
+            var logoutMessage = new LogoutMessage()
+            {
+                ClientId = validatedResult.Client?.ClientId,
+                ClientName = validatedResult.Client?.ClientName,
+                SubjectId = validatedResult.User?.GetSubjectId(),
+                ClientIds = validatedResult.ClientIds,
+                PostLogoutRedirectUri = validatedResult.ReplyUrl
+            };
+
+            string id = null;
+            if (logoutMessage.ClientId != null && logoutMessage.ClientIds.Any())
+            {
+                var msg = new Message<LogoutMessage>(logoutMessage, _clock.UtcNow.UtcDateTime);
+                id = await _logoutMessageStore.WriteAsync(msg);
+            }
+
+            var redirectUrl = _options.UserInteraction.LogoutUrl;
+
+            if (redirectUrl.IsLocalUrl())
+            {
+                redirectUrl = HttpContext.GetIdentityServerRelativeUrl(redirectUrl);
+            }
+
+            if (id != null)
+            {
+                redirectUrl = redirectUrl.AddQueryString(_options.UserInteraction.LogoutIdParameter, id);
+            }
+
+            return Redirect(redirectUrl);
         }
     }
 }
