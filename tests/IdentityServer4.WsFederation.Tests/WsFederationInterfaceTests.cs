@@ -36,12 +36,13 @@ namespace IdentityServer4.WsFederation.Tests
                      app.UseIdentityServer();
                     //  app.UseAuthorization();
                      app.UseAuthentication();
-                     app.UseMvc(routes =>
-                        routes.MapRoute(
-                            "default",
+                     app.UseRouting();
+                     app.UseEndpoints(c => {
+                         c.MapControllerRoute(
+                             "default",
                             "{controller}/{action=index}/{id?}"
-                        )
-                     );
+                            );
+                     });
                  });
             _server = new TestServer(builder);
             _client = _server.CreateClient();
@@ -101,7 +102,7 @@ namespace IdentityServer4.WsFederation.Tests
             var signInUrl = wsMessage.CreateSignInUrl();
             var response = await _client.GetAsync(signInUrl);
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            var expectedLocation = "/Account/Login?ReturnUrl=%2Fwsfederation%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
+            var expectedLocation = "/Account/Login?ReturnUrl=%2FWsFederation%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
         }
 
@@ -131,7 +132,7 @@ namespace IdentityServer4.WsFederation.Tests
             var response = await _client.SendAsync(request);
 
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            var expectedLocation = "/Account/Login?ReturnUrl=%2Fwsfederation%3Fwa%3Dwsignin1.0%26wtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F";
+            var expectedLocation = "/Account/Login?ReturnUrl=%2FWsFederation%3Fwa%3Dwsignin1.0%26wtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
         }
 
