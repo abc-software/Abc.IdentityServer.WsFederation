@@ -4,6 +4,7 @@
 
 using IdentityServer4.Services;
 using IdentityServer4.WsFederation;
+using IdentityServer4.WsFederation.Services;
 using IdentityServer4.WsFederation.Stores;
 using IdentityServer4.WsFederation.Validation;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<SignInValidator>();
             builder.Services.AddTransient<SignOutValidator>();
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
+            builder.Services.AddTransient<ISecurityTokenHandlerFactory, DefaultSecurityTokenHandlerFactory>();
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
 
             builder.Services.AddSingleton(

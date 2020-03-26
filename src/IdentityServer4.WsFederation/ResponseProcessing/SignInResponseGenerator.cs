@@ -22,6 +22,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using IdentityServer4.WsFederation.Services;
 
 namespace IdentityServer4.WsFederation
 {
@@ -32,6 +33,7 @@ namespace IdentityServer4.WsFederation
         private readonly IProfileService _profile;
         private readonly IKeyMaterialService _keys;
         private readonly IResourceStore _resources;
+        private readonly ISecurityTokenHandlerFactory _securityTokenHandlerFactory;
         private readonly ILogger<SignInResponseGenerator> _logger;
 
         public SignInResponseGenerator(
@@ -40,6 +42,7 @@ namespace IdentityServer4.WsFederation
             IProfileService profile,
             IKeyMaterialService keys, 
             IResourceStore resources,
+            ISecurityTokenHandlerFactory securityTokenHandlerFactory,
             ILogger<SignInResponseGenerator> logger)
         {
             _contextAccessor = contextAccessor;
@@ -47,6 +50,7 @@ namespace IdentityServer4.WsFederation
             _profile = profile;
             _keys = keys;
             _resources = resources;
+            _securityTokenHandlerFactory = securityTokenHandlerFactory;
             _logger = logger;
         }
 
@@ -157,7 +161,7 @@ namespace IdentityServer4.WsFederation
                 descriptor.EncryptingCredentials = new X509EncryptingCredentials(result.RelyingParty.EncryptionCertificate);
             }
 
-            var handler = CreateTokenHandler(result.RelyingParty.TokenType);
+            var handler = _securityTokenHandlerFactory.CreateHandler(result.RelyingParty.TokenType);
             return CreateToken(handler, descriptor);
         }
 
@@ -187,7 +191,7 @@ namespace IdentityServer4.WsFederation
 
         private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
         {
-            var handler = CreateTokenHandler(validationResult.RelyingParty.TokenType);
+            var handler = this._securityTokenHandlerFactory.CreateHandler(validationResult.RelyingParty.TokenType);
             var rstr = new RequestSecurityTokenResponse
             {
                 CreatedAt = token.ValidFrom,
@@ -205,19 +209,6 @@ namespace IdentityServer4.WsFederation
                 Wctx = validationResult.WsFederationMessage.Wctx
             };
             return responseMessage;
-        }
-
-        private SecurityTokenHandler CreateTokenHandler(string tokenType)
-        {
-            switch (tokenType)
-            {
-                case WsFederationConstants.TokenTypes.Saml11TokenProfile11:
-                    return new SamlSecurityTokenHandler();
-                case WsFederationConstants.TokenTypes.Saml2TokenProfile11:
-                    return new Saml2SecurityTokenHandler();
-                default:
-                    throw new NotImplementedException($"TokenType: {tokenType} not implemented");
-            }
         }
     }
 }
