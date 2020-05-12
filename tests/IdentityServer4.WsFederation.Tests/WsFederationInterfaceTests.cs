@@ -20,32 +20,37 @@ using Microsoft.IdentityModel.Tokens.Saml;
 using System;
 using System.Linq;
 using IdentityServer4.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace IdentityServer4.WsFederation.Tests
 {
     public class WsFederationInterfaceTests
     {
-        private readonly TestServer _server;
         private readonly HttpClient _client;
         public WsFederationInterfaceTests()
         {
-            var builder = new WebHostBuilder()
-                 .ConfigureServices(InitializeServices)
-                 .Configure(app =>
-                 {
-                     app.UseIdentityServer();
-                    //  app.UseAuthorization();
-                     app.UseAuthentication();
-                     app.UseRouting();
-                     app.UseEndpoints(c => {
-                         c.MapControllerRoute(
-                             "default",
-                            "{controller}/{action=index}/{id?}"
-                            );
-                     });
-                 });
-            _server = new TestServer(builder);
-            _client = _server.CreateClient();
+            var builder = new HostBuilder()
+                .ConfigureWebHost(webHost =>
+                webHost
+                    .UseTestServer()
+                    .ConfigureServices(InitializeServices)
+                    .Configure(app =>
+                     {
+                         app.UseIdentityServer();
+                         //  app.UseAuthorization();
+                         app.UseAuthentication();
+                         app.UseRouting();
+                         app.UseEndpoints(c =>
+                         {
+                             c.MapControllerRoute(
+                                 "default",
+                                "{controller}/{action=index}/{id?}"
+                                );
+                         });
+                     }));
+
+            var host = builder.Start();
+            _client = host.GetTestClient();
         }
 
         protected virtual void InitializeServices(IServiceCollection services)
