@@ -15,6 +15,9 @@ namespace IdentityServer4.WsFederation
         {
             services.AddControllersWithViews();
 
+            // cookie policy to deal with temporary browser incompatibilities
+            services.AddSameSiteCookiePolicy();
+
             var cert = new X509Certificate2(Path.Combine(Directory.GetCurrentDirectory(), "idsrvtest.pfx"), "idsrv3test");
 
             services.AddIdentityServer()

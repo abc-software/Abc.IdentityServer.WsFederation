@@ -11,7 +11,7 @@ namespace AspNetCoreSecurity
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services) 
         {
             services.AddMvc();
 
@@ -23,6 +23,7 @@ namespace AspNetCoreSecurity
                 .AddCookie(options =>
                 {
                     options.Cookie.Name = "aspnetcorewsfed";
+                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
                 })
                 .AddWsFederation(options =>
                 {
@@ -30,9 +31,8 @@ namespace AspNetCoreSecurity
                     options.RequireHttpsMetadata = false;
 
                     options.Wtrealm = "urn:aspnetcorerp";
-                    options.Wreply = "http://localhost:10314/";
+                    options.SignOutWreply = "http://localhost:10314/";
 
-                    options.CallbackPath = "/";
                     options.SkipUnrecognizedRequests = true;
                 });
         }

@@ -38,6 +38,7 @@ namespace IdentityServer4.WsFederation
                     ProtocolType = ProtocolTypes.WsFederation,
 
                     RedirectUris = { "http://localhost:10313/" },
+                    PostLogoutRedirectUris = { "http://localhost:10313/" },
                     FrontChannelLogoutUri = "http://localhost:10313/home/signoutcleanup",
                     IdentityTokenLifetime = 36000,
 
@@ -48,8 +49,9 @@ namespace IdentityServer4.WsFederation
                     ClientId = "urn:aspnetcorerp",
                     ProtocolType = ProtocolTypes.WsFederation,
 
-                    RedirectUris = { "http://localhost:10314/" },
-                    FrontChannelLogoutUri = "http://localhost:10314/account/signoutcleanup",
+                    RedirectUris = { "http://localhost:10314/signin-wsfed" },
+                    PostLogoutRedirectUris = { "http://localhost:10314/" },
+                    FrontChannelLogoutUri = "http://localhost:10314/signin-wsfed",
                     IdentityTokenLifetime = 36000,
 
                     AllowedScopes = { "openid", "profile" }

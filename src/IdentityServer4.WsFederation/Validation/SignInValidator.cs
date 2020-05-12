@@ -12,6 +12,7 @@ using IdentityServer4.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication;
 using Newtonsoft.Json;
+using IdentityServer4.Validation;
 
 namespace IdentityServer4.WsFederation.Validation
 {
@@ -19,6 +20,7 @@ namespace IdentityServer4.WsFederation.Validation
     {
         private readonly IClientStore _clients;
         private readonly IRelyingPartyStore _relyingParties;
+        private readonly IRedirectUriValidator _uriValidator;
         private readonly WsFederationOptions _options;
         private readonly ISystemClock _clock;
         private readonly ILogger _logger;
@@ -27,12 +29,14 @@ namespace IdentityServer4.WsFederation.Validation
             WsFederationOptions options, 
             IClientStore clients,
             IRelyingPartyStore relyingParties,
+            IRedirectUriValidator uriValidator,
             ISystemClock clock,
             ILogger<SignInValidator> logger)
         {
             _options = options;
             _clients = clients;
             _relyingParties = relyingParties;
+            _uriValidator = uriValidator;
             _clock = clock;
             _logger = logger;
         }
@@ -77,7 +81,22 @@ namespace IdentityServer4.WsFederation.Validation
             }
 
             result.Client = client;
-            result.ReplyUrl = client.RedirectUris.First();
+
+            if (!string.IsNullOrEmpty(message.Wreply))
+            {
+                if (await _uriValidator.IsRedirectUriValidAsync(message.Wreply, result.Client))
+                {
+                    result.ReplyUrl = message.Wreply;
+                }
+                else
+                {
+                    _logger.LogWarning("Invalid Wreply: {Wreply}", message.Wreply);
+                }
+            }
+            else if (client.RedirectUris.Count == 1)
+            {
+                result.ReplyUrl = client.RedirectUris.First();
+            }
 
             // check if additional relying party settings exist
             var rp = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
