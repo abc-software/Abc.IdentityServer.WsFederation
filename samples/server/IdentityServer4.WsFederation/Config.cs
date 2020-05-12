@@ -58,6 +58,18 @@ namespace IdentityServer4.WsFederation
                 },
                 new Client
                 {
+                    ClientId = "urn:aspnetwebapprp",
+                    ProtocolType = ProtocolTypes.WsFederation,
+
+                    RedirectUris = { "http://localhost:10315/" },
+                    PostLogoutRedirectUris = { "http://localhost:10315/" },
+                    FrontChannelLogoutUri = "http://localhost:10315/",
+                    IdentityTokenLifetime = 36000,
+
+                    AllowedScopes = { "openid", "profile" }
+                },
+                new Client
+                {
                     ClientId = "urn:sharepoint",
                     ProtocolType = ProtocolTypes.WsFederation,
 
