@@ -191,7 +191,7 @@ namespace IdentityServer4.WsFederation
 
         private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
         {
-            var handler = this._securityTokenHandlerFactory.CreateHandler(validationResult.RelyingParty.TokenType);
+            var handler = _securityTokenHandlerFactory.CreateHandler(validationResult.RelyingParty.TokenType);
             var rstr = new RequestSecurityTokenResponse
             {
                 CreatedAt = token.ValidFrom,

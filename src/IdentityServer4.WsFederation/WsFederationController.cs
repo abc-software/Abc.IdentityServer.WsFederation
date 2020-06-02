@@ -157,6 +157,7 @@ namespace IdentityServer4.WsFederation
                 ClientId = validatedResult.Client?.ClientId,
                 ClientName = validatedResult.Client?.ClientName,
                 SubjectId = validatedResult.User?.GetSubjectId(),
+                SessionId = validatedResult.SessionId,
                 ClientIds = validatedResult.ClientIds,
                 PostLogoutRedirectUri = validatedResult.ReplyUrl
             };

@@ -8,6 +8,9 @@
     <PackageTags>identityserver;idsrv;wsfed;wsfederation;authentication;auth</PackageTags>
     <RepositoryUrl>https://github.com/IdentityServer/IdentityServer4.WsFederation.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageId>Abc.IdentityServer4.WsFederation</PackageId>
+    <Version>2.5.0-dev02</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
