@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/IdentityServer/IdentityServer4.WsFederation.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>Abc.IdentityServer4.WsFederation</PackageId>
-    <Version>2.5.0-dev02</Version>
+    <Version>2.6.0-dev00</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="IdentityServer4" Version="3.1.2" />
-    <PackageReference Include="IdentityServer4.Storage" Version="3.1.2" />
+    <PackageReference Include="IdentityServer4" Version="4.0.4" />
+    <PackageReference Include="IdentityServer4.Storage" Version="4.0.4" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.0' ">
     <PackageReference Include="IdentityServer4" Version="[3.0.2, 3.1.0)" />

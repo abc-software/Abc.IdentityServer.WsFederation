@@ -72,7 +72,7 @@ namespace IdentityServer4.WsFederation.Tests
             services.TryAddSingleton<IKeyMaterialService>(
                 new DefaultKeyMaterialService(
                     new IValidationKeysStore[] { }, 
-                    new DefaultSigningCredentialsStore(TestCert.LoadSigningCredentials()))); 
+                    new[] { new InMemorySigningCredentialsStore(TestCert.LoadSigningCredentials()) })); 
             // TestLogger.Create<DefaultTokenCreationService>()));
 
             services.AddIdentityServer()
@@ -92,7 +92,7 @@ namespace IdentityServer4.WsFederation.Tests
             var response = await _client.GetAsync("/wsfederation");
             var message = await response.Content.ReadAsStringAsync();
             Assert.NotEmpty(message);
-            Assert.True(message.StartsWith("<EntityDescriptor entityID=\"http://localhost\""));
+            Assert.StartsWith("<EntityDescriptor entityID=\"http://localhost\"", message);
         }
 
         [Fact]
@@ -206,7 +206,7 @@ namespace IdentityServer4.WsFederation.Tests
             Assert.True(canReadToken);
             var token = handler.ReadSamlToken(tokenString);
             var authStatements = token.Assertion.Statements.OfType<SamlAuthenticationStatement>();
-            Assert.Equal(1, authStatements.Count());
+            Assert.Single(authStatements);
             var authStatement = authStatements.First();
             Assert.True(authStatement.AuthenticationInstant <= authTime.AddMinutes(5));
         }
@@ -254,7 +254,7 @@ namespace IdentityServer4.WsFederation.Tests
             Assert.True(canReadToken);
             var token = handler.ReadSamlToken(tokenString);
             var authStatements = token.Assertion.Statements.OfType<SamlAuthenticationStatement>();
-            Assert.Equal(1, authStatements.Count());
+            Assert.Single(authStatements);
             var authStatement = authStatements.First();
             Assert.True(authStatement.AuthenticationInstant <= authTime.AddMinutes(5));
         }
