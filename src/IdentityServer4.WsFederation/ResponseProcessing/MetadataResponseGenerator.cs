@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Xml;
 
 namespace IdentityServer4.WsFederation
 {
-    public class MetadataResponseGenerator
+    public class MetadataResponseGenerator : IMetadataResponseGenerator
     {
         private readonly IKeyMaterialService _keys;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -29,6 +29,11 @@ namespace IdentityServer4.WsFederation
         public async Task<WsFederationConfiguration> GenerateAsync(string wsfedEndpoint)
         {
             var signingKey = (await _keys.GetSigningCredentialsAsync()).Key as X509SecurityKey;
+            if (signingKey == null)
+            {
+                throw new InvalidOperationException("Missing signing key");
+            }
+
             var cert = signingKey.Certificate;
             var issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri();
             var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256Signature, SecurityAlgorithms.Sha256Digest);

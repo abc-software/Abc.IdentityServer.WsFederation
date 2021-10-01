@@ -11,7 +11,7 @@ using IdentityServer4.Validation;
 
 namespace IdentityServer4.WsFederation.Validation
 {
-    public class SignOutValidator
+    public class SignOutValidator : ISignOutValidator
     {
         private readonly IClientStore _clients;
         private readonly IRelyingPartyStore _relyingParties;
@@ -23,7 +23,7 @@ namespace IdentityServer4.WsFederation.Validation
 
 
         public SignOutValidator(
-            WsFederationOptions options, 
+            WsFederationOptions options,
             IClientStore clients,
             IRelyingPartyStore relyingParties,
             ISystemClock clock,
@@ -47,10 +47,9 @@ namespace IdentityServer4.WsFederation.Validation
             {
                 WsFederationMessage = message
             };
-            
+
             // check client
             var client = await _clients.FindEnabledClientByIdAsync(message.Wtrealm);
-
             if (client == null)
             {
                 LogError("Client not found: " + message.Wtrealm, result);
@@ -60,15 +59,7 @@ namespace IdentityServer4.WsFederation.Validation
                     Error = "invalid_relying_party"
                 };
             }
-            if (client.Enabled == false)
-            {
-                LogError("Client is disabled: " + message.Wtrealm, result);
 
-                return new SignOutValidationResult
-                {
-                    Error = "invalid_relying_party"
-                };
-            }
             if (client.ProtocolType != IdentityServerConstants.ProtocolTypes.WsFederation)
             {
                 LogError("Client is not configured for WS-Federation", result);
@@ -81,7 +72,7 @@ namespace IdentityServer4.WsFederation.Validation
 
             result.Client = client;
 
-            if(!string.IsNullOrEmpty(message.Wreply)) 
+            if (!string.IsNullOrEmpty(message.Wreply))
             {
                 if (await _uriValidator.IsPostLogoutRedirectUriValidAsync(message.Wreply, result.Client))
                 {

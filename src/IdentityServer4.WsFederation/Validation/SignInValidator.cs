@@ -16,7 +16,7 @@ using IdentityServer4.Validation;
 
 namespace IdentityServer4.WsFederation.Validation
 {
-    public class SignInValidator
+    public class SignInValidator : ISignInValidator
     {
         private readonly IClientStore _clients;
         private readonly IRelyingPartyStore _relyingParties;
@@ -26,7 +26,7 @@ namespace IdentityServer4.WsFederation.Validation
         private readonly ILogger _logger;
 
         public SignInValidator(
-            WsFederationOptions options, 
+            WsFederationOptions options,
             IClientStore clients,
             IRelyingPartyStore relyingParties,
             IRedirectUriValidator uriValidator,
@@ -48,28 +48,19 @@ namespace IdentityServer4.WsFederation.Validation
             {
                 WsFederationMessage = message
             };
-            
+
             // check client
             var client = await _clients.FindEnabledClientByIdAsync(message.Wtrealm);
-
             if (client == null)
             {
                 LogError("Client not found: " + message.Wtrealm, result);
 
                 return new SignInValidationResult
                 {
-                    Error = "invalid_relying_party"
+                    Error = "invalid_relying_party",
                 };
             }
-            if (client.Enabled == false)
-            {
-                LogError("Client is disabled: " + message.Wtrealm, result);
 
-                return new SignInValidationResult
-                {
-                    Error = "invalid_relying_party"
-                };
-            }
             if (client.ProtocolType != IdentityServerConstants.ProtocolTypes.WsFederation)
             {
                 LogError("Client is not configured for WS-Federation", result);
@@ -134,6 +125,7 @@ namespace IdentityServer4.WsFederation.Validation
                         result.SignInRequired = true;
                         return result;
                     }
+
                     var authTime = user.GetAuthenticationTime();
                     if (_clock.UtcNow.UtcDateTime > authTime.AddMinutes(maxAgeInMinutes))
                     {
@@ -143,7 +135,7 @@ namespace IdentityServer4.WsFederation.Validation
                     }
                 }
             }
-            
+
             LogSuccess(result);
             return result;
         }

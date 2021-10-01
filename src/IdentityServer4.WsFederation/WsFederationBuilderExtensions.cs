@@ -25,10 +25,10 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IIdentityServerBuilder AddWsFederation<TStore>(this IIdentityServerBuilder builder) 
             where TStore : class, IRelyingPartyStore 
         {
-            builder.Services.AddTransient<MetadataResponseGenerator>();
-            builder.Services.AddTransient<SignInResponseGenerator>();
-            builder.Services.AddTransient<SignInValidator>();
-            builder.Services.AddTransient<SignOutValidator>();
+            builder.Services.AddTransient<IMetadataResponseGenerator, MetadataResponseGenerator>();
+            builder.Services.AddTransient<ISignInResponseGenerator, SignInResponseGenerator>();
+            builder.Services.AddTransient<ISignInValidator, SignInValidator>();
+            builder.Services.AddTransient<ISignOutValidator, SignOutValidator>();
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
             builder.Services.AddTransient<ISecurityTokenHandlerFactory, DefaultSecurityTokenHandlerFactory>();
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();

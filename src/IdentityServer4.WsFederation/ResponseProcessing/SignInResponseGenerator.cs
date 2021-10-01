@@ -23,25 +23,29 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using IdentityServer4.WsFederation.Services;
+using Microsoft.AspNetCore.Authentication;
+using IdentityServer4.WsFederation.Stores;
 
 namespace IdentityServer4.WsFederation
 {
-    public class SignInResponseGenerator
+    public class SignInResponseGenerator : ISignInResponseGenerator
     {
         private readonly IdentityServerOptions _options;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IProfileService _profile;
         private readonly IKeyMaterialService _keys;
         private readonly IResourceStore _resources;
+        private readonly ISystemClock _clock;
         private readonly ISecurityTokenHandlerFactory _securityTokenHandlerFactory;
         private readonly ILogger<SignInResponseGenerator> _logger;
 
         public SignInResponseGenerator(
-            IHttpContextAccessor contextAccessor, 
+            IHttpContextAccessor contextAccessor,
             IdentityServerOptions options,
             IProfileService profile,
-            IKeyMaterialService keys, 
+            IKeyMaterialService keys,
             IResourceStore resources,
+            ISystemClock clock,
             ISecurityTokenHandlerFactory securityTokenHandlerFactory,
             ILogger<SignInResponseGenerator> logger)
         {
@@ -50,6 +54,7 @@ namespace IdentityServer4.WsFederation
             _profile = profile;
             _keys = keys;
             _resources = resources;
+            _clock = clock;
             _securityTokenHandlerFactory = securityTokenHandlerFactory;
             _logger = logger;
         }
@@ -68,59 +73,20 @@ namespace IdentityServer4.WsFederation
             return CreateResponse(validationResult, token);
         }
 
-        protected async Task<ClaimsIdentity> CreateSubjectAsync(SignInValidationResult result)
+        protected virtual async Task<ClaimsIdentity> CreateSubjectAsync(SignInValidationResult result)
         {
-            var requestedClaimTypes = new List<string>();
+            var requestedClaimTypes = await GetRequestedClaimTypesAsync(result.Client.AllowedScopes);
+            var issuedClaims = await GetIssuedClaimsAsync(result, requestedClaimTypes);
 
-            var resources = await _resources.FindEnabledIdentityResourcesByScopeAsync(result.Client.AllowedScopes);
-            foreach (var resource in resources)
-            {
-                foreach (var claim in resource.UserClaims)
-                {
-                    requestedClaimTypes.Add(claim);
-                }
-            }
-
-            var ctx = new ProfileDataRequestContext
-            {
-                Subject = result.User,
-                RequestedClaimTypes = requestedClaimTypes,
-                Client = result.Client,
-                Caller = "WS-Federation"
-            };
-
-            await _profile.GetProfileDataAsync(ctx);
-            
             // map outbound claims
             var nameid = new Claim(ClaimTypes.NameIdentifier, result.User.GetSubjectId());
             nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
 
             var outboundClaims = new List<Claim> { nameid };
-            foreach (var claim in ctx.IssuedClaims)
-            {
-                if (result.RelyingParty.ClaimMapping.ContainsKey(claim.Type))
-                {
-                    var outboundClaim = new Claim(result.RelyingParty.ClaimMapping[claim.Type], claim.Value);
-                    if (outboundClaim.Type == ClaimTypes.NameIdentifier)
-                    {
-                        outboundClaim.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
-                        outboundClaims.RemoveAll(c => c.Type == ClaimTypes.NameIdentifier); //remove previesly added nameid claim
-                    }
-
-                    outboundClaims.Add(outboundClaim);
-                }
-                else if (result.RelyingParty.TokenType != WsFederationConstants.TokenTypes.Saml11TokenProfile11)
-                {
-                    outboundClaims.Add(claim);
-                }
-                else
-                {
-                    _logger.LogInformation("No explicit claim type mapping for {claimType} configured. Saml11 requires a URI claim type. Skipping.", claim.Type);
-                }
-            }
+            outboundClaims.AddRange(MapClaims(result.RelyingParty, issuedClaims));
 
             // The AuthnStatement statement generated from the following 2
-            // claims is manditory for some service providers (i.e. Shibboleth-Sp). 
+            // claims is mandatory for some service providers (i.e. Shibboleth-Sp). 
             // The value of the AuthenticationMethod claim must be one of the constants in
             // System.IdentityModel.Tokens.AuthenticationMethods.
             // Password is the only one that can be directly matched, everything
@@ -140,17 +106,74 @@ namespace IdentityServer4.WsFederation
             return new ClaimsIdentity(outboundClaims, "idsrv");
         }
 
+        protected virtual async Task<IList<string>> GetRequestedClaimTypesAsync(IEnumerable<string> scopes)
+        {
+            var requestedClaimTypes = new List<string>();
+
+            var resources = await _resources.FindEnabledIdentityResourcesByScopeAsync(scopes);
+            foreach (var resource in resources)
+            {
+                foreach (var claim in resource.UserClaims)
+                {
+                    requestedClaimTypes.Add(claim);
+                }
+            }
+
+            return requestedClaimTypes;
+        }
+
+        protected virtual async Task<IList<Claim>> GetIssuedClaimsAsync(SignInValidationResult validationResult, IEnumerable<string> requestedClaimTypes)
+        {
+            var ctx = new ProfileDataRequestContext(validationResult.User, validationResult.Client, "WS-Federation", requestedClaimTypes);
+            await _profile.GetProfileDataAsync(ctx);
+            return ctx.IssuedClaims;
+        }
+
+        protected virtual IEnumerable<Claim> MapClaims(RelyingParty relyingParty, IEnumerable<Claim> claims)
+        {
+            var outboundClaims = new List<Claim>();
+            foreach (var claim in claims)
+            {
+                if (relyingParty.ClaimMapping.ContainsKey(claim.Type))
+                {
+                    var outboundClaim = new Claim(relyingParty.ClaimMapping[claim.Type], claim.Value);
+                    if (outboundClaim.Type == ClaimTypes.NameIdentifier)
+                    {
+                        outboundClaim.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] = relyingParty.SamlNameIdentifierFormat;
+                        outboundClaims.RemoveAll(c => c.Type == ClaimTypes.NameIdentifier); //remove previously added nameid claim
+                    }
+
+                    outboundClaims.Add(outboundClaim);
+                }
+                else if (relyingParty.TokenType != WsFederationConstants.TokenTypes.Saml11TokenProfile11)
+                {
+                    outboundClaims.Add(claim);
+                }
+                else
+                {
+                    _logger.LogInformation("No explicit claim type mapping for {claimType} configured. Saml11 requires a URI claim type. Skipping.", claim.Type);
+                }
+            }
+
+            return outboundClaims;
+        }
+
         private async Task<SecurityToken> CreateSecurityTokenAsync(SignInValidationResult result, ClaimsIdentity outgoingSubject)
         {
             var credential = await _keys.GetSigningCredentialsAsync();
-            var key = credential.Key as Microsoft.IdentityModel.Tokens.X509SecurityKey; 
-        
+            var key = credential.Key as Microsoft.IdentityModel.Tokens.X509SecurityKey;
+            if (key == null)
+            {
+                throw new InvalidOperationException("Missing signing key");
+            }
+
+            var issueInstant = _clock.UtcNow.DateTime;
             var descriptor = new SecurityTokenDescriptor
             {
                 Audience = result.Client.ClientId,
-                IssuedAt = DateTime.UtcNow,
-                NotBefore = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddSeconds(result.Client.IdentityTokenLifetime),
+                IssuedAt = issueInstant,
+                NotBefore = issueInstant,
+                Expires = issueInstant.AddSeconds(result.Client.IdentityTokenLifetime),
                 SigningCredentials = new SigningCredentials(key, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm),
                 Subject = outgoingSubject,
                 Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
@@ -186,6 +209,7 @@ namespace IdentityServer4.WsFederation
                     return ((Saml2SecurityTokenHandler)handler).CreateToken(descriptor, auth);
                 }
             }
+
             return handler.CreateToken(descriptor);
         }
 
@@ -202,12 +226,15 @@ namespace IdentityServer4.WsFederation
                 RequestedSecurityToken = token,
                 SecurityTokenHandler = handler,
             };
-            var responseMessage = new WsFederationMessage {
-                IssuerAddress = validationResult.Client.RedirectUris.First(),
+
+            var responseMessage = new WsFederationMessage
+            {
+                IssuerAddress = validationResult.ReplyUrl,
                 Wa = Microsoft.IdentityModel.Protocols.WsFederation.WsFederationConstants.WsFederationActions.SignIn,
                 Wresult = rstr.Serialize(),
                 Wctx = validationResult.WsFederationMessage.Wctx
             };
+
             return responseMessage;
         }
     }

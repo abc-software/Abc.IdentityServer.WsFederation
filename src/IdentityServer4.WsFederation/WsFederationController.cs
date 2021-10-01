@@ -23,21 +23,21 @@ namespace IdentityServer4.WsFederation
     public class WsFederationController : Controller
     {
         private readonly IUserSession _userSession;
-        private readonly SignInResponseGenerator _generator;
+        private readonly ISignInResponseGenerator _generator;
         private readonly ILogger<WsFederationController> _logger;
-        private readonly MetadataResponseGenerator _metadata;
+        private readonly IMetadataResponseGenerator _metadata;
         private readonly IdentityServerOptions _options;
-        private readonly SignInValidator _signinValidator;
-        private readonly SignOutValidator _signoutValidator;
+        private readonly ISignInValidator _signinValidator;
+        private readonly ISignOutValidator _signoutValidator;
         private readonly ISystemClock _clock;
         private readonly IMessageStore<LogoutMessage> _logoutMessageStore;
 
         public WsFederationController(
-            MetadataResponseGenerator metadata, 
-            SignInValidator signinValidator, 
-            SignOutValidator signoutValidator, 
+            IMetadataResponseGenerator metadata, 
+            ISignInValidator signinValidator,
+            ISignOutValidator signoutValidator, 
             IdentityServerOptions options,
-            SignInResponseGenerator generator,
+            ISignInResponseGenerator generator,
             IUserSession userSession,
             ISystemClock clock,
             IMessageStore<LogoutMessage> logoutMessageStore,
