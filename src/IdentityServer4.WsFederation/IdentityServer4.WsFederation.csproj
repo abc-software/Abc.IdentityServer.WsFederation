@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/IdentityServer/IdentityServer4.WsFederation.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>Abc.IdentityServer4.WsFederation</PackageId>
-    <Version>2.6.1-dev01</Version>
+    <Version>2.6.1-dev02</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 

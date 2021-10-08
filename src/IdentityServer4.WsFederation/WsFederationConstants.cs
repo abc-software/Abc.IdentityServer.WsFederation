@@ -61,5 +61,15 @@ namespace IdentityServer4.WsFederation
         {
             public const string Xsi = "xsi";
         }
+
+        public static class EndpointNames
+        {
+            public const string WsFederation = "WsFederation";
+        }
+
+        public static class ProtocolRoutePaths
+        {
+            public const string WsFederation = "/wsfed";
+        }
     }
 }

@@ -18,15 +18,17 @@ namespace IdentityServer4.WsFederation
     public class MetadataResponseGenerator : IMetadataResponseGenerator
     {
         private readonly IKeyMaterialService _keys;
+        private readonly WsFederationOptions _wsFederationOptions;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public MetadataResponseGenerator(IHttpContextAccessor contextAccessor, IKeyMaterialService keys)
+        public MetadataResponseGenerator(IHttpContextAccessor contextAccessor, IKeyMaterialService keys, WsFederationOptions wsFederationOptions)
         {
             _keys = keys;
+            _wsFederationOptions = wsFederationOptions;
             _contextAccessor = contextAccessor;
         }
 
-        public async Task<WsFederationConfiguration> GenerateAsync(string wsfedEndpoint)
+        public async Task<WsFederationConfiguration> GenerateAsync()
         {
             var signingKey = (await _keys.GetSigningCredentialsAsync()).Key as X509SecurityKey;
             if (signingKey == null)
@@ -36,11 +38,12 @@ namespace IdentityServer4.WsFederation
 
             var cert = signingKey.Certificate;
             var issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri();
+            var baseUrl = _contextAccessor.HttpContext.GetIdentityServerBaseUrl();
             var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256Signature, SecurityAlgorithms.Sha256Digest);
             var config = new WsFederationConfiguration()
             {
                 Issuer = issuer,
-                TokenEndpoint = wsfedEndpoint,
+                TokenEndpoint = baseUrl + WsFederationConstants.ProtocolRoutePaths.WsFederation,
                 SigningCredentials = signingCredentials,
             };
             config.SigningKeys.Add(signingKey);

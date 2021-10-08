@@ -4,6 +4,7 @@
 
 using IdentityServer4.Services;
 using IdentityServer4.WsFederation;
+using IdentityServer4.WsFederation.Endpoints;
 using IdentityServer4.WsFederation.Services;
 using IdentityServer4.WsFederation.Stores;
 using IdentityServer4.WsFederation.Validation;
@@ -36,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddSingleton(
                 resolver => resolver.GetRequiredService<IOptions<WsFederationOptions>>().Value);
 
+            builder.AddEndpoint<WsFederationEndpointHandler>(WsFederationConstants.EndpointNames.WsFederation, WsFederationConstants.ProtocolRoutePaths.WsFederation);
             return builder;
         }
 

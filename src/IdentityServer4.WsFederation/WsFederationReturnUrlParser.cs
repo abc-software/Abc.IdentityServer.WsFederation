@@ -46,23 +46,32 @@ namespace IdentityServer4.WsFederation
 
         public bool IsValidReturnUrl(string returnUrl)
         {
-            if (returnUrl.IsLocalUrl())
+            if (returnUrl != null && returnUrl.IsLocalUrl())
             {
-                var message = GetSignInRequestMessage(returnUrl);
-                if (message != null)
+                int index = returnUrl.IndexOf('?');
+                if (0 <= index)
                 {
-                    return true;
+                    returnUrl = returnUrl.Substring(0, index);
                 }
 
-                _logger.LogTrace("not a valid WS-Federation return URL");
-                return false;                
+                if (returnUrl.EndsWith(WsFederationConstants.ProtocolRoutePaths.WsFederation, StringComparison.Ordinal) && 0 <= index)
+                {
+                    _logger.LogTrace("wsfed - returnUrl is valid");
+                    return true;
+                }
             }
 
+            _logger.LogTrace("wsfed - returnUrl is not valid");
             return false;
         }
 
         public async Task<AuthorizationRequest> ParseAsync(string returnUrl)
         {
+            if (!IsValidReturnUrl(returnUrl))
+            {
+                return null;
+            }
+
             var user = await _userSession.GetUserAsync();
 
             var signInMessage = GetSignInRequestMessage(returnUrl);
@@ -111,9 +120,18 @@ namespace IdentityServer4.WsFederation
         private WsFederationMessage GetSignInRequestMessage(string returnUrl)
         {
             var decoded = WebUtility.UrlDecode(returnUrl);
+            int index = decoded.IndexOf('?');
+            if (0 <= index)
+            {
+                decoded = decoded.Substring(0, index);
+            }
+
             WsFederationMessage message = WsFederationMessage.FromQueryString(decoded);
             if (message.IsSignInMessage)
+            {
                 return message;
+            }
+
             return null;
         }
     }

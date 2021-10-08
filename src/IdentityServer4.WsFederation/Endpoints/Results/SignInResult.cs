@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityServer4.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Threading.Tasks;
 
-namespace IdentityServer4.WsFederation
+namespace IdentityServer4.WsFederation.Endpoints.Results
 {
-    public class SignInResult : IActionResult
+    public class SignInResult : IEndpointResult
     {
         public WsFederationMessage Message { get; set; }
 
@@ -18,11 +19,11 @@ namespace IdentityServer4.WsFederation
             Message = message;
         }
 
-        public Task ExecuteResultAsync(ActionContext context)
+        public Task ExecuteAsync(HttpContext context)
         {
-            context.HttpContext.Response.ContentType = "text/html";
+            context.Response.ContentType = "text/html";
             var message = Message.BuildFormPost();
-            return context.HttpContext.Response.WriteAsync(message);
+            return context.Response.WriteAsync(message);
         }
     }
 }

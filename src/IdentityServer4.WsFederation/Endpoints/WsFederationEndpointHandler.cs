@@ -1,30 +1,30 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.Configuration;
+using IdentityServer4.Endpoints.Results;
+using IdentityServer4.Extensions;
+using IdentityServer4.Hosting;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
+using IdentityServer4.Stores;
+using IdentityServer4.WsFederation.Validation;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 using System;
+using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityServer4.Extensions;
-using IdentityServer4.WsFederation.Validation;
-using IdentityServer4.Configuration;
-using IdentityServer4.Services;
-using Microsoft.IdentityModel.Protocols.WsFederation;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
-using Microsoft.AspNetCore.Authentication;
 
-namespace IdentityServer4.WsFederation
+namespace IdentityServer4.WsFederation.Endpoints
 {
-    public class WsFederationController : Controller
+    public class WsFederationEndpointHandler : IEndpointHandler
     {
         private readonly IUserSession _userSession;
         private readonly ISignInResponseGenerator _generator;
-        private readonly ILogger<WsFederationController> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<WsFederationEndpointHandler> _logger;
         private readonly IMetadataResponseGenerator _metadata;
         private readonly IdentityServerOptions _options;
         private readonly ISignInValidator _signinValidator;
@@ -32,16 +32,17 @@ namespace IdentityServer4.WsFederation
         private readonly ISystemClock _clock;
         private readonly IMessageStore<LogoutMessage> _logoutMessageStore;
 
-        public WsFederationController(
+        public WsFederationEndpointHandler(
             IMetadataResponseGenerator metadata, 
             ISignInValidator signinValidator,
             ISignOutValidator signoutValidator, 
             IdentityServerOptions options,
             ISignInResponseGenerator generator,
+            IHttpContextAccessor httpContextAccessor,
             IUserSession userSession,
             ISystemClock clock,
             IMessageStore<LogoutMessage> logoutMessageStore,
-            ILogger<WsFederationController> logger)
+            ILogger<WsFederationEndpointHandler> logger)
         {
             _metadata = metadata;
             _signinValidator = signinValidator;
@@ -49,24 +50,29 @@ namespace IdentityServer4.WsFederation
             _logoutMessageStore = logoutMessageStore;
             _options = options;
             _generator = generator;
+            _httpContextAccessor = httpContextAccessor;
             _userSession = userSession;
             _clock = clock;
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IEndpointResult> ProcessAsync(HttpContext context)
         {
-            // GET + no parameters = metadata request
-            if (!Request.QueryString.HasValue)
+            if (context.Request.Method != "GET")
             {
-                _logger.LogDebug("Start WS-Federation metadata request");
-
-                var entity = await _metadata.GenerateAsync(Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value));
-                return new MetadataResult(entity);
+                _logger.LogWarning("WS-Federation endpoint only supports GET requests");
+                return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
             }
 
-            var url = Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value) + Request.QueryString;
+            // GET + no parameters = metadata request
+            if (!context.Request.QueryString.HasValue)
+            {
+                _logger.LogDebug("Start WS-Federation metadata request");
+                var entity = await _metadata.GenerateAsync();
+                return new Results.MetadataResult(entity);
+            }
+
+            var url = context.Request.GetEncodedUrl();
             _logger.LogDebug("Start WS-Federation request: {url}", url);
 
             // user can be null here (this differs from HttpContext.User where the anonymous user is filled in)
@@ -77,17 +83,17 @@ namespace IdentityServer4.WsFederation
             {
                 return await ProcessSignInAsync(message, user);
             }
+
             var isSignout = message.IsSignOutMessage;
             if (isSignout)
             {
-                return await ProcessSignOutAsync(message);
+                return await ProcessSignOutAsync(message, user);
             }
 
-            return BadRequest("Invalid WS-Federation request");
+            return new StatusCodeResult(HttpStatusCode.BadRequest);
         }
 
-        
-        private async Task<IActionResult> ProcessSignInAsync(WsFederationMessage signin, ClaimsPrincipal user)
+        private async Task<IEndpointResult> ProcessSignInAsync(WsFederationMessage signin, ClaimsPrincipal user)
         {
             if (user != null && user.Identity.IsAuthenticated)
             {
@@ -100,7 +106,6 @@ namespace IdentityServer4.WsFederation
 
             // validate request 
             var result = await _signinValidator.ValidateAsync(signin, user);
-
             if (result.IsError)
             {
                 throw new Exception(result.Error);
@@ -108,15 +113,7 @@ namespace IdentityServer4.WsFederation
 
             if (result.SignInRequired)
             {
-                var returnUrl = Url.Action("Index");
-                // remove wfresh parameter to ensure we don't trigger sign in after the user signes in
-                var query = Request.Query.Where(q => !q.Key.Equals("wfresh", StringComparison.OrdinalIgnoreCase));
-                returnUrl = returnUrl.AddQueryString(QueryString.Create(query).Value);
-
-                var loginUrl = Request.PathBase + _options.UserInteraction.LoginUrl;
-                var url = loginUrl.AddQueryString(_options.UserInteraction.LoginReturnUrlParameter, returnUrl);
-
-                return Redirect(url);
+                return new Results.LoginPageResult(result.WsFederationMessage);
             }
             else
             {
@@ -124,11 +121,11 @@ namespace IdentityServer4.WsFederation
                 var responseMessage = await _generator.GenerateResponseAsync(result);
                 await _userSession.AddClientIdAsync(result.Client.ClientId);
                 
-                return new SignInResult(responseMessage);
+                return new Results.SignInResult(responseMessage);
             }
         }
 
-        private async Task<IActionResult> ProcessSignOutAsync(WsFederationMessage message)
+        private async Task<IEndpointResult> ProcessSignOutAsync(WsFederationMessage message, ClaimsPrincipal user)
         {
             if (string.IsNullOrWhiteSpace(message.Wreply) ||
                 string.IsNullOrWhiteSpace(message.Wtrealm))
@@ -136,7 +133,7 @@ namespace IdentityServer4.WsFederation
                 return RedirectToLogOut();
             }
 
-            var result = await _signoutValidator.ValidateAsync(message, User);
+            var result = await _signoutValidator.ValidateAsync(message, user);
             if (result.IsError)
             {
                 throw new Exception(result.Error);
@@ -145,12 +142,12 @@ namespace IdentityServer4.WsFederation
             return await RedirectToLogOutAsync(result);
         }
 
-        private IActionResult RedirectToLogOut()
+        private IEndpointResult RedirectToLogOut()
         {
-            return Redirect(_options.UserInteraction.LogoutUrl);
+            return new Results.RedirectResult(_options.UserInteraction.LogoutUrl);
         }
 
-        private async Task<IActionResult> RedirectToLogOutAsync(SignOutValidationResult validatedResult)
+        private async Task<IEndpointResult> RedirectToLogOutAsync(SignOutValidationResult validatedResult)
         {
             var logoutMessage = new LogoutMessage()
             {
@@ -169,19 +166,7 @@ namespace IdentityServer4.WsFederation
                 id = await _logoutMessageStore.WriteAsync(msg);
             }
 
-            var redirectUrl = _options.UserInteraction.LogoutUrl;
-
-            if (redirectUrl.IsLocalUrl())
-            {
-                redirectUrl = HttpContext.GetIdentityServerRelativeUrl(redirectUrl);
-            }
-
-            if (id != null)
-            {
-                redirectUrl = redirectUrl.AddQueryString(_options.UserInteraction.LogoutIdParameter, id);
-            }
-
-            return Redirect(redirectUrl);
+            return new Results.SignOutResult(id);
         }
     }
 }

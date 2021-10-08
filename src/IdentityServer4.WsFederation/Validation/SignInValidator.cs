@@ -105,6 +105,12 @@ namespace IdentityServer4.WsFederation.Validation
 
             result.RelyingParty = rp;
 
+            if (!string.IsNullOrEmpty(message.Whr) && client.IdentityProviderRestrictions != null && !client.IdentityProviderRestrictions.Contains(message.Whr))
+            {
+                _logger.LogWarning($"WHR (idp) requested '{message.Whr}' is not in client restriction list.");
+                message.Whr = null;
+            }
+
             if (user == null ||
                 user.Identity.IsAuthenticated == false)
             {
@@ -133,6 +139,18 @@ namespace IdentityServer4.WsFederation.Validation
                         result.SignInRequired = true;
                         return result;
                     }
+                }
+            }
+
+            var requestedIdp = message.Whr;
+            if (!string.IsNullOrEmpty(requestedIdp))
+            {
+                var currentIdp = user.GetIdentityProvider();
+                if (requestedIdp != currentIdp)
+                {
+                    _logger.LogInformation($"Showing login: Current IdP '{currentIdp}' is not the requested IdP '{requestedIdp}'");
+                    result.SignInRequired = true;
+                    return result;
                 }
             }
 

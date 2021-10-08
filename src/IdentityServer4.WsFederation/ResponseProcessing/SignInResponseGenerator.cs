@@ -79,11 +79,13 @@ namespace IdentityServer4.WsFederation
             var issuedClaims = await GetIssuedClaimsAsync(result, requestedClaimTypes);
 
             // map outbound claims
+            var outboundClaims = new List<Claim>();
+            outboundClaims.AddRange(MapClaims(result.RelyingParty, issuedClaims));
+
             var nameid = new Claim(ClaimTypes.NameIdentifier, result.User.GetSubjectId());
             nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
-
-            var outboundClaims = new List<Claim> { nameid };
-            outboundClaims.AddRange(MapClaims(result.RelyingParty, issuedClaims));
+            outboundClaims.RemoveAll(x => x.Type == ClaimTypes.NameIdentifier);
+            outboundClaims.Add(nameid);
 
             // The AuthnStatement statement generated from the following 2
             // claims is mandatory for some service providers (i.e. Shibboleth-Sp). 
@@ -137,12 +139,6 @@ namespace IdentityServer4.WsFederation
                 if (relyingParty.ClaimMapping.ContainsKey(claim.Type))
                 {
                     var outboundClaim = new Claim(relyingParty.ClaimMapping[claim.Type], claim.Value);
-                    if (outboundClaim.Type == ClaimTypes.NameIdentifier)
-                    {
-                        outboundClaim.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] = relyingParty.SamlNameIdentifierFormat;
-                        outboundClaims.RemoveAll(c => c.Type == ClaimTypes.NameIdentifier); //remove previously added nameid claim
-                    }
-
                     outboundClaims.Add(outboundClaim);
                 }
                 else if (relyingParty.TokenType != WsFederationConstants.TokenTypes.Saml11TokenProfile11)

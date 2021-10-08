@@ -9,10 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.IdentityModel.Protocols.WsFederation;
+using IdentityServer4.Hosting;
 
-namespace IdentityServer4.WsFederation
+namespace IdentityServer4.WsFederation.Endpoints.Results
 {
-    public class MetadataResult : IActionResult
+    public class MetadataResult : IEndpointResult
     {
         private readonly WsFederationConfiguration _config;
 
@@ -21,7 +22,7 @@ namespace IdentityServer4.WsFederation
             _config = config;
         }
 
-        public Task ExecuteResultAsync(ActionContext context)
+        public Task ExecuteAsync(HttpContext context)
         {
             var ser = new WsFederationMetadataSerializer();
             using (var ms = new MemoryStream())
@@ -30,9 +31,9 @@ namespace IdentityServer4.WsFederation
                 WsFederationMetadataSerializerExtensions.WriteMetadata(ser, writer, _config);
                 // ser.WriteMetadata(writer, _config);
                 writer.Flush();
-                context.HttpContext.Response.ContentType = "application/xml";
+                context.Response.ContentType = "application/xml";
                 var metaAsString = Encoding.UTF8.GetString(ms.ToArray());
-                return context.HttpContext.Response.WriteAsync(metaAsString);
+                return context.Response.WriteAsync(metaAsString);
             }
         }
     }

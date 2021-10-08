@@ -87,5 +87,28 @@ namespace IdentityServer4.Extensions
         {
             return url.AddQueryString(name + "=" + UrlEncoder.Default.Encode(value));
         }
+
+        [DebuggerStepThrough]
+        public static string EnsureTrailingSlash(this string url)
+        {
+            if (url != null && !url.EndsWith("/"))
+            {
+                return url + "/";
+            }
+
+            return url;
+        }
+
+        [DebuggerStepThrough]
+        public static string RemoveLeadingSlash(this string url)
+        {
+            if (url != null && url.StartsWith("/"))
+            {
+                url = url.Substring(1);
+            }
+
+            return url;
+        }
+
     }
 }
