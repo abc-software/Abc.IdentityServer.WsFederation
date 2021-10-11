@@ -123,7 +123,7 @@ namespace IdentityServer4.WsFederation
             int index = decoded.IndexOf('?');
             if (0 <= index)
             {
-                decoded = decoded.Substring(0, index);
+                decoded = decoded.Substring(index);
             }
 
             WsFederationMessage message = WsFederationMessage.FromQueryString(decoded);

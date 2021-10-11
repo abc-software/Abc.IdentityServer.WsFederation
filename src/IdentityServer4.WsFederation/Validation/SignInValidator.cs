@@ -2,17 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityServer4.Extensions;
 using IdentityServer4.Stores;
+using IdentityServer4.Validation;
+using IdentityServer4.WsFederation.Stores;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityServer4.WsFederation.Stores;
-using Microsoft.IdentityModel.Protocols.WsFederation;
-using IdentityServer4.Extensions;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Authentication;
-using Newtonsoft.Json;
-using IdentityServer4.Validation;
 
 namespace IdentityServer4.WsFederation.Validation
 {
@@ -105,7 +104,10 @@ namespace IdentityServer4.WsFederation.Validation
 
             result.RelyingParty = rp;
 
-            if (!string.IsNullOrEmpty(message.Whr) && client.IdentityProviderRestrictions != null && !client.IdentityProviderRestrictions.Contains(message.Whr))
+            if (!string.IsNullOrEmpty(message.Whr) 
+                && client.IdentityProviderRestrictions != null
+                && client.IdentityProviderRestrictions.Any()
+                && !client.IdentityProviderRestrictions.Contains(message.Whr))
             {
                 _logger.LogWarning($"WHR (idp) requested '{message.Whr}' is not in client restriction list.");
                 message.Whr = null;
