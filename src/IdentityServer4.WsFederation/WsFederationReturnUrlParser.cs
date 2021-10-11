@@ -55,7 +55,7 @@ namespace IdentityServer4.WsFederation
                 }
 
                 _logger.LogTrace("not a valid WS-Federation return URL");
-                return false;                
+                return false;
             }
 
             return false;
@@ -111,9 +111,18 @@ namespace IdentityServer4.WsFederation
         private WsFederationMessage GetSignInRequestMessage(string returnUrl)
         {
             var decoded = WebUtility.UrlDecode(returnUrl);
+            int index = decoded.IndexOf('?');
+            if (0 <= index)
+            {
+                decoded = decoded.Substring(index);
+            }
+
             WsFederationMessage message = WsFederationMessage.FromQueryString(decoded);
             if (message.IsSignInMessage)
+            {
                 return message;
+            }
+
             return null;
         }
     }
