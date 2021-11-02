@@ -20,11 +20,11 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer4.WsFederation
 {
-    public class WsFederationController : Controller
+    public class WsFedController : Controller
     {
         private readonly IUserSession _userSession;
         private readonly ISignInResponseGenerator _generator;
-        private readonly ILogger<WsFederationController> _logger;
+        private readonly ILogger<WsFedController> _logger;
         private readonly IMetadataResponseGenerator _metadata;
         private readonly IdentityServerOptions _options;
         private readonly ISignInValidator _signinValidator;
@@ -32,7 +32,7 @@ namespace IdentityServer4.WsFederation
         private readonly ISystemClock _clock;
         private readonly IMessageStore<LogoutMessage> _logoutMessageStore;
 
-        public WsFederationController(
+        public WsFedController(
             IMetadataResponseGenerator metadata, 
             ISignInValidator signinValidator,
             ISignOutValidator signoutValidator, 
@@ -41,7 +41,7 @@ namespace IdentityServer4.WsFederation
             IUserSession userSession,
             ISystemClock clock,
             IMessageStore<LogoutMessage> logoutMessageStore,
-            ILogger<WsFederationController> logger)
+            ILogger<WsFedController> logger)
         {
             _metadata = metadata;
             _signinValidator = signinValidator;
@@ -62,11 +62,11 @@ namespace IdentityServer4.WsFederation
             {
                 _logger.LogDebug("Start WS-Federation metadata request");
 
-                var entity = await _metadata.GenerateAsync(Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value));
+                var entity = await _metadata.GenerateAsync(Url.Action("Index", "WsFed", null, Request.Scheme, Request.Host.Value));
                 return new MetadataResult(entity);
             }
 
-            var url = Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value) + Request.QueryString;
+            var url = Url.Action("Index", "WsFed", null, Request.Scheme, Request.Host.Value) + Request.QueryString;
             _logger.LogDebug("Start WS-Federation request: {url}", url);
 
             // user can be null here (this differs from HttpContext.User where the anonymous user is filled in)
@@ -147,7 +147,13 @@ namespace IdentityServer4.WsFederation
 
         private IActionResult RedirectToLogOut()
         {
-            return Redirect(_options.UserInteraction.LogoutUrl);
+            var redirectUrl = _options.UserInteraction.LogoutUrl;
+            if (redirectUrl.IsLocalUrl())
+            {
+                redirectUrl = HttpContext.GetIdentityServerRelativeUrl(redirectUrl);
+            }
+
+            return Redirect(redirectUrl);
         }
 
         private async Task<IActionResult> RedirectToLogOutAsync(SignOutValidationResult validatedResult)

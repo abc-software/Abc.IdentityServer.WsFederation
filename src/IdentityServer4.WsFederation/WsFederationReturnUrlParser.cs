@@ -89,7 +89,7 @@ namespace IdentityServer4.WsFederation
             {
                 Client = result.Client,
                 IdP = result.WsFederationMessage.Whr,
-                RedirectUri = result.WsFederationMessage.Wreply,
+                RedirectUri = result.ReplyUrl,
                 ValidatedResources = resourceValidationResult,
             };
 
