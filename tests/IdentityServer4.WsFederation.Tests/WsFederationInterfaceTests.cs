@@ -56,7 +56,7 @@ namespace IdentityServer4.WsFederation.Tests
         protected virtual void InitializeServices(IServiceCollection services)
         {
             var startupAssembly = typeof(Startup).GetTypeInfo().Assembly;
-            var wsFedController = typeof(WsFederationController).GetTypeInfo().Assembly;
+            var wsFedController = typeof(WsFedController).GetTypeInfo().Assembly;
             var accountController = typeof(FakeAccountController).GetTypeInfo().Assembly;
 
             // Inject a custom application part manager. Overrides AddMvcCore() because that uses TryAdd().
@@ -78,6 +78,7 @@ namespace IdentityServer4.WsFederation.Tests
             services.AddIdentityServer()
                 .AddSigningCredential(TestCert.LoadSigningCredentials())
                 .AddInMemoryClients(Config.GetClients())
+                .AddInMemoryApiScopes(Config.GetApiScopes())
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryRelyingParties(Config.GetRelyingParties())
                 .AddTestUsers(Config.GetTestUsers())
@@ -89,7 +90,7 @@ namespace IdentityServer4.WsFederation.Tests
         [Fact]
         public async Task WsFederation_metadata_success()
         {
-            var response = await _client.GetAsync("/wsfederation");
+            var response = await _client.GetAsync("/wsfed");
             var message = await response.Content.ReadAsStringAsync();
             Assert.NotEmpty(message);
             Assert.StartsWith("<EntityDescriptor entityID=\"http://localhost\"", message);
@@ -100,14 +101,14 @@ namespace IdentityServer4.WsFederation.Tests
         {
             var wsMessage = new WsFederationMessage
             {
-                IssuerAddress = "/wsfederation",
+                IssuerAddress = "/wsfed",
                 Wtrealm = "urn:owinrp",
                 Wreply = "http://localhost:10313/",
             };
             var signInUrl = wsMessage.CreateSignInUrl();
             var response = await _client.GetAsync(signInUrl);
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            var expectedLocation = "/Account/Login?ReturnUrl=%2FWsFederation%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
+            var expectedLocation = "/Account/Login?ReturnUrl=%2FWsFed%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
         }
 
@@ -123,7 +124,7 @@ namespace IdentityServer4.WsFederation.Tests
             var wsMessage = new WsFederationMessage
             {
                 Wa = "wsignin1.0",
-                IssuerAddress = "/wsfederation",
+                IssuerAddress = "/wsfed",
                 Wtrealm = "urn:owinrp",
                 Wreply = "http://localhost:10313/",
                 Wfresh = "0",
@@ -137,7 +138,7 @@ namespace IdentityServer4.WsFederation.Tests
             var response = await _client.SendAsync(request);
 
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            var expectedLocation = "/Account/Login?ReturnUrl=%2FWsFederation%3Fwa%3Dwsignin1.0%26wtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F";
+            var expectedLocation = "/Account/Login?ReturnUrl=%2FWsFed%3Fwa%3Dwsignin1.0%26wtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
         }
 
@@ -156,7 +157,7 @@ namespace IdentityServer4.WsFederation.Tests
             var wsMessage = new WsFederationMessage
             {
                 Wa = "wsignin1.0",
-                IssuerAddress = "/wsfederation",
+                IssuerAddress = "/wsfed",
                 Wtrealm = "urn:owinrp",
                 Wreply = "http://localhost:10313/",
                 Wfresh = "0",
@@ -224,7 +225,7 @@ namespace IdentityServer4.WsFederation.Tests
             var wsMessage = new WsFederationMessage
             {
                 Wa = "wsignin1.0",
-                IssuerAddress = "/wsfederation",
+                IssuerAddress = "/wsfed",
                 Wtrealm = "urn:owinrp",
                 Wreply = "http://localhost:10313/",
                 Wfresh = "5",
@@ -272,7 +273,7 @@ namespace IdentityServer4.WsFederation.Tests
             var wsSignInMessage = new WsFederationMessage
             {
                 Wa = "wsignin1.0",
-                IssuerAddress = "/wsfederation",
+                IssuerAddress = "/wsfed",
                 Wtrealm = "urn:owinrp",
                 Wreply = "http://localhost:10313/",
             };
@@ -322,7 +323,7 @@ namespace IdentityServer4.WsFederation.Tests
             var wsMessage = new WsFederationMessage
             {
                 Wa = "wsignout1.0",
-                IssuerAddress = "/wsfederation",
+                IssuerAddress = "/wsfed",
                 // Wtrealm = "urn:owinrp",
                 Wreply = "http://localhost:10313/",
             };
@@ -335,7 +336,7 @@ namespace IdentityServer4.WsFederation.Tests
             var response = await _client.SendAsync(request);
 
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            var expectedLocation = "/Account/Logout";
+            var expectedLocation = "http://localhost/Account/Logout";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
         }
     }

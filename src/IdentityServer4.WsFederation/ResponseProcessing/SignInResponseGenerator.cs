@@ -63,14 +63,9 @@ namespace IdentityServer4.WsFederation
         {
             _logger.LogDebug("Creating WS-Federation signin response");
 
-            // create subject
             var outgoingSubject = await CreateSubjectAsync(validationResult);
 
-            // create token for user
-            var token = await CreateSecurityTokenAsync(validationResult, outgoingSubject);
-
-            // return response
-            return CreateResponse(validationResult, token);
+            return await CreateResponseAsync(validationResult, outgoingSubject);
         }
 
         protected virtual async Task<ClaimsIdentity> CreateSubjectAsync(SignInValidationResult result)
@@ -160,7 +155,7 @@ namespace IdentityServer4.WsFederation
             return outboundClaims;
         }
 
-        private async Task<SecurityToken> CreateSecurityTokenAsync(SignInValidationResult result, ClaimsIdentity outgoingSubject)
+        private async Task<WsFederationMessage> CreateResponseAsync(SignInValidationResult result, ClaimsIdentity outgoingSubject)
         {
             var credential = await _keys.GetSigningCredentialsAsync();
             var key = credential.Key as Microsoft.IdentityModel.Tokens.X509SecurityKey;
@@ -186,13 +181,14 @@ namespace IdentityServer4.WsFederation
                 Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
             };
 
-            if (result.RelyingParty.EncryptionCertificate != null)
+            if (result.RelyingParty?.EncryptionCertificate != null)
             {
                 descriptor.EncryptingCredentials = new X509EncryptingCredentials(result.RelyingParty.EncryptionCertificate);
             }
 
-            var handler = _securityTokenHandlerFactory.CreateHandler(result.RelyingParty.TokenType ?? _options.DefaultTokenType);
-            return CreateToken(handler, descriptor);
+            var handler = _securityTokenHandlerFactory.CreateHandler(result.RelyingParty?.TokenType ?? _options.DefaultTokenType);
+            var token = CreateToken(handler, descriptor);
+            return CreateResponse(result, token, handler);
         }
 
         private SecurityToken CreateToken(SecurityTokenHandler handler, SecurityTokenDescriptor descriptor)
@@ -220,9 +216,8 @@ namespace IdentityServer4.WsFederation
             return handler.CreateToken(descriptor);
         }
 
-        private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
+        private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token, SecurityTokenHandler handler)
         {
-            var handler = _securityTokenHandlerFactory.CreateHandler(validationResult.RelyingParty.TokenType);
             var rstr = new RequestSecurityTokenResponse
             {
                 CreatedAt = token.ValidFrom,
