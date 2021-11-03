@@ -130,7 +130,7 @@ namespace IdentityServer4.WsFederation.Endpoints
             if (string.IsNullOrWhiteSpace(message.Wreply) ||
                 string.IsNullOrWhiteSpace(message.Wtrealm))
             {
-                return RedirectToLogOut();
+                return new Results.LogoutPageResult();
             }
 
             var result = await _signoutValidator.ValidateAsync(message, user);
@@ -140,11 +140,6 @@ namespace IdentityServer4.WsFederation.Endpoints
             }
 
             return await RedirectToLogOutAsync(result);
-        }
-
-        private IEndpointResult RedirectToLogOut()
-        {
-            return new Results.RedirectResult(_options.UserInteraction.LogoutUrl);
         }
 
         private async Task<IEndpointResult> RedirectToLogOutAsync(SignOutValidationResult validatedResult)

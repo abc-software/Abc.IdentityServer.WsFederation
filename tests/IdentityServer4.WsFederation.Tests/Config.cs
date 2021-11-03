@@ -45,6 +45,15 @@ namespace IdentityServer4.WsFederation
             };
         }
 
+        public static IEnumerable<ApiScope> GetApiScopes()
+        {
+            return new[]
+            {
+                new ApiScope("api1", "Some API 1"),
+                new ApiScope("api2", "Some API 2")
+            };
+        }
+
         public static IEnumerable<Client> GetClients()
         {
             return new[]
@@ -62,6 +71,7 @@ namespace IdentityServer4.WsFederation
                 }
             };
         }
+
         public static IEnumerable<RelyingParty> GetRelyingParties()
         {
             return new[]
@@ -70,7 +80,7 @@ namespace IdentityServer4.WsFederation
                 {
                     Realm = "urn:owinrp",
                     TokenType = WsFederationConstants.TokenTypes.Saml11TokenProfile11,
-                    ClaimMapping = {
+                    ClaimMapping = new Dictionary<string, string> {
                         { JwtClaimTypes.Subject , ClaimTypes.NameIdentifier },
                         { JwtClaimTypes.Name , ClaimTypes.Name },
                         { JwtClaimTypes.Email , ClaimTypes.Email },

@@ -79,6 +79,7 @@ namespace IdentityServer4.WsFederation.Tests
             services.AddIdentityServer()
                 .AddSigningCredential(TestCert.LoadSigningCredentials())
                 .AddInMemoryClients(Config.GetClients())
+                .AddInMemoryApiScopes(Config.GetApiScopes())
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryRelyingParties(Config.GetRelyingParties())
                 .AddTestUsers(Config.GetTestUsers())
@@ -336,7 +337,7 @@ namespace IdentityServer4.WsFederation.Tests
             var response = await _client.SendAsync(request);
 
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            var expectedLocation = "/Account/Logout";
+            var expectedLocation = "http://localhost/Account/Logout";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
         }
     }

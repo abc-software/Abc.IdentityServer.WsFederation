@@ -30,7 +30,7 @@ namespace IdentityServer4.WsFederation
 {
     public class SignInResponseGenerator : ISignInResponseGenerator
     {
-        private readonly IdentityServerOptions _options;
+        private readonly WsFederationOptions _options;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IProfileService _profile;
         private readonly IKeyMaterialService _keys;
@@ -41,7 +41,7 @@ namespace IdentityServer4.WsFederation
 
         public SignInResponseGenerator(
             IHttpContextAccessor contextAccessor,
-            IdentityServerOptions options,
+            WsFederationOptions options,
             IProfileService profile,
             IKeyMaterialService keys,
             IResourceStore resources,
@@ -63,14 +63,9 @@ namespace IdentityServer4.WsFederation
         {
             _logger.LogDebug("Creating WS-Federation signin response");
 
-            // create subject
             var outgoingSubject = await CreateSubjectAsync(validationResult);
 
-            // create token for user
-            var token = await CreateSecurityTokenAsync(validationResult, outgoingSubject);
-
-            // return response
-            return CreateResponse(validationResult, token);
+            return await CreateResponseAsync(validationResult, outgoingSubject);
         }
 
         protected virtual async Task<ClaimsIdentity> CreateSubjectAsync(SignInValidationResult result)
@@ -79,12 +74,13 @@ namespace IdentityServer4.WsFederation
             var issuedClaims = await GetIssuedClaimsAsync(result, requestedClaimTypes);
 
             // map outbound claims
+            var nameid = new Claim(ClaimTypes.NameIdentifier, result.User.GetSubjectId());
+            nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] =
+                result.RelyingParty?.SamlNameIdentifierFormat ?? _options.DefaultSamlNameIdentifierFormat;
+
             var outboundClaims = new List<Claim>();
             outboundClaims.AddRange(MapClaims(result.RelyingParty, issuedClaims));
-
-            var nameid = new Claim(ClaimTypes.NameIdentifier, result.User.GetSubjectId());
-            nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
-            outboundClaims.RemoveAll(x => x.Type == ClaimTypes.NameIdentifier);
+            outboundClaims.RemoveAll(c => c.Type == ClaimTypes.NameIdentifier); //remove previously added nameid claim
             outboundClaims.Add(nameid);
 
             // The AuthnStatement statement generated from the following 2
@@ -93,17 +89,18 @@ namespace IdentityServer4.WsFederation
             // System.IdentityModel.Tokens.AuthenticationMethods.
             // Password is the only one that can be directly matched, everything
             // else defaults to Unspecified.
-            if (result.User.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password)
-            {
-                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, SamlConstants.AuthenticationMethods.PasswordString));
-            }
-            else
-            {
-                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, SamlConstants.AuthenticationMethods.UnspecifiedString));
+            if (!outboundClaims.Exists(x => x.Type == ClaimTypes.AuthenticationMethod)) {
+                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod,
+                result.User.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password
+                    ? SamlConstants.AuthenticationMethods.PasswordString
+                    : SamlConstants.AuthenticationMethods.UnspecifiedString));
             }
 
             // authentication instant claim is required
-            outboundClaims.Add(new Claim(ClaimTypes.AuthenticationInstant, XmlConvert.ToString(result.User.GetAuthenticationTime(), "yyyy-MM-ddTHH:mm:ss.fffZ"), ClaimValueTypes.DateTime));
+            if (!outboundClaims.Exists(x => x.Type == ClaimTypes.AuthenticationInstant))
+            {
+                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationInstant, XmlConvert.ToString(result.User.GetAuthenticationTime(), "yyyy-MM-ddTHH:mm:ss.fffZ"), ClaimValueTypes.DateTime));
+            }
 
             return new ClaimsIdentity(outboundClaims, "idsrv");
         }
@@ -133,13 +130,17 @@ namespace IdentityServer4.WsFederation
 
         protected virtual IEnumerable<Claim> MapClaims(RelyingParty relyingParty, IEnumerable<Claim> claims)
         {
+            var claimMapping = 
+                relyingParty?.ClaimMapping != null && relyingParty.ClaimMapping.Any() 
+                ? relyingParty.ClaimMapping
+                : _options.DefaultClaimMapping;
+
             var outboundClaims = new List<Claim>();
             foreach (var claim in claims)
             {
-                if (relyingParty.ClaimMapping.ContainsKey(claim.Type))
+                if (claimMapping.ContainsKey(claim.Type))
                 {
-                    var outboundClaim = new Claim(relyingParty.ClaimMapping[claim.Type], claim.Value);
-                    outboundClaims.Add(outboundClaim);
+                    outboundClaims.Add(new Claim(claimMapping[claim.Type], claim.Value, claim.ValueType, claim.Issuer, claim.OriginalIssuer));
                 }
                 else if (relyingParty.TokenType != WsFederationConstants.TokenTypes.Saml11TokenProfile11)
                 {
@@ -154,7 +155,7 @@ namespace IdentityServer4.WsFederation
             return outboundClaims;
         }
 
-        private async Task<SecurityToken> CreateSecurityTokenAsync(SignInValidationResult result, ClaimsIdentity outgoingSubject)
+        private async Task<WsFederationMessage> CreateResponseAsync(SignInValidationResult result, ClaimsIdentity outgoingSubject)
         {
             var credential = await _keys.GetSigningCredentialsAsync();
             var key = credential.Key as Microsoft.IdentityModel.Tokens.X509SecurityKey;
@@ -163,25 +164,31 @@ namespace IdentityServer4.WsFederation
                 throw new InvalidOperationException("Missing signing key");
             }
 
-            var issueInstant = _clock.UtcNow.DateTime;
+            var issueInstant = _clock.UtcNow.UtcDateTime;
+            var signingCredentials = new SigningCredentials(
+                key,
+                result.RelyingParty?.SignatureAlgorithm ?? _options.DefaultSignatureAlgorithm,
+                result.RelyingParty?.DigestAlgorithm ?? _options.DefaultDigestAlgorithm);
+
             var descriptor = new SecurityTokenDescriptor
             {
                 Audience = result.Client.ClientId,
                 IssuedAt = issueInstant,
                 NotBefore = issueInstant,
                 Expires = issueInstant.AddSeconds(result.Client.IdentityTokenLifetime),
-                SigningCredentials = new SigningCredentials(key, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm),
+                SigningCredentials = signingCredentials,
                 Subject = outgoingSubject,
                 Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
             };
 
-            if (result.RelyingParty.EncryptionCertificate != null)
+            if (result.RelyingParty?.EncryptionCertificate != null)
             {
                 descriptor.EncryptingCredentials = new X509EncryptingCredentials(result.RelyingParty.EncryptionCertificate);
             }
 
-            var handler = _securityTokenHandlerFactory.CreateHandler(result.RelyingParty.TokenType);
-            return CreateToken(handler, descriptor);
+            var handler = _securityTokenHandlerFactory.CreateHandler(result.RelyingParty?.TokenType ?? _options.DefaultTokenType);
+            var token = CreateToken(handler, descriptor);
+            return CreateResponse(result, token, handler);
         }
 
         private SecurityToken CreateToken(SecurityTokenHandler handler, SecurityTokenDescriptor descriptor)
@@ -209,9 +216,8 @@ namespace IdentityServer4.WsFederation
             return handler.CreateToken(descriptor);
         }
 
-        private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
+        private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token, SecurityTokenHandler handler)
         {
-            var handler = _securityTokenHandlerFactory.CreateHandler(validationResult.RelyingParty.TokenType);
             var rstr = new RequestSecurityTokenResponse
             {
                 CreatedAt = token.ValidFrom,

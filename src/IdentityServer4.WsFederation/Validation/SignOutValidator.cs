@@ -89,20 +89,7 @@ namespace IdentityServer4.WsFederation.Validation
             }
 
             // check if additional relying party settings exist
-            var rp = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
-            if (rp == null)
-            {
-                rp = new RelyingParty
-                {
-                    TokenType = _options.DefaultTokenType,
-                    SignatureAlgorithm = _options.DefaultSignatureAlgorithm,
-                    DigestAlgorithm = _options.DefaultDigestAlgorithm,
-                    SamlNameIdentifierFormat = _options.DefaultSamlNameIdentifierFormat,
-                    ClaimMapping = _options.DefaultClaimMapping
-                };
-            }
-
-            result.RelyingParty = rp;
+            result.RelyingParty = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
 
             if (user == null ||
                 user.Identity.IsAuthenticated == false)

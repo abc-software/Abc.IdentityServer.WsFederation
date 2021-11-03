@@ -28,6 +28,16 @@ namespace IdentityServer4.WsFederation
             };
         }
 
+        public static IEnumerable<ApiScope> GetApiScopes()
+        {
+            return new[]
+            {
+                new ApiScope("api1", "My API 1"),
+                new ApiScope("api2", "My API 2"),
+            };
+        }
+
+
         public static IEnumerable<Client> GetClients()
         {
             return new[]
