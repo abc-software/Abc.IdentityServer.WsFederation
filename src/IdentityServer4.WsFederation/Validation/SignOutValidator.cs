@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+using IdentityServer4.Configuration;
 
 namespace IdentityServer4.WsFederation.Validation
 {
@@ -15,7 +16,7 @@ namespace IdentityServer4.WsFederation.Validation
     {
         private readonly IClientStore _clients;
         private readonly IRelyingPartyStore _relyingParties;
-        private readonly WsFederationOptions _options;
+        private readonly IdentityServerOptions _options;
         private readonly ISystemClock _clock;
         private readonly IRedirectUriValidator _uriValidator;
         private readonly IUserSession _userSession;
@@ -23,7 +24,7 @@ namespace IdentityServer4.WsFederation.Validation
 
 
         public SignOutValidator(
-            WsFederationOptions options,
+            IdentityServerOptions options,
             IClientStore clients,
             IRelyingPartyStore relyingParties,
             ISystemClock clock,
@@ -40,74 +41,71 @@ namespace IdentityServer4.WsFederation.Validation
             _logger = logger;
         }
 
-        public async Task<SignOutValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user)
+        public virtual async Task<SignOutValidationResult> ValidateAsync(WsFederationMessage message)
         {
             _logger.LogInformation("Start WS-Federation signout request validation");
-            var result = new SignOutValidationResult
+            var validatedResult = new ValidatedWsFederationRequest()
             {
-                WsFederationMessage = message
+                Options = _options,
+                WsFederationMessage = message,
             };
 
             // check client
             var client = await _clients.FindEnabledClientByIdAsync(message.Wtrealm);
             if (client == null)
             {
-                LogError("Client not found: " + message.Wtrealm, result);
+                //LogError("Client not found: " + message.Wtrealm, result);
 
-                return new SignOutValidationResult
-                {
-                    Error = "invalid_relying_party"
-                };
+                return new SignOutValidationResult(validatedResult, "invalid_relying_party", "Cannot find Client configuration");
             }
 
             if (client.ProtocolType != IdentityServerConstants.ProtocolTypes.WsFederation)
             {
-                LogError("Client is not configured for WS-Federation", result);
+                //LogError("Client is not configured for WS-Federation", result);
 
-                return new SignOutValidationResult
-                {
-                    Error = "invalid_relying_party"
-                };
+                return new SignOutValidationResult(validatedResult, "invalid_relying_party", "Client is not configured for WS-Federation");
             }
 
-            result.Client = client;
+            validatedResult.SetClient(client);
 
             if (!string.IsNullOrEmpty(message.Wreply))
             {
-                if (await _uriValidator.IsPostLogoutRedirectUriValidAsync(message.Wreply, result.Client))
+                if (await _uriValidator.IsPostLogoutRedirectUriValidAsync(message.Wreply, validatedResult.Client))
                 {
-                    result.ReplyUrl = message.Wreply;
+                    validatedResult.ReplyUrl = message.Wreply;
                 }
                 else
                 {
                     _logger.LogWarning("Invalid Wreply: {Wreply}", message.Wreply);
                 }
             }
-            else if (client.PostLogoutRedirectUris.Count == 1)
+            
+            if (validatedResult.ReplyUrl == null)
             {
-                result.ReplyUrl = client.PostLogoutRedirectUris.First();
+                validatedResult.ReplyUrl = client.PostLogoutRedirectUris.FirstOrDefault();
+            }
+            
+            if (validatedResult.ReplyUrl == null)
+            {
+                return new SignOutValidationResult(validatedResult, "invalid_relying_party", "No post logout URL configured for relying party");
             }
 
             // check if additional relying party settings exist
-            result.RelyingParty = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
+            validatedResult.RelyingParty = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
 
+            var user = await _userSession.GetUserAsync();
             if (user == null ||
                 user.Identity.IsAuthenticated == false)
             {
-                result.SignOutRequired = false;
-                return result;
-            }
-            else
-            {
-                result.SessionId = await _userSession.GetSessionIdAsync();
-                result.ClientIds = await _userSession.GetClientListAsync();
-                result.SignOutRequired = true;
+                return new SignOutValidationResult(validatedResult);
             }
 
-            result.User = user;
+            validatedResult.SessionId = await _userSession.GetSessionIdAsync();
+            validatedResult.ClientIds = await _userSession.GetClientListAsync();
+            validatedResult.Subject = user;
 
-            LogSuccess(result);
-            return result;
+            // LogSuccess(result);
+            return new SignOutValidationResult(validatedResult);
         }
 
         private void LogSuccess(SignOutValidationResult result)

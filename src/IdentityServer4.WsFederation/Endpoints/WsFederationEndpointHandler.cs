@@ -1,4 +1,7 @@
-﻿using IdentityServer4.Configuration;
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+using IdentityServer4.Configuration;
 using IdentityServer4.Endpoints.Results;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
@@ -113,13 +116,13 @@ namespace IdentityServer4.WsFederation.Endpoints
 
             if (result.SignInRequired)
             {
-                return new Results.LoginPageResult(result.WsFederationMessage);
+                return new Results.LoginPageResult(result.ValidatedRequest.WsFederationMessage);
             }
             else
             {
                 // create protocol response
                 var responseMessage = await _generator.GenerateResponseAsync(result);
-                await _userSession.AddClientIdAsync(result.Client.ClientId);
+                await _userSession.AddClientIdAsync(result.ValidatedRequest.ClientId);
                 
                 return new Results.SignInResult(responseMessage);
             }
@@ -133,30 +136,29 @@ namespace IdentityServer4.WsFederation.Endpoints
                 return new Results.LogoutPageResult();
             }
 
-            var result = await _signoutValidator.ValidateAsync(message, user);
+            var result = await _signoutValidator.ValidateAsync(message);
             if (result.IsError)
             {
                 throw new Exception(result.Error);
             }
 
-            return await RedirectToLogOutAsync(result);
+            return await RedirectToLogOutAsync(result.ValidatedRequest);
         }
 
-        private async Task<IEndpointResult> RedirectToLogOutAsync(SignOutValidationResult validatedResult)
+        private async Task<IEndpointResult> RedirectToLogOutAsync(ValidatedWsFederationRequest validatedRequest)
         {
             var logoutMessage = new LogoutMessage()
             {
-                ClientId = validatedResult.Client?.ClientId,
-                ClientName = validatedResult.Client?.ClientName,
-                SubjectId = validatedResult.User?.GetSubjectId(),
-                SessionId = validatedResult.SessionId,
-                ClientIds = validatedResult.ClientIds,
-                PostLogoutRedirectUri = validatedResult.ReplyUrl
+                ClientId = validatedRequest.Client?.ClientId,
+                ClientName = validatedRequest.Client?.ClientName,
+                SubjectId = validatedRequest.Subject?.GetSubjectId(),
+                SessionId = validatedRequest.SessionId,
+                ClientIds = validatedRequest.ClientIds,
+                PostLogoutRedirectUri = validatedRequest.ReplyUrl
             };
 
             string id = null;
-            if (logoutMessage.ClientId != null && logoutMessage.ClientIds.Any())
-            {
+            if (logoutMessage.ClientId != null && logoutMessage.ClientIds.Any()) {
                 var msg = new Message<LogoutMessage>(logoutMessage, _clock.UtcNow.UtcDateTime);
                 id = await _logoutMessageStore.WriteAsync(msg);
             }

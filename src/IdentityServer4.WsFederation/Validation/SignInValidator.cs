@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
+using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using IdentityServer4.WsFederation.Stores;
@@ -20,16 +21,18 @@ namespace IdentityServer4.WsFederation.Validation
         private readonly IClientStore _clients;
         private readonly IRelyingPartyStore _relyingParties;
         private readonly IRedirectUriValidator _uriValidator;
-        private readonly WsFederationOptions _options;
+        private readonly IdentityServerOptions _options;
         private readonly ISystemClock _clock;
+        private readonly IUserSession _userSession;
         private readonly ILogger _logger;
 
         public SignInValidator(
-            WsFederationOptions options,
+            IdentityServerOptions options,
             IClientStore clients,
             IRelyingPartyStore relyingParties,
             IRedirectUriValidator uriValidator,
             ISystemClock clock,
+            IUserSession userSession,
             ILogger<SignInValidator> logger)
         {
             _options = options;
@@ -37,59 +40,58 @@ namespace IdentityServer4.WsFederation.Validation
             _relyingParties = relyingParties;
             _uriValidator = uriValidator;
             _clock = clock;
+            _userSession = userSession;
             _logger = logger;
         }
 
-        public async Task<SignInValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user)
+        public virtual async Task<SignInValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user)
         {
-            _logger.LogInformation("Start WS-Federation signin request validation");
-            var result = new SignInValidationResult
+            var validatedResult = new ValidatedWsFederationRequest()
             {
-                WsFederationMessage = message
+                Options = _options,
+                WsFederationMessage = message,
             };
+
+            _logger.LogInformation("Start WS-Federation signin request validation");
 
             // check client
             var client = await _clients.FindEnabledClientByIdAsync(message.Wtrealm);
             if (client == null)
             {
-                LogError("Client not found: " + message.Wtrealm, result);
-
-                return new SignInValidationResult
-                {
-                    Error = "invalid_relying_party",
-                };
+                return new SignInValidationResult(validatedResult, "invalid_relying_party", "Cannot find Client configuration");
             }
 
             if (client.ProtocolType != IdentityServerConstants.ProtocolTypes.WsFederation)
             {
-                LogError("Client is not configured for WS-Federation", result);
-
-                return new SignInValidationResult
-                {
-                    Error = "invalid_relying_party"
-                };
+                return new SignInValidationResult(validatedResult, "invalid_relying_party", "Client is not configured for WS-Federation");
             }
 
-            result.Client = client;
+            validatedResult.SetClient(client);
 
             if (!string.IsNullOrEmpty(message.Wreply))
             {
-                if (await _uriValidator.IsRedirectUriValidAsync(message.Wreply, result.Client))
+                if (await _uriValidator.IsRedirectUriValidAsync(message.Wreply, validatedResult.Client))
                 {
-                    result.ReplyUrl = message.Wreply;
+                    validatedResult.ReplyUrl = message.Wreply;
                 }
                 else
                 {
                     _logger.LogWarning("Invalid Wreply: {Wreply}", message.Wreply);
                 }
             }
-            else if (client.RedirectUris.Count == 1)
+            
+            if (validatedResult.ReplyUrl == null)
             {
-                result.ReplyUrl = client.RedirectUris.First();
+                validatedResult.ReplyUrl = client.RedirectUris.FirstOrDefault();
+            }
+
+            if (validatedResult.ReplyUrl == null)
+            {
+                return new SignInValidationResult(validatedResult, "invalid_relying_party", "No redirect URL configured for relying party");
             }
 
             // check if additional relying party settings exist
-            result.RelyingParty = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
+            validatedResult.RelyingParty = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
 
             if (!string.IsNullOrEmpty(message.Whr) 
                 && client.IdentityProviderRestrictions != null
@@ -103,11 +105,11 @@ namespace IdentityServer4.WsFederation.Validation
             if (user == null ||
                 user.Identity.IsAuthenticated == false)
             {
-                result.SignInRequired = true;
-                return result;
+                return new SignInValidationResult(validatedResult, true);
             }
 
-            result.User = user;
+            validatedResult.SessionId = await _userSession.GetSessionIdAsync();
+            validatedResult.Subject = user;
 
             if (!string.IsNullOrEmpty(message.Wfresh))
             {
@@ -117,16 +119,14 @@ namespace IdentityServer4.WsFederation.Validation
                     {
                         _logger.LogInformation("Showing login: Requested wfresh=0.");
                         message.Wfresh = null;
-                        result.SignInRequired = true;
-                        return result;
+                        return new SignInValidationResult(validatedResult, true);
                     }
 
                     var authTime = user.GetAuthenticationTime();
                     if (_clock.UtcNow.UtcDateTime > authTime.AddMinutes(maxAgeInMinutes))
                     {
                         _logger.LogInformation("Showing login: Requested wfresh time exceeded.");
-                        result.SignInRequired = true;
-                        return result;
+                        return new SignInValidationResult(validatedResult, true);
                     }
                 }
             }
@@ -138,25 +138,33 @@ namespace IdentityServer4.WsFederation.Validation
                 if (requestedIdp != currentIdp)
                 {
                     _logger.LogInformation($"Showing login: Current IdP '{currentIdp}' is not the requested IdP '{requestedIdp}'");
-                    result.SignInRequired = true;
-                    return result;
+                    return new SignInValidationResult(validatedResult, true);
                 }
             }
 
-            LogSuccess(result);
-            return result;
-        }
+            /*
+            var resourceValidationResult = await resourceValidator.ValidateRequestedResourcesAsync(new ResourceValidationRequest
+            {
+                Client = validatedResult.Client,
+                Scopes = requestedScopes
+            });
+            if (!resourceValidationResult.Succeeded)
+            {
+                if (resourceValidationResult.InvalidScopes.Any())
+                {
+                    LogError("Invalid scopes requested");
+                }
+                else
+                {
+                    LogError("Invalid scopes for client requested");
+                }
+                return false;
+            }
 
-        private void LogSuccess(SignInValidationResult result)
-        {
-            // var log = JsonConvert.SerializeObject(result, Formatting.Indented);
-            // _logger.LogInformation("End WS-Federation signin request validation\n{0}", log.ToString());
-        }
+            validatedResult.ValidatedResources = resourceValidationResult;
+            */
 
-        private void LogError(string message, SignInValidationResult result)
-        {
-            // var log = JsonConvert.SerializeObject(result, Formatting.Indented);
-            // _logger.LogError("{0}\n{1}", message, log.ToString());
+            return new SignInValidationResult(validatedResult);
         }
     }
 }

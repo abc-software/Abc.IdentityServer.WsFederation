@@ -3,26 +3,30 @@
 
 
 using IdentityServer4.Models;
-using IdentityServer4.WsFederation.Stores;
-using Microsoft.IdentityModel.Protocols.WsFederation;
+using IdentityServer4.Validation;
 using System.Security.Claims;
 
 namespace IdentityServer4.WsFederation.Validation
 {
-    public class SignInValidationResult
+    public class SignInValidationResult : ValidationResult
     {
-        public bool IsError => !string.IsNullOrWhiteSpace(Error);
-        public string Error { get; set; }
-        public string ErrorMessage { get; set; }
+        public SignInValidationResult(ValidatedWsFederationRequest validatedRequest, bool signInRequired = false)
+        {
+            IsError = false;
+            ValidatedRequest = validatedRequest;
+            SignInRequired = signInRequired;
+        }
 
-        public WsFederationMessage WsFederationMessage { get; set; }
+        public SignInValidationResult(ValidatedWsFederationRequest message, string error, string errorDescription = null)
+        {
+            IsError = true;
+            ValidatedRequest = message;
+            Error = error;
+            ErrorDescription = errorDescription;
+        }
+
+        public ValidatedWsFederationRequest ValidatedRequest { get;}
         
-        public ClaimsPrincipal User { get; set; }
-        public bool SignInRequired { get; set; }
-
-        public Client Client { get; set; }
-        public RelyingParty RelyingParty { get; set; }
-
-        public string ReplyUrl { get; set; } 
+        public bool SignInRequired { get; }
     }
 }
