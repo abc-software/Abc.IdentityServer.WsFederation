@@ -12,13 +12,13 @@ namespace IdentityServer4.WsFederation.Validation
         public SignOutValidationResult(ValidatedWsFederationRequest validatedRequest)
         {
             IsError = false;
-            ValidatedRequest = validatedRequest;
+            ValidatedRequest = validatedRequest ?? throw new System.ArgumentNullException(nameof(validatedRequest));
         }
 
-        public SignOutValidationResult(ValidatedWsFederationRequest message, string error, string errorDescription = null)
+        public SignOutValidationResult(ValidatedWsFederationRequest validatedRequest, string error, string errorDescription = null)
         {
             IsError = true;
-            ValidatedRequest = message;
+            ValidatedRequest = validatedRequest ?? throw new System.ArgumentNullException(nameof(validatedRequest));
             Error = error;
             ErrorDescription = errorDescription;
         }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.WsFederation;
 using IdentityServer4.WsFederation.Endpoints;
@@ -29,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<IMetadataResponseGenerator, MetadataResponseGenerator>();
             builder.Services.AddTransient<ISignInResponseGenerator, SignInResponseGenerator>();
             builder.Services.AddTransient<ISignInValidator, SignInValidator>();
+            builder.Services.AddTransient<ISignInInteractionResponseGenerator, SignInInteractionResponseGenerator>();
             builder.Services.AddTransient<ISignOutValidator, SignOutValidator>();
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
             builder.Services.AddTransient<ISecurityTokenHandlerFactory, DefaultSecurityTokenHandlerFactory>();
@@ -37,7 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddSingleton(
                 resolver => resolver.GetRequiredService<IOptions<WsFederationOptions>>().Value);
 
-            builder.AddEndpoint<WsFederationEndpointHandler>(WsFederationConstants.EndpointNames.WsFederation, WsFederationConstants.ProtocolRoutePaths.WsFederation);
+            builder.AddEndpoint<WsFederationEndpointHandler>(WsFederationConstants.EndpointNames.WsFederation, WsFederationConstants.ProtocolRoutePaths.WsFederation.EnsureLeadingSlash());
             return builder;
         }
 

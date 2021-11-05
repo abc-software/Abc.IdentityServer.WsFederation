@@ -10,23 +10,20 @@ namespace IdentityServer4.WsFederation.Validation
 {
     public class SignInValidationResult : ValidationResult
     {
-        public SignInValidationResult(ValidatedWsFederationRequest validatedRequest, bool signInRequired = false)
+        public SignInValidationResult(ValidatedWsFederationRequest validatedRequest)
         {
             IsError = false;
-            ValidatedRequest = validatedRequest;
-            SignInRequired = signInRequired;
+            ValidatedRequest = validatedRequest ?? throw new System.ArgumentNullException(nameof(validatedRequest));
         }
 
-        public SignInValidationResult(ValidatedWsFederationRequest message, string error, string errorDescription = null)
+        public SignInValidationResult(ValidatedWsFederationRequest validatedRequest, string error, string errorDescription = null)
         {
             IsError = true;
-            ValidatedRequest = message;
+            ValidatedRequest = validatedRequest ?? throw new System.ArgumentNullException(nameof(validatedRequest));
             Error = error;
             ErrorDescription = errorDescription;
         }
 
         public ValidatedWsFederationRequest ValidatedRequest { get;}
-        
-        public bool SignInRequired { get; }
     }
 }

@@ -100,6 +100,17 @@ namespace IdentityServer4.Extensions
         }
 
         [DebuggerStepThrough]
+        public static string EnsureLeadingSlash(this string url)
+        {
+            if (url != null && !url.StartsWith("/"))
+            {
+                return "/" + url;
+            }
+
+            return url;
+        }
+
+        [DebuggerStepThrough]
         public static string RemoveLeadingSlash(this string url)
         {
             if (url != null && url.StartsWith("/"))

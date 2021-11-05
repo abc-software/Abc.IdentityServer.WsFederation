@@ -22,7 +22,6 @@ namespace IdentityServer4.WsFederation.Validation
         private readonly IRelyingPartyStore _relyingParties;
         private readonly IRedirectUriValidator _uriValidator;
         private readonly IdentityServerOptions _options;
-        private readonly ISystemClock _clock;
         private readonly IUserSession _userSession;
         private readonly ILogger _logger;
 
@@ -31,7 +30,6 @@ namespace IdentityServer4.WsFederation.Validation
             IClientStore clients,
             IRelyingPartyStore relyingParties,
             IRedirectUriValidator uriValidator,
-            ISystemClock clock,
             IUserSession userSession,
             ILogger<SignInValidator> logger)
         {
@@ -39,7 +37,6 @@ namespace IdentityServer4.WsFederation.Validation
             _clients = clients;
             _relyingParties = relyingParties;
             _uriValidator = uriValidator;
-            _clock = clock;
             _userSession = userSession;
             _logger = logger;
         }
@@ -102,45 +99,8 @@ namespace IdentityServer4.WsFederation.Validation
                 message.Whr = null;
             }
 
-            if (user == null ||
-                user.Identity.IsAuthenticated == false)
-            {
-                return new SignInValidationResult(validatedResult, true);
-            }
-
             validatedResult.SessionId = await _userSession.GetSessionIdAsync();
             validatedResult.Subject = user;
-
-            if (!string.IsNullOrEmpty(message.Wfresh))
-            {
-                if (int.TryParse(message.Wfresh, out int maxAgeInMinutes))
-                {
-                    if (maxAgeInMinutes == 0)
-                    {
-                        _logger.LogInformation("Showing login: Requested wfresh=0.");
-                        message.Wfresh = null;
-                        return new SignInValidationResult(validatedResult, true);
-                    }
-
-                    var authTime = user.GetAuthenticationTime();
-                    if (_clock.UtcNow.UtcDateTime > authTime.AddMinutes(maxAgeInMinutes))
-                    {
-                        _logger.LogInformation("Showing login: Requested wfresh time exceeded.");
-                        return new SignInValidationResult(validatedResult, true);
-                    }
-                }
-            }
-
-            var requestedIdp = message.Whr;
-            if (!string.IsNullOrEmpty(requestedIdp))
-            {
-                var currentIdp = user.GetIdentityProvider();
-                if (requestedIdp != currentIdp)
-                {
-                    _logger.LogInformation($"Showing login: Current IdP '{currentIdp}' is not the requested IdP '{requestedIdp}'");
-                    return new SignInValidationResult(validatedResult, true);
-                }
-            }
 
             await ValidateRequestedResourcesAsync(validatedResult);
 

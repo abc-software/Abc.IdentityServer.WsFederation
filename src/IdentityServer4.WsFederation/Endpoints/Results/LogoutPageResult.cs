@@ -25,12 +25,7 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
             Init(context);
 
             var redirectUrl = _options.UserInteraction.LogoutUrl;
-            if (redirectUrl.IsLocalUrl())
-            {
-                redirectUrl = context.GetIdentityServerRelativeUrl(redirectUrl);
-            }
-
-            context.Response.Redirect(redirectUrl);
+            context.Response.RedirectToAbsoluteUrl(redirectUrl);
             return Task.CompletedTask;
         }
 

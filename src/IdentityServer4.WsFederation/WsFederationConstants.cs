@@ -69,7 +69,13 @@ namespace IdentityServer4.WsFederation
 
         public static class ProtocolRoutePaths
         {
-            public const string WsFederation = "/wsfed";
+            public const string WsFederation = "wsfed";
+            public const string WsFederationCallback = "wsfed/callback";
+        }
+
+        public static class AuthorizationParamsStore
+        {
+            public const string MessageStoreIdParameterName = "authzId";
         }
     }
 }

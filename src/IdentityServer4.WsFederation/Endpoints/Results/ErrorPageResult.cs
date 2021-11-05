@@ -1,4 +1,6 @@
-﻿using IdentityServer4.Hosting;
+﻿using IdentityServer4.Configuration;
+using IdentityServer4.Extensions;
+using IdentityServer4.Hosting;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authentication;
@@ -13,13 +15,20 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
 {
     internal class ErrorPageResult : IEndpointResult
     {
-        ISystemClock _clock;
-        private IMessageStore<ErrorMessage> errorMessageStore;
+        private IMessageStore<ErrorMessage> _errorMessageStore;
+        private IdentityServerOptions _options;
 
         public ErrorPageResult(string error, string errorDescription)
         {
             Error = error;
             ErrorDescription = errorDescription;
+        }
+
+        internal ErrorPageResult(string error, string errorDescription, IdentityServerOptions options, IMessageStore<ErrorMessage> errorMessageStore)
+            : this(error, errorDescription)
+        {
+            _options = options;
+            _errorMessageStore = errorMessageStore;
         }
 
         public string Error { get; }
@@ -29,23 +38,26 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
         {
             Init(context);
 
-            var message = new Message<ErrorMessage>(new ErrorMessage
+            var errorMessage = new ErrorMessage
             {
                 RequestId = context.TraceIdentifier,
                 Error = Error,
                 ErrorDescription = ErrorDescription
-            }, _clock.UtcNow.UtcDateTime);
-            
-            var id = await errorMessageStore.WriteAsync(message);
+            };
 
-            //string url = identityServerOptions.UserInteraction.ErrorUrl.AddQueryString(identityServerOptions.UserInteraction.ErrorIdParameter, id);
-            //context.Response.RedirectToAbsoluteUrl(url, pathConfiguration.BaseUrl);
+            var message = new Message<ErrorMessage>(errorMessage, DateTime.UtcNow);
+            var id = await _errorMessageStore.WriteAsync(message);
+
+            var redirectUrl = _options.UserInteraction.ErrorUrl;
+            redirectUrl = redirectUrl.AddQueryString(_options.UserInteraction.LogoutIdParameter, id);
+
+            context.Response.RedirectToAbsoluteUrl(redirectUrl);
         }
 
         private void Init(HttpContext context)
         {
-            errorMessageStore = errorMessageStore ?? context.RequestServices.GetRequiredService<IMessageStore<ErrorMessage>>();
-            //identityServerOptions = identityServerOptions ?? context.RequestServices.GetRequiredService<IWsFederationIdentityServerOptions>();
+            _errorMessageStore = _errorMessageStore ?? context.RequestServices.GetRequiredService<IMessageStore<ErrorMessage>>();
+            _options = _options ?? context.RequestServices.GetRequiredService<IdentityServerOptions>();
         }
     }
 }

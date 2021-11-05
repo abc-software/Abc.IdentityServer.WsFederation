@@ -3,6 +3,7 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using IdentityServer4.WsFederation.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.WsFederation;
@@ -14,18 +15,18 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
 {
     public class LoginPageResult : IEndpointResult
     {
-        private readonly WsFederationMessage _request;
+        private readonly ValidatedWsFederationRequest _request;
 
         private IdentityServerOptions _options;
         private WsFederationOptions _wsFederationOptions;
         private IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
-        public LoginPageResult(WsFederationMessage request)
+        public LoginPageResult(ValidatedWsFederationRequest request)
         {
             _request = request;
         }
 
-        internal LoginPageResult(WsFederationMessage request, IdentityServerOptions options, WsFederationOptions wsFederationOptions, IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
+        internal LoginPageResult(ValidatedWsFederationRequest request, IdentityServerOptions options, WsFederationOptions wsFederationOptions, IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
             : this(request)
         {
             _options = options;
@@ -33,33 +34,32 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
             _authorizationParametersMessageStore = authorizationParametersMessageStore;
         }
 
-        private void Init(HttpContext context)
-        {
-            _options = _options ?? context.RequestServices.GetRequiredService<IdentityServerOptions>();
-            _wsFederationOptions = _wsFederationOptions ?? context.RequestServices.GetRequiredService<WsFederationOptions>();
-            _authorizationParametersMessageStore = _authorizationParametersMessageStore ?? context.RequestServices.GetService<IAuthorizationParametersMessageStore>();
-        }
-
         /// <summary>
         /// Executes the result.
         /// </summary>
         /// <param name="context">The HTTP context.</param>
         /// <returns></returns>
-        public Task ExecuteAsync(HttpContext context)
+        public async Task ExecuteAsync(HttpContext context)
         {
             Init(context);
 
-            string returnUrl = context.GetIdentityServerBasePath().RemoveLeadingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederation;
-            //if (_authorizationParametersMessageStore != null)
-            //{
-            //    var msg = new Message<IDictionary<string, string[]>>(_request.Raw.ToFullDictionary());
-            //    var id = await _authorizationParametersMessageStore.WriteAsync(msg);
-            //    returnUrl = returnUrl.AddQueryString(Constants.AuthorizationParamsStore.MessageStoreIdParameterName, id);
-            //}
-            //else
-            //{
-                returnUrl = returnUrl.AddQueryString(_request.BuildRedirectUrl());
-            //}
+            string returnUrl = context.GetIdentityServerBasePath().EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederation;
+            if (_authorizationParametersMessageStore != null)
+            {
+                IDictionary<string, string[]> dictionary = new Dictionary<string, string[]>();
+                foreach(var p in _request.WsFederationMessage.Parameters)
+                {
+                    dictionary.Add(p.Key, new string[] { p.Value });
+                }
+
+                var msg = new Message<IDictionary<string, string[]>>(dictionary, DateTime.UtcNow);
+                var id = await _authorizationParametersMessageStore.WriteAsync(msg);
+                returnUrl = returnUrl.AddQueryString(WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName, id);
+            }
+            else
+            {
+                returnUrl = returnUrl.AddQueryString(_request.WsFederationMessage.BuildRedirectUrl());
+            }
 
             var loginUrl = _options.UserInteraction.LoginUrl;
             if (!loginUrl.IsLocalUrl())
@@ -71,7 +71,13 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
 
             var url = loginUrl.AddQueryString(_options.UserInteraction.LoginReturnUrlParameter, returnUrl);
             context.Response.RedirectToAbsoluteUrl(url);
-            return Task.CompletedTask;
+        }
+
+        private void Init(HttpContext context)
+        {
+            _options = _options ?? context.RequestServices.GetRequiredService<IdentityServerOptions>();
+            _wsFederationOptions = _wsFederationOptions ?? context.RequestServices.GetRequiredService<WsFederationOptions>();
+            _authorizationParametersMessageStore = _authorizationParametersMessageStore ?? context.RequestServices.GetService<IAuthorizationParametersMessageStore>();
         }
     }
 }
