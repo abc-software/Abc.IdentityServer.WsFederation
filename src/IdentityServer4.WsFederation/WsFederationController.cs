@@ -2,21 +2,21 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityServer4.Configuration;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
+using IdentityServer4.Stores;
+using IdentityServer4.WsFederation.Validation;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityServer4.Extensions;
-using IdentityServer4.WsFederation.Validation;
-using IdentityServer4.Configuration;
-using IdentityServer4.Services;
-using Microsoft.IdentityModel.Protocols.WsFederation;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
-using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer4.WsFederation
 {
@@ -122,7 +122,7 @@ namespace IdentityServer4.WsFederation
             {
                 // create protocol response
                 var responseMessage = await _generator.GenerateResponseAsync(result);
-                await _userSession.AddClientIdAsync(result.Client.ClientId);
+                await _userSession.AddClientIdAsync(result.ValidatedRequest.ClientId);
                 
                 return new SignInResult(responseMessage);
             }
@@ -136,13 +136,13 @@ namespace IdentityServer4.WsFederation
                 return RedirectToLogOut();
             }
 
-            var result = await _signoutValidator.ValidateAsync(message, User);
+            var result = await _signoutValidator.ValidateAsync(message);
             if (result.IsError)
             {
                 throw new Exception(result.Error);
             }
 
-            return await RedirectToLogOutAsync(result);
+            return await RedirectToLogOutAsync(result.ValidatedRequest);
         }
 
         private IActionResult RedirectToLogOut()
@@ -156,16 +156,16 @@ namespace IdentityServer4.WsFederation
             return Redirect(redirectUrl);
         }
 
-        private async Task<IActionResult> RedirectToLogOutAsync(SignOutValidationResult validatedResult)
+        private async Task<IActionResult> RedirectToLogOutAsync(ValidatedWsFederationRequest validatedRequest)
         {
             var logoutMessage = new LogoutMessage()
             {
-                ClientId = validatedResult.Client?.ClientId,
-                ClientName = validatedResult.Client?.ClientName,
-                SubjectId = validatedResult.User?.GetSubjectId(),
-                SessionId = validatedResult.SessionId,
-                ClientIds = validatedResult.ClientIds,
-                PostLogoutRedirectUri = validatedResult.ReplyUrl
+                ClientId = validatedRequest.Client?.ClientId,
+                ClientName = validatedRequest.Client?.ClientName,
+                SubjectId = validatedRequest.Subject?.GetSubjectId(),
+                SessionId = validatedRequest.SessionId,
+                ClientIds = validatedRequest.ClientIds,
+                PostLogoutRedirectUri = validatedRequest.ReplyUrl
             };
 
             string id = null;

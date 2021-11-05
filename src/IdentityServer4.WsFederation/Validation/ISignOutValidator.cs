@@ -6,6 +6,6 @@ namespace IdentityServer4.WsFederation.Validation
 {
     public interface ISignOutValidator
     {
-        Task<SignOutValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user);
+        Task<SignOutValidationResult> ValidateAsync(WsFederationMessage message);
     }
 }
