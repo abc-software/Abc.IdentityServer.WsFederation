@@ -68,7 +68,7 @@ namespace IdentityServer4.WsFederation
         protected virtual async Task<ClaimsIdentity> CreateSubjectAsync(SignInValidationResult result)
         {
             var validatedRequest = result.ValidatedRequest;
-            var requestedClaimTypes = await GetRequestedClaimTypesAsync(validatedRequest?.ValidatedResources?.ParsedScopes.Select(x => x.ParsedName) ?? validatedRequest.Client.AllowedScopes);
+            var requestedClaimTypes = await GetRequestedClaimTypesAsync(validatedRequest.ValidatedResources.ParsedScopes.Select(x => x.ParsedName));
             var issuedClaims = await GetIssuedClaimsAsync(result, requestedClaimTypes);
 
             // map outbound claims

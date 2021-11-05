@@ -142,11 +142,17 @@ namespace IdentityServer4.WsFederation.Validation
                 }
             }
 
+            await ValidateRequestedResourcesAsync(validatedResult);
+
+            return new SignInValidationResult(validatedResult);
+        }
+
+        protected virtual Task ValidateRequestedResourcesAsync(ValidatedWsFederationRequest validatedRequest) {
             /*
             var resourceValidationResult = await resourceValidator.ValidateRequestedResourcesAsync(new ResourceValidationRequest
             {
                 Client = validatedResult.Client,
-                Scopes = requestedScopes
+                Scopes = validatedResult.Client.AllowedScopes,
             });
             if (!resourceValidationResult.Succeeded)
             {
@@ -160,11 +166,16 @@ namespace IdentityServer4.WsFederation.Validation
                 }
                 return false;
             }
-
-            validatedResult.ValidatedResources = resourceValidationResult;
             */
+            var resourceValidationResult = new ResourceValidationResult();
 
-            return new SignInValidationResult(validatedResult);
+            foreach (var item in validatedRequest.Client.AllowedScopes)
+            {
+                resourceValidationResult.ParsedScopes.Add(new ParsedScopeValue(item));
+            }
+
+            validatedRequest.ValidatedResources = resourceValidationResult;
+            return Task.CompletedTask;
         }
     }
 }
