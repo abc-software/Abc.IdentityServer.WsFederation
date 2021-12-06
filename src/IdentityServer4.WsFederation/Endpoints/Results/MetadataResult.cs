@@ -26,7 +26,7 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
         {
             var ser = new WsFederationMetadataSerializer();
             using (var ms = new MemoryStream())
-            using (XmlWriter writer = XmlDictionaryWriter.CreateTextWriter(ms, Encoding.UTF8, false))
+            using (var writer = XmlDictionaryWriter.CreateTextWriter(ms, Encoding.UTF8, false))
             {
                 WsFederationMetadataSerializerExtensions.WriteMetadata(ser, writer, _config);
                 // ser.WriteMetadata(writer, _config);

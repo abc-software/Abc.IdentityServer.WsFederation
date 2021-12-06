@@ -71,15 +71,15 @@ namespace IdentityServer4.WsFederation
             var requestedClaimTypes = await GetRequestedClaimTypesAsync(validatedRequest.ValidatedResources.ParsedScopes.Select(x => x.ParsedName));
             var issuedClaims = await GetIssuedClaimsAsync(result, requestedClaimTypes);
 
-            // map outbound claims
-            var nameid = new Claim(ClaimTypes.NameIdentifier, validatedRequest.Subject.GetSubjectId());
-            nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] =
-                validatedRequest.RelyingParty?.SamlNameIdentifierFormat ?? _options.DefaultSamlNameIdentifierFormat;
-
             var outboundClaims = new List<Claim>();
             outboundClaims.AddRange(MapClaims(validatedRequest.RelyingParty, issuedClaims));
-            outboundClaims.RemoveAll(c => c.Type == ClaimTypes.NameIdentifier); //remove previously added nameid claim
-            outboundClaims.Add(nameid);
+
+            if (!outboundClaims.Exists(x => x.Type == ClaimTypes.NameIdentifier)) {
+                var nameid = new Claim(ClaimTypes.NameIdentifier, validatedRequest.Subject.GetSubjectId());
+                nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] =
+                    validatedRequest.RelyingParty?.SamlNameIdentifierFormat ?? _options.DefaultSamlNameIdentifierFormat;
+                outboundClaims.Add(nameid);
+            }
 
             // The AuthnStatement statement generated from the following 2
             // claims is mandatory for some service providers (i.e. Shibboleth-Sp). 
@@ -123,6 +123,7 @@ namespace IdentityServer4.WsFederation
         {
             var ctx = new ProfileDataRequestContext(validationResult.ValidatedRequest.Subject, validationResult.ValidatedRequest.Client, "WS-Federation", requestedClaimTypes)
             {
+                RequestedResources = validationResult.ValidatedRequest.ValidatedResources,
                 ValidatedRequest = validationResult.ValidatedRequest,
             };
 
@@ -143,15 +144,21 @@ namespace IdentityServer4.WsFederation
                 if (claimMapping.ContainsKey(claim.Type))
                 {
                     outboundClaims.Add(new Claim(claimMapping[claim.Type], claim.Value, claim.ValueType, claim.Issuer, claim.OriginalIssuer));
+                    continue;
                 }
-                else if (relyingParty.TokenType != WsFederationConstants.TokenTypes.Saml11TokenProfile11)
+
+                // SAML1.1 requires a URI claim type
+                if (relyingParty.TokenType == WsFederationConstants.TokenTypes.Saml11TokenProfile11
+                    || relyingParty.TokenType == WsFederationConstants.TokenTypes.OasisWssSaml11TokenProfile11)
                 {
-                    outboundClaims.Add(claim);
+                    int num = claim.Type.LastIndexOf('/');
+                    if (num <= 0 || num == claim.Type.Length - 1) {
+                        _logger.LogInformation("No explicit claim type mapping for {claimType} configured. SAML1.1 requires a URI claim type. Skipping.", claim.Type);
+                        continue;
+                    }
                 }
-                else
-                {
-                    _logger.LogInformation("No explicit claim type mapping for {claimType} configured. Saml11 requires a URI claim type. Skipping.", claim.Type);
-                }
+
+                outboundClaims.Add(claim);
             }
 
             return outboundClaims;
@@ -203,15 +210,16 @@ namespace IdentityServer4.WsFederation
                 // and pass it to the right handler
                 var authMethod = descriptor.Subject.Claims.Single(x => x.Type == ClaimTypes.AuthenticationMethod).Value;
                 var authTime = descriptor.Subject.Claims.Single(x => x.Type == ClaimTypes.AuthenticationInstant).Value;
-                if (handler is SamlSecurityTokenHandler)
+                if (handler is SamlSecurityTokenHandler samlSecurityTokenHandler)
                 {
                     var auth = new Microsoft.IdentityModel.Tokens.Saml.AuthenticationInformation(new Uri(authMethod), DateTime.Parse(authTime));
-                    return ((SamlSecurityTokenHandler)handler).CreateToken(descriptor, auth);
+                    return samlSecurityTokenHandler.CreateToken(descriptor, auth);
                 }
-                if (handler is Saml2SecurityTokenHandler)
+
+                if (handler is Saml2SecurityTokenHandler saml2SecurityTokenHandler)
                 {
                     var auth = new Microsoft.IdentityModel.Tokens.Saml2.AuthenticationInformation(new Uri(authMethod), DateTime.Parse(authTime));
-                    return ((Saml2SecurityTokenHandler)handler).CreateToken(descriptor, auth);
+                    return saml2SecurityTokenHandler.CreateToken(descriptor, auth);
                 }
             }
 

@@ -43,7 +43,7 @@ namespace IdentityServer4.WsFederation
             var config = new WsFederationConfiguration()
             {
                 Issuer = issuer,
-                TokenEndpoint = baseUrl + WsFederationConstants.ProtocolRoutePaths.WsFederation,
+                TokenEndpoint = baseUrl + WsFederationConstants.ProtocolRoutePaths.WsFederation.EnsureLeadingSlash(),
                 SigningCredentials = signingCredentials,
             };
             config.SigningKeys.Add(signingKey);

@@ -1,7 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-using IdentityServer4.Configuration;
+﻿using IdentityServer4.Configuration;
 using IdentityServer4.Endpoints.Results;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
@@ -14,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
-using System;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -24,14 +20,16 @@ namespace IdentityServer4.WsFederation.Endpoints
     public class WsFederationEndpointHandler : IEndpointHandler
     {
         private readonly IUserSession _userSession;
+        private readonly IEventService _events;
         private readonly ISignInResponseGenerator _generator;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<WsFederationEndpointHandler> _logger;
+        private readonly ILogger _logger;
         private readonly IMetadataResponseGenerator _metadata;
         private readonly IdentityServerOptions _options;
         private readonly ISignInInteractionResponseGenerator _interaction;
         private readonly ISignInValidator _signinValidator;
         private readonly ISignOutValidator _signoutValidator;
+        private readonly IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
         public WsFederationEndpointHandler(
             IMetadataResponseGenerator metadata, 
@@ -44,7 +42,9 @@ namespace IdentityServer4.WsFederation.Endpoints
             IUserSession userSession,
             ISystemClock clock,
             IMessageStore<LogoutMessage> logoutMessageStore,
-            ILogger<WsFederationEndpointHandler> logger)
+            IEventService events,
+            ILogger<WsFederationEndpointHandler> logger,
+            IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
         {
             _metadata = metadata;
             _signinValidator = signinValidator;
@@ -54,19 +54,15 @@ namespace IdentityServer4.WsFederation.Endpoints
             _generator = generator;
             _httpContextAccessor = httpContextAccessor;
             _userSession = userSession;
+            _events = events;
             _logger = logger;
+            _authorizationParametersMessageStore = authorizationParametersMessageStore;
         }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
         {
-            if (!HttpMethods.IsGet(context.Request.Method))
-            {
-                _logger.LogWarning("WS-Federation endpoint only supports GET requests");
-                return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
-            }
-
             // GET + no parameters = metadata request
-            if (!context.Request.QueryString.HasValue)
+            if (HttpMethods.IsGet(context.Request.Method) && !context.Request.QueryString.HasValue)
             {
                 _logger.LogDebug("Start WS-Federation metadata request");
                 var entity = await _metadata.GenerateAsync();
@@ -78,15 +74,23 @@ namespace IdentityServer4.WsFederation.Endpoints
 
             // user can be null here (this differs from HttpContext.User where the anonymous user is filled in)
             var user = await _userSession.GetUserAsync();
-            WsFederationMessage message = WsFederationMessage.FromUri(new Uri(url));
-            var isSignin = message.IsSignInMessage;
-            if (isSignin)
+
+            var messageStoreId = context.Request.Query[WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName];
+            if (!string.IsNullOrWhiteSpace(messageStoreId))
+            {
+                return await ProcessSignInCallbackAsync(messageStoreId, user);
+            }
+
+            var message = context.Request.HasFormContentType
+                ? context.Request.Form.ToWsFederationMessage()
+                : context.Request.Query.ToWsFederationMessage();
+
+            if (message.IsSignInMessage)
             {
                 return await ProcessSignInAsync(message, user);
             }
 
-            var isSignout = message.IsSignOutMessage;
-            if (isSignout)
+            if (message.IsSignOutMessage)
             {
                 return await ProcessSignOutAsync(message, user);
             }
@@ -94,7 +98,7 @@ namespace IdentityServer4.WsFederation.Endpoints
             return new StatusCodeResult(HttpStatusCode.BadRequest);
         }
 
-        private async Task<IEndpointResult> ProcessSignInAsync(WsFederationMessage signin, ClaimsPrincipal user)
+        internal async Task<IEndpointResult> ProcessSignInAsync(WsFederationMessage signin, ClaimsPrincipal user)
         {
             if (user != null && user.Identity.IsAuthenticated)
             {
@@ -108,13 +112,22 @@ namespace IdentityServer4.WsFederation.Endpoints
             var validationResult = await _signinValidator.ValidateAsync(signin, user);
             if (validationResult.IsError)
             {
-                return CreateSignInErrorResult("WS-Federation sign in request validation failed", validationResult.ValidatedRequest, validationResult.Error, validationResult.ErrorDescription);
+                return await CreateSignInErrorResult(
+                    "WS-Federation sign in request validation failed", 
+                    validationResult.ValidatedRequest, 
+                    validationResult.Error, 
+                    validationResult.ErrorDescription);
             }
 
             var interactionResult = await _interaction.ProcessInteractionAsync(validationResult.ValidatedRequest);
             if (interactionResult.IsError)
             {
-                return CreateSignInErrorResult("WS-Federation interaction generator error", validationResult.ValidatedRequest, interactionResult.Error, interactionResult.ErrorDescription, false);
+                return await CreateSignInErrorResult(
+                    "WS-Federation interaction generator error", 
+                    validationResult.ValidatedRequest, 
+                    interactionResult.Error, 
+                    interactionResult.ErrorDescription, 
+                    false);
             }
 
             if (interactionResult.IsLogin)
@@ -122,18 +135,20 @@ namespace IdentityServer4.WsFederation.Endpoints
                 return new Results.LoginPageResult(validationResult.ValidatedRequest);
             }
 
-            //if (interactionResult.IsRedirect)
-            //{
-            //    return new CustomRedirectResult(validationResult.ValidatedRequest);
-            //}
+            if (interactionResult.IsRedirect)
+            {
+                return new Results.CustomRedirectResult(validationResult.ValidatedRequest, interactionResult.RedirectUrl);
+            }
 
             var responseMessage = await _generator.GenerateResponseAsync(validationResult);
             await _userSession.AddClientIdAsync(validationResult.ValidatedRequest.ClientId);
-                
+            
+            await _events.RaiseAsync(new Events.SignInTokenIssuedSuccessEvent(responseMessage, validationResult));
+            
             return new Results.SignInResult(responseMessage);
         }
 
-        private async Task<IEndpointResult> ProcessSignOutAsync(WsFederationMessage message, ClaimsPrincipal user)
+        internal async Task<IEndpointResult> ProcessSignOutAsync(WsFederationMessage message, ClaimsPrincipal user)
         {
             if (string.IsNullOrWhiteSpace(message.Wreply) ||
                 string.IsNullOrWhiteSpace(message.Wtrealm))
@@ -144,40 +159,73 @@ namespace IdentityServer4.WsFederation.Endpoints
             var validationResult = await _signoutValidator.ValidateAsync(message);
             if (validationResult.IsError)
             {
-                return CreateSignOutErrorResult("WS-Federation sign out request validation failed", validationResult.ValidatedRequest, validationResult.Error, validationResult.ErrorDescription);
+                return await CreateSignOutErrorResult(
+                    "WS-Federation sign out request validation failed", 
+                    validationResult.ValidatedRequest, 
+                    validationResult.Error, 
+                    validationResult.ErrorDescription);
             }
 
             return new Results.SignOutResult(validationResult.ValidatedRequest);
         }
 
-        private IEndpointResult CreateSignInErrorResult(string logMessage, ValidatedWsFederationRequest request = null, string error = "server_error", string errorDescription = null, bool logError = true)
+        internal async Task<IEndpointResult> ProcessSignInCallbackAsync(string messageStoreId, ClaimsPrincipal user)
+        {
+            if (_authorizationParametersMessageStore != null)
+            {
+                var data = await _authorizationParametersMessageStore.ReadAsync(messageStoreId);
+                await _authorizationParametersMessageStore.DeleteAsync(messageStoreId);
+
+                var message = data.Data.ToWsFederationMessage();
+                if (message.IsSignInMessage)
+                {
+                    return await ProcessSignInAsync(message, user);
+                }
+            }
+
+            return new StatusCodeResult(HttpStatusCode.BadRequest);
+        }
+
+        protected async Task<IEndpointResult> CreateSignInErrorResult(
+            string logMessage, 
+            ValidatedWsFederationRequest request = null, 
+            string error = "server_error", 
+            string errorDescription = null, 
+            bool logError = true)
         {
             if (logError)
             {
                 _logger.LogError(logMessage);
             }
 
-            //if (request != null)
-            //{
-            //    _logger.LogError($"{logMessage}\n{request}");
-            //}
+            if (request != null)
+            {
+                _logger.LogInformation("{@validationDetails}", new Logging.ValidatedWsFederationRequestLog(request, new string[0]));
+            }
+
+            await _events.RaiseAsync(new Events.SignInTokenIssuedFailureEvent(request, error, errorDescription));
 
             return new Results.ErrorPageResult(error, errorDescription);
         }
 
-        private IEndpointResult CreateSignOutErrorResult(string logMessage, ValidatedWsFederationRequest request = null, string error = "server_error", string errorDescription = null, bool logError = true)
+        protected Task<IEndpointResult> CreateSignOutErrorResult(
+            string logMessage, 
+            ValidatedWsFederationRequest request = null, 
+            string error = "server_error", 
+            string errorDescription = null, 
+            bool logError = true)
         {
             if (logError)
             {
                 _logger.LogError(logMessage);
             }
 
-            //if (request != null)
-            //{
-            //    _logger.LogError($"{logMessage}\n{request}");
-            //}
+            if (request != null)
+            {
+                _logger.LogInformation("{@validationDetails}", new Logging.ValidatedWsFederationRequestLog(request, new string[0]));
+            }
 
-            return new Results.ErrorPageResult(error, errorDescription);
+            return Task.FromResult<IEndpointResult>(new Results.ErrorPageResult(error, errorDescription));
         }
     }
 }

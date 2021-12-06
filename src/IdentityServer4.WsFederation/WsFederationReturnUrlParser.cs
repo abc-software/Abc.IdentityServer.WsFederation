@@ -9,6 +9,7 @@ using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using IdentityServer4.WsFederation.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System;
@@ -22,15 +23,18 @@ namespace IdentityServer4.WsFederation
         private readonly ILogger<WsFederationReturnUrlParser> _logger;
         private readonly ISignInValidator _signinValidator;
         private readonly IUserSession _userSession;
+        private readonly IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
         public WsFederationReturnUrlParser(
             IUserSession userSession,
             ISignInValidator signinValidator,
-            ILogger<WsFederationReturnUrlParser> logger)
+            ILogger<WsFederationReturnUrlParser> logger,
+            IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
         {
             _signinValidator = signinValidator;
             _userSession = userSession;
             _logger = logger;
+            _authorizationParametersMessageStore = authorizationParametersMessageStore;
         }
 
         public bool IsValidReturnUrl(string returnUrl)
@@ -61,7 +65,7 @@ namespace IdentityServer4.WsFederation
                 return null;
             }
 
-            var signInMessage = GetSignInRequestMessage(returnUrl);
+            var signInMessage = await GetSignInRequestMessage(returnUrl);
             if (signInMessage == null)
             {
                 return null;
@@ -91,16 +95,32 @@ namespace IdentityServer4.WsFederation
             return request;
         }
 
-        private WsFederationMessage GetSignInRequestMessage(string returnUrl)
+        private async Task<WsFederationMessage> GetSignInRequestMessage(string returnUrl)
         {
-            var decoded = WebUtility.UrlDecode(returnUrl);
-            int index = decoded.IndexOf('?');
+            int index = returnUrl.IndexOf('?');
             if (0 <= index)
             {
-                decoded = decoded.Substring(index);
+                returnUrl = returnUrl.Substring(index);
             }
 
-            WsFederationMessage message = WsFederationMessage.FromQueryString(decoded);
+            WsFederationMessage message;
+            if (_authorizationParametersMessageStore != null)
+            {
+                var query = QueryHelpers.ParseNullableQuery(returnUrl);
+                if (!query.ContainsKey(WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName))
+                {
+                    return null;
+                }
+
+                string messageStoreId = query[WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName];
+                var data = await _authorizationParametersMessageStore.ReadAsync(messageStoreId);
+                message = data.Data.ToWsFederationMessage();
+            }
+            else
+            {
+                message = WsFederationMessage.FromQueryString(returnUrl);
+            }
+
             if (message.IsSignInMessage)
             {
                 return message;

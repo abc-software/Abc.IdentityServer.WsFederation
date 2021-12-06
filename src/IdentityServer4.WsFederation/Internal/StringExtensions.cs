@@ -13,6 +13,17 @@ namespace IdentityServer4.Extensions
     internal static class Extensions
     {
         [DebuggerStepThrough]
+        public static string ToSpaceSeparatedString(this IEnumerable<string> list)
+        {
+            if (list == null)
+            {
+                return string.Empty;
+            }
+
+            return string.Join(" ", list);
+        }
+
+        [DebuggerStepThrough]
         public static NameValueCollection AsNameValueCollection(this IDictionary<string, StringValues> collection)
         {
             var nv = new NameValueCollection();

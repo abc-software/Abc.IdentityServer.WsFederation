@@ -6,6 +6,7 @@ using IdentityServer4.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.WsFederation;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace IdentityServer4.WsFederation.Endpoints.Results
@@ -19,11 +20,12 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
             Message = message;
         }
 
-        public Task ExecuteAsync(HttpContext context)
+        public async Task ExecuteAsync(HttpContext context)
         {
-            context.Response.ContentType = "text/html";
+            context.Response.ContentType = "text/html; charset=UTF-8";
             var message = Message.BuildFormPost();
-            return context.Response.WriteAsync(message);
+            await context.Response.WriteAsync(message, Encoding.UTF8);
+            await context.Response.Body.FlushAsync();
         }
     }
 }

@@ -94,7 +94,31 @@ namespace IdentityServer4.WsFederation
         public static IEnumerable<RelyingParty> GetRelyingParties()
         {
             return new[]
-            {
+            {   
+                new RelyingParty
+                {
+                    Realm = "urn:owinrp",
+
+                    // SAML1.1 assertion
+                    TokenType = WsFederationConstants.TokenTypes.Saml11TokenProfile11,
+
+                    // SHA256
+                    DigestAlgorithm = SecurityAlgorithms.Sha256Digest,
+                    SignatureAlgorithm = SecurityAlgorithms.RsaSha256Signature,
+                    SamlNameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString
+                },
+                new RelyingParty
+                {
+                    Realm = "urn:aspnetcorerp",
+
+                    // SAML2.0 assertion
+                    TokenType = WsFederationConstants.TokenTypes.Saml2TokenProfile11,
+
+                    // SHA512
+                    DigestAlgorithm = SecurityAlgorithms.Sha512Digest,
+                    SignatureAlgorithm = SecurityAlgorithms.RsaSha512Signature,
+                    SamlNameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString
+                },
                 new RelyingParty
                 {
                     Realm = "urn:sharepoint",

@@ -12,54 +12,53 @@ using System.Threading.Tasks;
 
 namespace IdentityServer4.WsFederation.Endpoints.Results
 {
-    public class LoginPageResult : IEndpointResult
+    internal class CustomRedirectResult : IEndpointResult
     {
         private readonly ValidatedWsFederationRequest _request;
+        private readonly string _url;
         private IdentityServerOptions _options;
         private IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
-        public LoginPageResult(ValidatedWsFederationRequest request)
+        public CustomRedirectResult(ValidatedWsFederationRequest request, string url)
         {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (url.IsMissing()) throw new ArgumentNullException(nameof(url));
+
             _request = request;
+            _url = url;
         }
 
-        internal LoginPageResult(ValidatedWsFederationRequest request, IdentityServerOptions options, IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
-            : this(request)
+        internal CustomRedirectResult(ValidatedWsFederationRequest request, string url, IdentityServerOptions options, IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
+            : this(request, url)
         {
             _options = options;
             _authorizationParametersMessageStore = authorizationParametersMessageStore;
         }
 
-        /// <summary>
-        /// Executes the result.
-        /// </summary>
-        /// <param name="context">The HTTP context.</param>
-        /// <returns></returns>
         public async Task ExecuteAsync(HttpContext context)
         {
             Init(context);
 
-            string returnUrl = context.GetIdentityServerBasePath().EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederation;
+            var returnUrl = context.GetIdentityServerBasePath().EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederation;
             if (_authorizationParametersMessageStore != null)
             {
-                var msg = new Message<IDictionary<string, string[]>>(_request.WsFederationMessage.ToDictionary(), DateTime.UtcNow);
-                var id = await _authorizationParametersMessageStore.WriteAsync(msg);
-                returnUrl = returnUrl.AddQueryString(WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName, id);
+                var msg = new Message<IDictionary<string, string[]>>(_request.WsFederationMessage.ToDictionary(), DateTime.Now);
+                returnUrl = returnUrl.AddQueryString(WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName, await _authorizationParametersMessageStore.WriteAsync(msg));
             }
             else
             {
+                //returnUrl = returnUrl.AddQueryString(_request.Raw.ToQueryString());
                 returnUrl = returnUrl.AddQueryString(_request.WsFederationMessage.ToQueryString());
             }
 
-            var loginUrl = _options.UserInteraction.LoginUrl;
-            if (!loginUrl.IsLocalUrl())
+            if (!_url.IsLocalUrl())
             {
                 // this converts the relative redirect path to an absolute one if we're 
                 // redirecting to a different server
-                returnUrl = context.GetIdentityServerHost().EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
+                returnUrl = context.GetIdentityServerBaseUrl().EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
             }
 
-            var url = loginUrl.AddQueryString(_options.UserInteraction.LoginReturnUrlParameter, returnUrl);
+            var url = _url.AddQueryString(_options.UserInteraction.CustomRedirectReturnUrlParameter, returnUrl);
             context.Response.RedirectToAbsoluteUrl(url);
         }
 

@@ -14,7 +14,5 @@ namespace IdentityServer4.WsFederation.Validation
         public string ReplyUrl { get; set; }
 
         public IEnumerable<string> ClientIds { get; set; }
-
-        public string AdditionalContext { get; set; }
     }
 }

@@ -9,8 +9,10 @@ namespace IdentityServer4.WsFederation.Services {
         public SecurityTokenHandler CreateHandler(string tokenType) {
             switch (tokenType) {
                 case WsFederationConstants.TokenTypes.Saml11TokenProfile11:
+                case WsFederationConstants.TokenTypes.OasisWssSaml11TokenProfile11:
                     return new SamlSecurityTokenHandler();
                 case WsFederationConstants.TokenTypes.Saml2TokenProfile11:
+                case WsFederationConstants.TokenTypes.OasisWssSaml2TokenProfile11:
                     return new Saml2SecurityTokenHandler();
                 default:
                     throw new NotImplementedException($"TokenType: {tokenType} not implemented");
