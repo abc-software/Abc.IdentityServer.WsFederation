@@ -16,7 +16,10 @@ namespace IdentityServer4.WsFederation.Stores
         public string DigestAlgorithm { get; set; }
         public string SignatureAlgorithm { get; set; }
         public string SamlNameIdentifierFormat { get; set; }
+
         public X509Certificate2 EncryptionCertificate { get; set; }
+        public string EncryptionAlgoithm { get; set; }
+        public string KeyWrapAlgoithm { get; set; }
 
         public IDictionary<string, string> ClaimMapping { get; set; }
     }

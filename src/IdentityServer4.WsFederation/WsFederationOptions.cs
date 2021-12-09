@@ -15,6 +15,8 @@ namespace IdentityServer4.WsFederation
         public string DefaultDigestAlgorithm { get; set; } = SecurityAlgorithms.Sha256Digest;
         public string DefaultSignatureAlgorithm { get; set; } = SecurityAlgorithms.RsaSha256Signature;
         public string DefaultSamlNameIdentifierFormat { get; set; } = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString;
+        public string DefaultEncryptionAlgorithm { get; set; } = SecurityAlgorithms.Aes256Encryption;
+        public string DefaultKeyWrapAlgorithm { get; set; } = SecurityAlgorithms.RsaOaepKeyWrap;
 
         public IDictionary<string, string> DefaultClaimMapping { get; set; } = new Dictionary<string, string>
         {

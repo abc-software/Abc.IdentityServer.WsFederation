@@ -192,7 +192,11 @@ namespace IdentityServer4.WsFederation
 
             if (validatedRequest.RelyingParty?.EncryptionCertificate != null)
             {
-                descriptor.EncryptingCredentials = new X509EncryptingCredentials(validatedRequest.RelyingParty.EncryptionCertificate);
+                descriptor.EncryptingCredentials = new X509EncryptingCredentials(
+                    validatedRequest.RelyingParty.EncryptionCertificate,
+                    validatedRequest.RelyingParty.KeyWrapAlgoithm ?? _options.DefaultKeyWrapAlgorithm,
+                    validatedRequest.RelyingParty.EncryptionAlgoithm ?? _options.DefaultEncryptionAlgorithm
+                    );
             }
 
             var handler = _securityTokenHandlerFactory.CreateHandler(validatedRequest.RelyingParty?.TokenType ?? _options.DefaultTokenType);
