@@ -20,26 +20,47 @@ namespace IdentityServer4.WsFederation
         public DateTime ExpiresAt { get;set; }
         public string AppliesTo { get; set; }
         public string Context { get; set; }
-        public string ReplyTo { get; set; }
+        public string TokenType { get; set; }
         public SecurityToken RequestedSecurityToken { get; set; }
-        public SecurityTokenHandler SecurityTokenHandler { get; set; }
 
-        public string Serialize()
+        public string Serialize(SecurityTokenHandler securityTokenHandler, WsTrustVersion trustVersion)
         {
+            if (securityTokenHandler is null)
+            {
+                throw new ArgumentNullException(nameof(securityTokenHandler));
+            }
+
             using (var ms = new MemoryStream())
             {
+                bool flag;
+                string prefix;
+                string ns;
+                if (trustVersion == WsTrustVersion.WsTrust2005) {
+                    flag = false;
+                    prefix = WsTrustConstants_2005.PreferredPrefix;
+                    ns = WsTrustConstants.Namespaces.WsTrust2005;
+                }
+                else {
+                    flag = true;
+                    prefix = WsTrustConstants_1_3.PreferredPrefix;
+                    ns = WsTrustConstants.Namespaces.WsTrust1_3;
+                }
+
                 using (var writer = XmlDictionaryWriter.CreateTextWriter(ms, Encoding.UTF8, false))
                 {
                     // <t:RequestSecurityTokenResponseCollection>
-                    //TODO: check if collection is required
-                    writer.WriteStartElement(WsTrustConstants_1_3.PreferredPrefix, WsFederationConstants.Elements.RequestSecurityTokenResponseCollection, WsTrustConstants.Namespaces.WsTrust1_3);
+                    if (flag)
+                    {
+                        writer.WriteStartElement(prefix, WsFederationConstants.Elements.RequestSecurityTokenResponseCollection, ns);
+                    }
+                
                     // <t:RequestSecurityTokenResponse>
-                    writer.WriteStartElement(WsTrustConstants_1_3.PreferredPrefix, WsTrustConstants.Elements.RequestSecurityTokenResponse, WsTrustConstants.Namespaces.WsTrust1_3);
+                    writer.WriteStartElement(prefix, WsTrustConstants.Elements.RequestSecurityTokenResponse, ns);
                     // @Context
                     writer.WriteAttributeString(WsFederationConstants.Attributes.Context, Context);
 
                     // <t:Lifetime>
-                    writer.WriteStartElement(WsTrustConstants.Elements.Lifetime, WsTrustConstants.Namespaces.WsTrust1_3);
+                    writer.WriteStartElement(prefix, WsTrustConstants.Elements.Lifetime, ns);
 
                     // <wsu:Created></wsu:Created>
                     writer.WriteElementString(WsUtility.PreferredPrefix, WsUtility.Elements.Created, WsFederationConstants.WsUtility.Namespace, CreatedAt.ToString(SamlConstants.GeneratedDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
@@ -58,31 +79,39 @@ namespace IdentityServer4.WsFederation
                     // <wsa:Address></wsa:Address>
                     writer.WriteElementString(WsAddressing.PreferredPrefix, WsAddressing.Elements.Address, WsAddressing.Namespace, AppliesTo);
 
-                    writer.WriteEndElement();
                     // </wsa:EndpointReference>
-
                     writer.WriteEndElement();
+
                     // </wsp:AppliesTo>
+                    writer.WriteEndElement();
 
                     // <t:RequestedSecurityToken>
-                    writer.WriteStartElement(WsTrustConstants_1_3.PreferredPrefix, WsTrustConstants.Elements.RequestedSecurityToken, WsTrustConstants.Namespaces.WsTrust1_3);
+                    writer.WriteStartElement(prefix, WsTrustConstants.Elements.RequestedSecurityToken, ns);
 
                     // write assertion
-                    SecurityTokenHandler.WriteToken(writer, RequestedSecurityToken);
+                    securityTokenHandler.WriteToken(writer, RequestedSecurityToken);
 
                     // </t:RequestedSecurityToken>
                     writer.WriteEndElement();
+
+                    // <t:TokenType>
+                    if (!string.IsNullOrEmpty(TokenType))
+                    {
+                        writer.WriteElementString(prefix, WsTrustConstants.Elements.TokenType, ns, TokenType);
+                    }
 
                     // </t:RequestSecurityTokenResponse>
                     writer.WriteEndElement();
 
                     // <t:RequestSecurityTokenResponseCollection>
-                    writer.WriteEndElement();
-
-                    writer.Flush();
-                    var result = Encoding.UTF8.GetString(ms.ToArray());
-                    return result;
+                    if (flag)
+                    {
+                        writer.WriteEndElement();
+                    }
                 }
+
+                var result = Encoding.UTF8.GetString(ms.ToArray());
+                return result;
             }
         }
     }

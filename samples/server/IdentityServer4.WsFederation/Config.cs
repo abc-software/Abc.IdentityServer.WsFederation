@@ -105,7 +105,10 @@ namespace IdentityServer4.WsFederation
                     // SHA256
                     DigestAlgorithm = SecurityAlgorithms.Sha256Digest,
                     SignatureAlgorithm = SecurityAlgorithms.RsaSha256Signature,
-                    SamlNameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString
+                    SamlNameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString,
+
+                    // WS-Trust2005
+                    WsTrustVersion = WsTrustVersion.WsTrust2005,
                 },
                 new RelyingParty
                 {

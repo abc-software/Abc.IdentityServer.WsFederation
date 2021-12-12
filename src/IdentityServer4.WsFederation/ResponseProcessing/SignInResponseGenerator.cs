@@ -188,6 +188,7 @@ namespace IdentityServer4.WsFederation
                 SigningCredentials = signingCredentials,
                 Subject = outgoingSubject,
                 Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
+                TokenType = validatedRequest.RelyingParty?.TokenType ?? _options.DefaultTokenType,
             };
 
             if (validatedRequest.RelyingParty?.EncryptionCertificate != null)
@@ -199,9 +200,9 @@ namespace IdentityServer4.WsFederation
                     );
             }
 
-            var handler = _securityTokenHandlerFactory.CreateHandler(validatedRequest.RelyingParty?.TokenType ?? _options.DefaultTokenType);
+            var handler = _securityTokenHandlerFactory.CreateHandler(descriptor.TokenType);
             var token = CreateToken(handler, descriptor);
-            return CreateResponse(validatedRequest, token, handler);
+            return CreateResponse(validatedRequest, token, handler, descriptor.TokenType);
         }
 
         private SecurityToken CreateToken(SecurityTokenHandler handler, SecurityTokenDescriptor descriptor)
@@ -230,7 +231,7 @@ namespace IdentityServer4.WsFederation
             return handler.CreateToken(descriptor);
         }
 
-        private WsFederationMessage CreateResponse(ValidatedWsFederationRequest validatedRequest, SecurityToken token, SecurityTokenHandler handler)
+        private WsFederationMessage CreateResponse(ValidatedWsFederationRequest validatedRequest, SecurityToken token, SecurityTokenHandler handler, string tokenType)
         {
             var rstr = new RequestSecurityTokenResponse
             {
@@ -238,16 +239,21 @@ namespace IdentityServer4.WsFederation
                 ExpiresAt = token.ValidTo,
                 AppliesTo = validatedRequest.Client.ClientId,
                 Context = validatedRequest.WsFederationMessage.Wctx,
-                ReplyTo = validatedRequest.ReplyUrl,
                 RequestedSecurityToken = token,
-                SecurityTokenHandler = handler,
+                TokenType = tokenType,
             };
+
+            var trustVersion = validatedRequest.RelyingParty?.WsTrustVersion ?? WsTrustVersion.Default;
+            if (trustVersion == WsTrustVersion.Default)
+            {
+                trustVersion = _options.DefaultWsTrustVersion;
+            }
 
             var responseMessage = new WsFederationMessage
             {
                 IssuerAddress = validatedRequest.ReplyUrl,
                 Wa = Microsoft.IdentityModel.Protocols.WsFederation.WsFederationConstants.WsFederationActions.SignIn,
-                Wresult = rstr.Serialize(),
+                Wresult = rstr.Serialize(handler, trustVersion),
                 Wctx = validatedRequest.WsFederationMessage.Wctx
             };
 
