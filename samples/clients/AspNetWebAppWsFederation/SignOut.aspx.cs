@@ -16,8 +16,13 @@ namespace AspNetWebAppWsFederation
                 string returnUrl = ResolveClientUrl(FormsAuthentication.DefaultUrl);
                 returnUrl = Request.Url.GetLeftPart(UriPartial.Authority) + returnUrl;
 
-                // FederatedSignOut method son't send wtrealm parameter
-                // WSFederationAuthenticationModule.FederatedSignOut(new Uri(SystemIdentityModelServicesSection.DefaultFederationConfigurationElement.WsFederation.Issuer), new Uri(returnUrl));
+                // BUG: WIF45 Method FederatedSignOut method don't send 'signOutQueryString' parameter from configuration
+                // In WSFederationAuthenticationModule class must be overridden method 'GetSessionTokenContext'
+                // protected override string GetSessionTokenContext() {
+                //   return "(" + typeof(WSFederationAuthenticationModule).Name + ")%%" + GetFederationPassiveSignOutUrl(Issuer, SignOutReply, "wtrealm=" + Realm);
+                // }
+                //WSFederationAuthenticationModule.FederatedSignOut(null, new Uri(returnUrl));
+
                 var realm = SystemIdentityModelServicesSection.DefaultFederationConfigurationElement.WsFederation.Realm;
                 var issuer = SystemIdentityModelServicesSection.DefaultFederationConfigurationElement.WsFederation.Issuer;
                 var federationPassiveSignOutUrl = WSFederationAuthenticationModule.GetFederationPassiveSignOutUrl(issuer, returnUrl, "wtrealm=" + realm);

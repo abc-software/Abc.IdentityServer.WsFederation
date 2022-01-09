@@ -161,6 +161,7 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="CustomWSFederationAuthenticationModule.cs" />
     <Compile Include="Secure.aspx.cs">
       <DependentUpon>Secure.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
