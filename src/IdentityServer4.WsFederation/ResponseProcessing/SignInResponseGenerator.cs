@@ -1,13 +1,8 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-using IdentityModel;
+﻿using IdentityModel;
 using IdentityServer4.Extensions;
-using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.WsFederation.Services;
-using IdentityServer4.WsFederation.Stores;
 using IdentityServer4.WsFederation.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +16,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Xml;
 
 namespace IdentityServer4.WsFederation
 {
@@ -29,7 +23,7 @@ namespace IdentityServer4.WsFederation
     {
         private readonly WsFederationOptions _options;
         private readonly IHttpContextAccessor _contextAccessor;
-        private readonly IProfileService _profile;
+        private readonly Services.IClaimsService _claimsService;
         private readonly IKeyMaterialService _keys;
         private readonly IResourceStore _resources;
         private readonly ISystemClock _clock;
@@ -39,7 +33,7 @@ namespace IdentityServer4.WsFederation
         public SignInResponseGenerator(
             IHttpContextAccessor contextAccessor,
             WsFederationOptions options,
-            IProfileService profile,
+            Services.IClaimsService claimsService,
             IKeyMaterialService keys,
             IResourceStore resources,
             ISystemClock clock,
@@ -48,7 +42,7 @@ namespace IdentityServer4.WsFederation
         {
             _contextAccessor = contextAccessor;
             _options = options;
-            _profile = profile;
+            _claimsService = claimsService;
             _keys = keys;
             _resources = resources;
             _clock = clock;
@@ -69,10 +63,18 @@ namespace IdentityServer4.WsFederation
         {
             var validatedRequest = result.ValidatedRequest;
             var requestedClaimTypes = await GetRequestedClaimTypesAsync(validatedRequest.ValidatedResources.ParsedScopes.Select(x => x.ParsedName));
-            var issuedClaims = await GetIssuedClaimsAsync(result, requestedClaimTypes);
+            var relyingParty = validatedRequest.RelyingParty;
+
+            var issuedClaims = await _claimsService.GetClaimsAsync(validatedRequest, requestedClaimTypes);
+
+            var tokenType = relyingParty?.TokenType ?? _options.DefaultTokenType;
+            var claimMapping =
+                relyingParty?.ClaimMapping != null && relyingParty.ClaimMapping.Any()
+                ? relyingParty.ClaimMapping
+                : _options.DefaultClaimMapping;
 
             var outboundClaims = new List<Claim>();
-            outboundClaims.AddRange(MapClaims(validatedRequest.RelyingParty, issuedClaims));
+            outboundClaims.AddRange(_claimsService.MapClaims(claimMapping, tokenType, issuedClaims));
 
             if (!outboundClaims.Exists(x => x.Type == ClaimTypes.NameIdentifier)) {
                 var nameid = new Claim(ClaimTypes.NameIdentifier, validatedRequest.Subject.GetSubjectId());
@@ -97,7 +99,7 @@ namespace IdentityServer4.WsFederation
             // authentication instant claim is required
             if (!outboundClaims.Exists(x => x.Type == ClaimTypes.AuthenticationInstant))
             {
-                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationInstant, XmlConvert.ToString(validatedRequest.Subject.GetAuthenticationTime(), "yyyy-MM-ddTHH:mm:ss.fffZ"), ClaimValueTypes.DateTime));
+                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationInstant, validatedRequest.Subject.GetAuthenticationTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), ClaimValueTypes.DateTime));
             }
 
             return new ClaimsIdentity(outboundClaims, "idsrv");
@@ -117,51 +119,6 @@ namespace IdentityServer4.WsFederation
             }
 
             return requestedClaimTypes;
-        }
-
-        protected virtual async Task<IList<Claim>> GetIssuedClaimsAsync(SignInValidationResult validationResult, IEnumerable<string> requestedClaimTypes)
-        {
-            var ctx = new ProfileDataRequestContext(validationResult.ValidatedRequest.Subject, validationResult.ValidatedRequest.Client, "WS-Federation", requestedClaimTypes)
-            {
-                RequestedResources = validationResult.ValidatedRequest.ValidatedResources,
-                ValidatedRequest = validationResult.ValidatedRequest,
-            };
-
-            await _profile.GetProfileDataAsync(ctx);
-            return ctx.IssuedClaims;
-        }
-
-        protected virtual IEnumerable<Claim> MapClaims(RelyingParty relyingParty, IEnumerable<Claim> claims)
-        {
-            var claimMapping = 
-                relyingParty?.ClaimMapping != null && relyingParty.ClaimMapping.Any() 
-                ? relyingParty.ClaimMapping
-                : _options.DefaultClaimMapping;
-
-            var outboundClaims = new List<Claim>();
-            foreach (var claim in claims)
-            {
-                if (claimMapping.ContainsKey(claim.Type))
-                {
-                    outboundClaims.Add(new Claim(claimMapping[claim.Type], claim.Value, claim.ValueType, claim.Issuer, claim.OriginalIssuer));
-                    continue;
-                }
-
-                // SAML1.1 requires a URI claim type
-                if (relyingParty.TokenType == WsFederationConstants.TokenTypes.Saml11TokenProfile11
-                    || relyingParty.TokenType == WsFederationConstants.TokenTypes.OasisWssSaml11TokenProfile11)
-                {
-                    int num = claim.Type.LastIndexOf('/');
-                    if (num <= 0 || num == claim.Type.Length - 1) {
-                        _logger.LogInformation("No explicit claim type mapping for {claimType} configured. SAML1.1 requires a URI claim type. Skipping.", claim.Type);
-                        continue;
-                    }
-                }
-
-                outboundClaims.Add(claim);
-            }
-
-            return outboundClaims;
         }
 
         private async Task<WsFederationMessage> CreateResponseAsync(ValidatedWsFederationRequest validatedRequest, ClaimsIdentity outgoingSubject)
@@ -196,8 +153,7 @@ namespace IdentityServer4.WsFederation
                 descriptor.EncryptingCredentials = new X509EncryptingCredentials(
                     validatedRequest.RelyingParty.EncryptionCertificate,
                     validatedRequest.RelyingParty.KeyWrapAlgoithm ?? _options.DefaultKeyWrapAlgorithm,
-                    validatedRequest.RelyingParty.EncryptionAlgoithm ?? _options.DefaultEncryptionAlgorithm
-                    );
+                    validatedRequest.RelyingParty.EncryptionAlgoithm ?? _options.DefaultEncryptionAlgorithm);
             }
 
             var handler = _securityTokenHandlerFactory.CreateHandler(descriptor.TokenType);
