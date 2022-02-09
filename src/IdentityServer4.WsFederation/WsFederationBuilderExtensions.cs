@@ -32,7 +32,6 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<ISignInInteractionResponseGenerator, SignInInteractionResponseGenerator>();
             builder.Services.AddTransient<ISignOutValidator, SignOutValidator>();
             builder.Services.AddTransient<IdentityServer4.Services.IReturnUrlParser, WsFederationReturnUrlParser>();
-            builder.Services.AddTransient<ISecurityTokenHandlerFactory, DefaultSecurityTokenHandlerFactory>();
             builder.Services.AddTransient<IClaimsService, DefaultClaimsService>();
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
 

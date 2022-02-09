@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using IdentityServer4.Configuration;
+using IdentityServer4.Extensions;
 
 namespace IdentityServer4.WsFederation.Validation
 {
@@ -44,25 +45,39 @@ namespace IdentityServer4.WsFederation.Validation
         public virtual async Task<SignOutValidationResult> ValidateAsync(WsFederationMessage message)
         {
             _logger.LogInformation("Start WS-Federation signout request validation");
+
             var validatedResult = new ValidatedWsFederationRequest()
             {
                 Options = _options,
                 WsFederationMessage = message,
             };
 
+            // check sender current time
+            if (!string.IsNullOrEmpty(message.Wct))
+            {
+                if (!message.Wct.TryParseToUtcDateTime(out var senderTime))
+                {
+                    return new SignOutValidationResult(validatedResult, "invalid_sender_time", $"Sender current time '{message.Wct}' is not XML Schema datetime");
+                }
+
+                var now = _clock.UtcNow.UtcDateTime;
+                if (senderTime.InFuture(now) || senderTime.InPast(now))
+                {
+                    return new SignOutValidationResult(validatedResult, "invalid_sender_time", "Sender current time is in past or future");
+                }
+
+                message.Wct = null;
+            }
+
             // check client
             var client = await _clients.FindEnabledClientByIdAsync(message.Wtrealm);
             if (client == null)
             {
-                //LogError("Client not found: " + message.Wtrealm, result);
-
                 return new SignOutValidationResult(validatedResult, "invalid_relying_party", "Cannot find Client configuration");
             }
 
             if (client.ProtocolType != IdentityServerConstants.ProtocolTypes.WsFederation)
             {
-                //LogError("Client is not configured for WS-Federation", result);
-
                 return new SignOutValidationResult(validatedResult, "invalid_relying_party", "Client is not configured for WS-Federation");
             }
 
@@ -94,8 +109,7 @@ namespace IdentityServer4.WsFederation.Validation
             validatedResult.RelyingParty = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
 
             var user = await _userSession.GetUserAsync();
-            if (user == null ||
-                user.Identity.IsAuthenticated == false)
+            if (user == null || user.Identity.IsAuthenticated == false)
             {
                 return new SignOutValidationResult(validatedResult);
             }
@@ -104,20 +118,7 @@ namespace IdentityServer4.WsFederation.Validation
             validatedResult.ClientIds = await _userSession.GetClientListAsync();
             validatedResult.Subject = user;
 
-            // LogSuccess(result);
             return new SignOutValidationResult(validatedResult);
-        }
-
-        private void LogSuccess(SignOutValidationResult result)
-        {
-            // var log = JsonConvert.SerializeObject(result, Formatting.Indented);
-            // _logger.LogInformation("End WS-Federation signin request validation\n{0}", log.ToString());
-        }
-
-        private void LogError(string message, SignOutValidationResult result)
-        {
-            // var log = JsonConvert.SerializeObject(result, Formatting.Indented);
-            // _logger.LogError("{0}\n{1}", message, log.ToString());
         }
     }
 }

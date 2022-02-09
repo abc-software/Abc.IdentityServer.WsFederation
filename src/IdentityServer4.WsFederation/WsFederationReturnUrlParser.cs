@@ -83,6 +83,7 @@ namespace IdentityServer4.WsFederation
             {
                 Client = validatedRequest.Client,
                 IdP = validatedRequest.WsFederationMessage.Whr,
+                AcrValues = validatedRequest.WsFederationMessage.GetAcrValues(),
                 RedirectUri = validatedRequest.ReplyUrl,
                 ValidatedResources = validatedRequest.ValidatedResources,
             };
@@ -107,12 +108,12 @@ namespace IdentityServer4.WsFederation
             if (_authorizationParametersMessageStore != null)
             {
                 var query = QueryHelpers.ParseNullableQuery(returnUrl);
-                if (!query.ContainsKey(WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName))
+                if (!query.ContainsKey(WsFederationConstants.DefaultRoutePathParams.MessageStoreIdParameterName))
                 {
                     return null;
                 }
 
-                string messageStoreId = query[WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName];
+                string messageStoreId = query[WsFederationConstants.DefaultRoutePathParams.MessageStoreIdParameterName];
                 var data = await _authorizationParametersMessageStore.ReadAsync(messageStoreId);
                 message = data.Data.ToWsFederationMessage();
             }

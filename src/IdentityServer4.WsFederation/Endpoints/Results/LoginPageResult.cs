@@ -44,7 +44,7 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
             {
                 var msg = new Message<IDictionary<string, string[]>>(_request.WsFederationMessage.ToDictionary(), DateTime.UtcNow);
                 var id = await _authorizationParametersMessageStore.WriteAsync(msg);
-                returnUrl = returnUrl.AddQueryString(WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName, id);
+                returnUrl = returnUrl.AddQueryString(WsFederationConstants.DefaultRoutePathParams.MessageStoreIdParameterName, id);
             }
             else
             {
@@ -65,8 +65,8 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
 
         private void Init(HttpContext context)
         {
-            _options = _options ?? context.RequestServices.GetRequiredService<IdentityServerOptions>();
-            _authorizationParametersMessageStore = _authorizationParametersMessageStore ?? context.RequestServices.GetService<IAuthorizationParametersMessageStore>();
+            _options ??= context.RequestServices.GetRequiredService<IdentityServerOptions>();
+            _authorizationParametersMessageStore ??= context.RequestServices.GetService<IAuthorizationParametersMessageStore>();
         }
     }
 }

@@ -20,7 +20,7 @@ namespace MvcOwinWsFederation
             {
                 MetadataAddress = "http://localhost:5000/wsfed",
                 Wtrealm = "urn:owinrp",
-                SignOutWreply = "http://localhost:10313/",
+                SignOutWreply = System.Web.VirtualPathUtility.ToAbsolute("~/"),
 
                 SignInAsAuthenticationType = "Cookies"
             });

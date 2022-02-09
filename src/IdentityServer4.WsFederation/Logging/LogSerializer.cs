@@ -17,7 +17,7 @@ namespace IdentityServer4.WsFederation.Logging
         /// Serializes the specified object.
         /// </summary>
         /// <param name="logObject">The object.</param>
-        /// <returns></returns>
+        /// <returns>The JSON string representing of object.</returns>
         public static string Serialize(object logObject)
         {
             return JsonSerializer.Serialize(logObject, Options);
@@ -30,6 +30,7 @@ namespace IdentityServer4.WsFederation.Logging
                 IgnoreNullValues = true,
                 WriteIndented = true
             };
+
             options.Converters.Add(new JsonStringEnumConverter());
 
             return options;

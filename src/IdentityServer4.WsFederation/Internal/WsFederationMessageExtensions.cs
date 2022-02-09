@@ -119,5 +119,22 @@ namespace IdentityServer4.Extensions
 
             return strBuilder.ToString();
         }
+
+        public static IEnumerable<string> GetAcrValues(this WsFederationMessage message)
+        {
+            if (message is null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            var wauth = message.Wauth;
+            if (wauth.IsPresent())
+            {
+                return new string[] { wauth };
+            }
+
+            return null;
+        }
+
     }
 }

@@ -17,7 +17,7 @@ public static class WsFederationMetadataSerializerExtensions
     /// <param name="writer"></param>
     /// <param name="configuration"></param>
     /// <returns></returns>
-    public static void WriteMetadata(this WsFederationMetadataSerializer serializer, XmlWriter writer, WsFederationConfiguration configuration)
+    public static void WriteMetadata(this WsFederationMetadataSerializer serializer, XmlWriter writer, WsFederationConfigurationEx configuration)
     {
         if (writer == null)
             throw new ArgumentNullException(nameof(writer));
@@ -63,7 +63,7 @@ public static class WsFederationMetadataSerializerExtensions
         writer.WriteEndDocument();
     }
 
-    private static void WriteSecurityTokenServiceTypeRoleDescriptor(WsFederationConfiguration configuration, XmlWriter writer)
+    private static void WriteSecurityTokenServiceTypeRoleDescriptor(WsFederationConfigurationEx configuration, XmlWriter writer)
     {
         if (configuration == null)
             throw new ArgumentNullException(nameof(configuration));
@@ -79,22 +79,20 @@ public static class WsFederationMetadataSerializerExtensions
 
         WriteKeyDescriptorForSigning(configuration, writer);
 
-        //TODO: rewrite to not using static values, use values from config instead 
-        var supportedTokenTypeUris = new[] {
-            "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1",
-            "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"
-        };
-        writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Attributes.TokenTypesOffered, WsFederationConstants.Namespace);
-        foreach (string tokenTypeUri in supportedTokenTypeUris)
-        {
-            // <TokenType>
-            writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Attributes.TokenType, WsFederationConstants.Namespace);
-            writer.WriteAttributeString(IdentityServer4.WsFederation.WsFederationConstants.Attributes.Uri, tokenTypeUri);
-            // </TokenType>
+        if (configuration.TokenTypesOffered.Any()) {
+            writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Attributes.TokenTypesOffered, WsFederationConstants.Namespace);
+            foreach (string tokenTypeUri in configuration.TokenTypesOffered)
+            {
+                // <TokenType>
+                writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Attributes.TokenType, WsFederationConstants.Namespace);
+                writer.WriteAttributeString(IdentityServer4.WsFederation.WsFederationConstants.Attributes.Uri, tokenTypeUri);
+                // </TokenType>
+                writer.WriteEndElement();
+            }
+
+            // </TokenTypesOffered>
             writer.WriteEndElement();
         }
-        // </TokenTypesOffered>
-        writer.WriteEndElement();
 
         WriteSecurityTokenEndpoint(configuration, writer);
         WritePassiveRequestorEndpoint(configuration, writer);

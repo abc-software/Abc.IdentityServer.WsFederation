@@ -6,6 +6,6 @@ namespace IdentityServer4.WsFederation
 {
     public interface IMetadataResponseGenerator
     {
-        Task<WsFederationConfiguration> GenerateAsync();
+        Task<WsFederationConfigurationEx> GenerateAsync();
     }
 }

@@ -105,7 +105,7 @@ namespace IdentityServer4.WsFederation
                     // SHA256
                     DigestAlgorithm = SecurityAlgorithms.Sha256Digest,
                     SignatureAlgorithm = SecurityAlgorithms.RsaSha256Signature,
-                    SamlNameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString,
+                    NameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString,
 
                     // WS-Trust2005
                     WsTrustVersion = WsTrustVersion.WsTrust2005,
@@ -120,7 +120,7 @@ namespace IdentityServer4.WsFederation
                     // SHA512
                     DigestAlgorithm = SecurityAlgorithms.Sha512Digest,
                     SignatureAlgorithm = SecurityAlgorithms.RsaSha512Signature,
-                    SamlNameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString
+                    NameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString
                 },
                 new RelyingParty
                 {
@@ -147,7 +147,7 @@ namespace IdentityServer4.WsFederation
                     // Defaults
                     DigestAlgorithm = SecurityAlgorithms.Sha256Digest,
                     SignatureAlgorithm = SecurityAlgorithms.RsaSha256Signature,
-                    SamlNameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString
+                    NameIdentifierFormat = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString
                 }
             };
         }

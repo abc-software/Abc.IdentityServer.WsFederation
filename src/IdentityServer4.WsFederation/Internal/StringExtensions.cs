@@ -76,6 +76,26 @@ namespace IdentityServer4.Extensions
                 (url.Length > 1 && url[0] == '~' && url[1] == '/'));
         }
 
+        public static string GetOrigin(this string url)
+        {
+            if (url != null && (url.StartsWith("http://") || url.StartsWith("https://")))
+            {
+                int idx = url.IndexOf("//", StringComparison.Ordinal);
+                if (idx > 0)
+                {
+                    idx = url.IndexOf("/", idx + 2, StringComparison.Ordinal);
+                    if (idx >= 0)
+                    {
+                        url = url.Substring(0, idx);
+                    }
+
+                    return url;
+                }
+            }
+
+            return null;
+        }
+
         public static string AddQueryString(this string url, string query)
         {
             if (!url.Contains("?"))

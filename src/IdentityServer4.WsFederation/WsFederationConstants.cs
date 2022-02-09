@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
+using System.Collections.Generic;
+
 namespace IdentityServer4.WsFederation
 {
     public static class WsFederationConstants
@@ -73,9 +76,18 @@ namespace IdentityServer4.WsFederation
             public const string WsFederationCallback = "wsfed/callback";
         }
 
-        public static class AuthorizationParamsStore
+        public static class DefaultRoutePathParams
         {
             public const string MessageStoreIdParameterName = "authzId";
         }
+
+        public static Dictionary<string, Type> TokenTypeMap = new Dictionary<string, Type>
+        {
+            { TokenTypes.Saml11TokenProfile11, typeof(Microsoft.IdentityModel.Tokens.Saml.SamlSecurityToken) },
+            { TokenTypes.OasisWssSaml11TokenProfile11, typeof(Microsoft.IdentityModel.Tokens.Saml.SamlSecurityToken) },
+            { TokenTypes.Saml2TokenProfile11, typeof(Microsoft.IdentityModel.Tokens.Saml2.Saml2SecurityToken) },
+            { TokenTypes.OasisWssSaml2TokenProfile11, typeof(Microsoft.IdentityModel.Tokens.Saml2.Saml2SecurityToken) },
+            { TokenTypes.JsonWebToken, typeof(System.IdentityModel.Tokens.Jwt.JwtSecurityToken) },
+        };
     }
 }

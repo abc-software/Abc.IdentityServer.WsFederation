@@ -15,9 +15,9 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
 {
     public class MetadataResult : IEndpointResult
     {
-        private readonly WsFederationConfiguration _config;
+        private readonly WsFederationConfigurationEx _config;
 
-        public MetadataResult(WsFederationConfiguration config)
+        public MetadataResult(WsFederationConfigurationEx config)
         {
             _config = config;
         }

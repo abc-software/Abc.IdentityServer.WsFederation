@@ -27,8 +27,7 @@ namespace IdentityServer4.WsFederation
         private readonly IKeyMaterialService _keys;
         private readonly IResourceStore _resources;
         private readonly ISystemClock _clock;
-        private readonly ISecurityTokenHandlerFactory _securityTokenHandlerFactory;
-        private readonly ILogger<SignInResponseGenerator> _logger;
+        private readonly ILogger _logger;
 
         public SignInResponseGenerator(
             IHttpContextAccessor contextAccessor,
@@ -37,7 +36,6 @@ namespace IdentityServer4.WsFederation
             IKeyMaterialService keys,
             IResourceStore resources,
             ISystemClock clock,
-            ISecurityTokenHandlerFactory securityTokenHandlerFactory,
             ILogger<SignInResponseGenerator> logger)
         {
             _contextAccessor = contextAccessor;
@@ -46,7 +44,6 @@ namespace IdentityServer4.WsFederation
             _keys = keys;
             _resources = resources;
             _clock = clock;
-            _securityTokenHandlerFactory = securityTokenHandlerFactory;
             _logger = logger;
         }
 
@@ -79,7 +76,7 @@ namespace IdentityServer4.WsFederation
             if (!outboundClaims.Exists(x => x.Type == ClaimTypes.NameIdentifier)) {
                 var nameid = new Claim(ClaimTypes.NameIdentifier, validatedRequest.Subject.GetSubjectId());
                 nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] =
-                    validatedRequest.RelyingParty?.SamlNameIdentifierFormat ?? _options.DefaultSamlNameIdentifierFormat;
+                    validatedRequest.RelyingParty?.NameIdentifierFormat ?? _options.DefaultNameIdentifierFormat;
                 outboundClaims.Add(nameid);
             }
 
@@ -141,7 +138,7 @@ namespace IdentityServer4.WsFederation
                 Audience = validatedRequest.Client.ClientId,
                 IssuedAt = issueInstant,
                 NotBefore = issueInstant,
-                Expires = issueInstant.AddSeconds(validatedRequest.Client.IdentityTokenLifetime),
+                Expires = issueInstant.AddSeconds(validatedRequest.Client.AccessTokenLifetime),
                 SigningCredentials = signingCredentials,
                 Subject = outgoingSubject,
                 Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
@@ -152,11 +149,17 @@ namespace IdentityServer4.WsFederation
             {
                 descriptor.EncryptingCredentials = new X509EncryptingCredentials(
                     validatedRequest.RelyingParty.EncryptionCertificate,
-                    validatedRequest.RelyingParty.KeyWrapAlgoithm ?? _options.DefaultKeyWrapAlgorithm,
-                    validatedRequest.RelyingParty.EncryptionAlgoithm ?? _options.DefaultEncryptionAlgorithm);
+                    validatedRequest.RelyingParty.KeyWrapAlgorithm ?? _options.DefaultKeyWrapAlgorithm,
+                    validatedRequest.RelyingParty.EncryptionAlgorithm ?? _options.DefaultEncryptionAlgorithm);
             }
 
-            var handler = _securityTokenHandlerFactory.CreateHandler(descriptor.TokenType);
+            WsFederationConstants.TokenTypeMap.TryGetValue(descriptor.TokenType, out var securityTokenType);
+            var handler = _options.SecurityTokenHandlers.FirstOrDefault(x => x.TokenType == securityTokenType);
+            if (handler is null)
+            {
+                throw new InvalidOperationException($"TokenType: {descriptor.TokenType} not supported.");
+            }
+
             var token = CreateToken(handler, descriptor);
             return CreateResponse(validatedRequest, token, handler, descriptor.TokenType);
         }

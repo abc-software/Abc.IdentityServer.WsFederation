@@ -45,7 +45,7 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
             };
 
             string id = null;
-            if (logoutMessage.ClientId != null && logoutMessage.ClientIds.Any())
+            if (logoutMessage.ClientId.IsPresent() || logoutMessage.ClientIds?.Any() == true)
             {
                 var msg = new Message<LogoutMessage>(logoutMessage, DateTime.UtcNow);
                 id = await _logoutMessageStore.WriteAsync(msg);

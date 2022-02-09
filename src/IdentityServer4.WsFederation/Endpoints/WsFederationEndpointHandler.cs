@@ -75,7 +75,7 @@ namespace IdentityServer4.WsFederation.Endpoints
             // user can be null here (this differs from HttpContext.User where the anonymous user is filled in)
             var user = await _userSession.GetUserAsync();
 
-            var messageStoreId = context.Request.Query[WsFederationConstants.AuthorizationParamsStore.MessageStoreIdParameterName];
+            var messageStoreId = context.Request.Query[WsFederationConstants.DefaultRoutePathParams.MessageStoreIdParameterName];
             if (!string.IsNullOrWhiteSpace(messageStoreId))
             {
                 return await ProcessSignInCallbackAsync(messageStoreId, user);
@@ -189,7 +189,7 @@ namespace IdentityServer4.WsFederation.Endpoints
         protected async Task<IEndpointResult> CreateSignInErrorResult(
             string logMessage, 
             ValidatedWsFederationRequest request = null, 
-            string error = "server_error", 
+            string error = "Server", 
             string errorDescription = null, 
             bool logError = true)
         {
@@ -211,7 +211,7 @@ namespace IdentityServer4.WsFederation.Endpoints
         protected Task<IEndpointResult> CreateSignOutErrorResult(
             string logMessage, 
             ValidatedWsFederationRequest request = null, 
-            string error = "server_error", 
+            string error = "Server", 
             string errorDescription = null, 
             bool logError = true)
         {

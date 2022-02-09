@@ -49,15 +49,15 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
             var id = await _errorMessageStore.WriteAsync(message);
 
             var redirectUrl = _options.UserInteraction.ErrorUrl;
-            redirectUrl = redirectUrl.AddQueryString(_options.UserInteraction.LogoutIdParameter, id);
+            redirectUrl = redirectUrl.AddQueryString(_options.UserInteraction.ErrorIdParameter, id);
 
             context.Response.RedirectToAbsoluteUrl(redirectUrl);
         }
 
         private void Init(HttpContext context)
         {
-            _errorMessageStore = _errorMessageStore ?? context.RequestServices.GetRequiredService<IMessageStore<ErrorMessage>>();
-            _options = _options ?? context.RequestServices.GetRequiredService<IdentityServerOptions>();
+            _errorMessageStore ??= context.RequestServices.GetRequiredService<IMessageStore<ErrorMessage>>();
+            _options ??= context.RequestServices.GetRequiredService<IdentityServerOptions>();
         }
     }
 }

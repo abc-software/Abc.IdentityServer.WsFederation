@@ -31,7 +31,7 @@ namespace IdentityServer4.WsFederation.Endpoints.Results
 
         private void Init(HttpContext context)
         {
-            _options = _options ?? context.RequestServices.GetRequiredService<IdentityServerOptions>();
+            _options ??= context.RequestServices.GetRequiredService<IdentityServerOptions>();
         }
     }
 }

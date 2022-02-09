@@ -10,6 +10,7 @@ using IdentityServer4.WsFederation.Stores;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace IdentityServer4.WsFederation.Validation
         private readonly IRedirectUriValidator _uriValidator;
         private readonly IdentityServerOptions _options;
         private readonly IUserSession _userSession;
+        private readonly ISystemClock _clock;
         private readonly ILogger _logger;
 
         public SignInValidator(
@@ -31,6 +33,7 @@ namespace IdentityServer4.WsFederation.Validation
             IRelyingPartyStore relyingParties,
             IRedirectUriValidator uriValidator,
             IUserSession userSession,
+            ISystemClock clock,
             ILogger<SignInValidator> logger)
         {
             _options = options;
@@ -38,18 +41,36 @@ namespace IdentityServer4.WsFederation.Validation
             _relyingParties = relyingParties;
             _uriValidator = uriValidator;
             _userSession = userSession;
+            _clock = clock;
             _logger = logger;
         }
 
         public virtual async Task<SignInValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user)
         {
+            _logger.LogInformation("Start WS-Federation signin request validation");
+
             var validatedResult = new ValidatedWsFederationRequest()
             {
                 Options = _options,
                 WsFederationMessage = message,
             };
 
-            _logger.LogInformation("Start WS-Federation signin request validation");
+            // check sender current time
+            if (!string.IsNullOrEmpty(message.Wct))
+            {
+                if (!message.Wct.TryParseToUtcDateTime(out var senderTime))
+                {
+                    return new SignInValidationResult(validatedResult, "invalid_sender_time", $"Sender current time '{message.Wct}' is not XML Schema datetime");
+                }
+
+                var now = _clock.UtcNow.UtcDateTime;
+                if (senderTime.InFuture(now) || senderTime.InPast(now)) 
+                {
+                    return new SignInValidationResult(validatedResult, "invalid_sender_time", "Sender current time is in past or future");
+                }
+
+                message.Wct = null;
+            }
 
             // check client
             var client = await _clients.FindEnabledClientByIdAsync(message.Wtrealm);
