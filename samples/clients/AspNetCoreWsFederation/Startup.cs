@@ -27,7 +27,7 @@ namespace AspNetCoreSecurity
                 })
                 .AddWsFederation(options =>
                 {
-                    options.MetadataAddress = "http://localhost:5000/wsfed";
+                    options.MetadataAddress = "http://localhost:5000/wsfed/metadata";
                     options.RequireHttpsMetadata = false;
 
                     options.Wtrealm = "urn:aspnetcorerp";
