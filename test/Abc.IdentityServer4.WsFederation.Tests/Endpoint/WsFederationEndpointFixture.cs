@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 using Xunit;
 using StatusCodeResult = IdentityServer4.Endpoints.Results.StatusCodeResult;
 
-namespace Abc.IdentityServer4.WsFederation.Tests.Endpoint
+namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
 {
     public class WsFederationEndpointFixture
     {

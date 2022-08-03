@@ -7,7 +7,7 @@ using IdentityServer4.Test;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Abc.IdentityServer4.WsFederation.Tests
+namespace Abc.IdentityServer4.WsFederation.IntegrationTests
 {
     public class FakeAccountController : Controller
     {

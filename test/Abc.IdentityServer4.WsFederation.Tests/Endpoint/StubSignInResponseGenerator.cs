@@ -4,7 +4,7 @@ using Abc.IdentityServer4.WsFederation.ResponseProcessing;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Tests.Endpoint
+namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
 {
     internal class StubSignInResponseGenerator : ISignInResponseGenerator
     {

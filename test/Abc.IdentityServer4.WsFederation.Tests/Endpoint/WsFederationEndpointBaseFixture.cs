@@ -15,7 +15,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4;
 
-namespace Abc.IdentityServer4.WsFederation.Tests.Endpoint
+namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
 {
     public class WsFederationEndpointBaseFixture
     {

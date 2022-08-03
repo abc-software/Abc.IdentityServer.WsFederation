@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using IdentityServer4;
 using MockProfileService = IdentityServer4.Services.MockProfileService;
 
-namespace Abc.IdentityServer4.WsFederation.Tests.Services
+namespace Abc.IdentityServer4.WsFederation.Services.UnitTests
 {
     public class DefaultClaimServiceFixture
     {

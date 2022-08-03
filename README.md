@@ -1,4 +1,4 @@
- Abc.IdentityServer4.WsFederation
+# Abc.IdentityServer4.WsFederation
 
 ## Overview
 Implementation WS-Federation IdP support for IdentityServer4 with .NET core.
@@ -40,7 +40,7 @@ You can configure global defaults in the `WsFederationOptions` class, e.g.:
 * default encryption and keywrap algorithms
 * default WS-Trust version
 * default mappings from "short" claim types to WS-* claim types
-* specify SecurityTokenHanler
+* specify SecurityTokenHandlers
 
 ### Relying party configuration
 The following client settings are used by the WS-Federation endpoint:

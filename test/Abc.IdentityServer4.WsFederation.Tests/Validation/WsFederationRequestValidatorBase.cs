@@ -8,7 +8,7 @@ using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
 using MockUserSession = IdentityServer4.Services.MockUserSession;
 
-namespace Abc.IdentityServer4.WsFederation.Tests.Validation
+namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
 {
     public abstract class WsFederationRequestValidatorBase
     {

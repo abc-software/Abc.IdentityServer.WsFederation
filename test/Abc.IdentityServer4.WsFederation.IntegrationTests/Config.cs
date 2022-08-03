@@ -6,7 +6,7 @@ using Abc.IdentityServer4.WsFederation.Stores;
 using System.Security.Claims;
 using IdentityServer4.Test;
 
-namespace Abc.IdentityServer4.WsFederation
+namespace Abc.IdentityServer4.WsFederation.IntegrationTests
 {
     public static class Config
     {

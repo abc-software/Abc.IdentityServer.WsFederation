@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4;
 
-namespace Abc.IdentityServer4.WsFederation.Tests.ResponseProcessing
+namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
 {
     public class SignInInteractionResponseGeneratorLoginFixture
     {

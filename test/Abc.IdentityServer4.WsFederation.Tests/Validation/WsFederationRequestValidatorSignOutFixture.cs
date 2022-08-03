@@ -4,7 +4,7 @@ using Xunit;
 using System;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Tests.Validation
+namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
 {
     public class WsFederationRequestValidatorSignOutFixture : WsFederationRequestValidatorBase
     {

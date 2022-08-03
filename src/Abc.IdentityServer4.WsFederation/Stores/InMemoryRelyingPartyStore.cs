@@ -14,7 +14,7 @@ namespace Abc.IdentityServer4.WsFederation.Stores
 
         public InMemoryRelyingPartyStore(IEnumerable<RelyingParty> relyingParties)
         {
-            _relyingParties = relyingParties;
+            _relyingParties = relyingParties ?? throw new System.ArgumentNullException(nameof(relyingParties));
         }
 
         public Task<RelyingParty> FindRelyingPartyByRealm(string realm)

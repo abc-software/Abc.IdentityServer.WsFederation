@@ -20,7 +20,7 @@ using Abc.IdentityServer4.Extensions;
 using IdentityServer4;
 using StatusCodeResult = IdentityServer4.Endpoints.Results.StatusCodeResult;
 
-namespace Abc.IdentityServer4.WsFederation.Tests.Endpoint
+namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
 {
     public class WsFederationEndpointCallbackFixture
     {

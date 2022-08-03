@@ -1,5 +1,5 @@
 ﻿using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation.Tests.Endpoint;
+using Abc.IdentityServer4.WsFederation.Endpoint.UnitTests;
 using Abc.IdentityServer4.WsFederation.Validation;
 using FluentAssertions;
 using IdentityServer4.Extensions;
@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Tests
+namespace Abc.IdentityServer4.WsFederation.UnitTests
 {
     public class WsFederationReturnUrlParserFixture
     {

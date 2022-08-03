@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Tests
+namespace Abc.IdentityServer4.WsFederation.IntegrationTests
 {
     [Trait("Category", "WsFederation")]
     public class WsFederationInterfaceTests

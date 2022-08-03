@@ -58,14 +58,17 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints.Results.UnitTests
             _context.Response.StatusCode.Should().Be(200);
             _context.Response.ContentType.Should().StartWith("text/html");
 
+            _context.Response.Headers.Should().ContainKey("Cache-Control");
             var cacheControl = _context.Response.Headers["Cache-Control"].First();
             cacheControl.Should().Contain("no-store");
             cacheControl.Should().Contain("max-age=0");
 
+            _context.Response.Headers.Should().ContainKey("Content-Security-Policy");
             var csp = _context.Response.Headers["Content-Security-Policy"].First();
             csp.Should().Contain("default-src 'none';");
             csp.Should().Contain("script-src 'sha256-veRHIN/XAFeehi7cRkeVBpkKTuAUMFxwA+NMPmu2Bec='");
 
+            _context.Response.Headers.Should().ContainKey("X-Content-Security-Policy");
             var xcsp = _context.Response.Headers["X-Content-Security-Policy"].First();
             xcsp.Should().Contain("default-src 'none';");
             xcsp.Should().Contain("script-src 'sha256-veRHIN/XAFeehi7cRkeVBpkKTuAUMFxwA+NMPmu2Bec='");
@@ -86,9 +89,11 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints.Results.UnitTests
 
             await _target.ExecuteAsync(_context);
 
+            _context.Response.Headers.Should().ContainKey("Content-Security-Policy");
             var csp = _context.Response.Headers["Content-Security-Policy"].First();
             csp.Should().Contain("script-src 'unsafe-inline' 'sha256-veRHIN/XAFeehi7cRkeVBpkKTuAUMFxwA+NMPmu2Bec='");
 
+            _context.Response.Headers.Should().ContainKey("X-Content-Security-Policy");
             var xcsp = _context.Response.Headers["X-Content-Security-Policy"].First();
             xcsp.Should().Contain("script-src 'unsafe-inline' 'sha256-veRHIN/XAFeehi7cRkeVBpkKTuAUMFxwA+NMPmu2Bec='");
         }
@@ -100,11 +105,8 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints.Results.UnitTests
 
             await _target.ExecuteAsync(_context);
 
-            var csp = _context.Response.Headers["Content-Security-Policy"].FirstOrDefault();
-            csp.Should().NotBeNull();
-
-            var xcsp = _context.Response.Headers["X-Content-Security-Policy"].FirstOrDefault();
-            xcsp.Should().BeNull();
+            _context.Response.Headers.Should().ContainKey("Content-Security-Policy");
+            _context.Response.Headers.Should().NotContainKey("X-Content-Security-Policy");
         }
     }
 }
