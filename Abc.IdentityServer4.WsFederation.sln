@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abc.IdentityServer4.WsFeder
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BC99B936-C782-4BC4-B222-456B6B2FDBE6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abc.IdentityServer4.WsFederation.UnitTests", "test\Abc.IdentityServer4.WsFederation.Tests\Abc.IdentityServer4.WsFederation.UnitTests.csproj", "{45DF824C-F584-4EC8-95BD-6460DA14BA88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abc.IdentityServer4.WsFederation.UnitTests", "test\Abc.IdentityServer4.WsFederation.UnitTests\Abc.IdentityServer4.WsFederation.UnitTests.csproj", "{45DF824C-F584-4EC8-95BD-6460DA14BA88}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{68E4130D-F17C-483D-B8C1-92BEDB3E0D6E}"
 EndProject
