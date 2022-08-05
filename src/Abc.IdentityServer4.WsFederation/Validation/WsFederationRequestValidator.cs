@@ -76,7 +76,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation
             }
 
             // check if additional relying party settings exist
-            request.RelyingParty = await _relyingParties.FindRelyingPartyByRealm(request.ClientId);
+            request.RelyingParty = await _relyingParties.FindRelyingPartyByRealmAsync(request.ClientId);
 
             // validate wct, whr and wfresh
             var optionalResult = ValidateOptionalParameters(request);
@@ -120,7 +120,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation
             }
 
             // check if additional relying party settings exist
-            request.RelyingParty = await _relyingParties.FindRelyingPartyByRealm(request.ClientId);
+            request.RelyingParty = await _relyingParties.FindRelyingPartyByRealmAsync(request.ClientId);
 
             // validate wct, whr and wfresh
             var optionalResult = ValidateOptionalParameters(request);

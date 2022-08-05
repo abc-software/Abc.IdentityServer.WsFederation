@@ -5,6 +5,8 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using IdentityServer4.Extensions;
+using System;
 
 namespace Abc.IdentityServer4.WsFederation.Stores
 {
@@ -14,10 +16,15 @@ namespace Abc.IdentityServer4.WsFederation.Stores
 
         public InMemoryRelyingPartyStore(IEnumerable<RelyingParty> relyingParties)
         {
-            _relyingParties = relyingParties ?? throw new System.ArgumentNullException(nameof(relyingParties));
+            _relyingParties = relyingParties ?? throw new ArgumentNullException(nameof(relyingParties));
+
+            if (_relyingParties.HasDuplicates(m => m.Realm))
+            {
+                throw new ArgumentException("Relying parties must not contain duplicate entityIds", nameof(relyingParties));
+            }
         }
 
-        public Task<RelyingParty> FindRelyingPartyByRealm(string realm)
+        public Task<RelyingParty> FindRelyingPartyByRealmAsync(string realm)
         {
             return Task.FromResult(_relyingParties.FirstOrDefault(r => r.Realm == realm));
         }

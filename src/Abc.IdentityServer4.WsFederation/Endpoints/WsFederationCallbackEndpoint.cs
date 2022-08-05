@@ -17,18 +17,18 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer4.WsFederation.Endpoints
 {
-    internal class WsFederationEndpointCallback : WsFederationEndpointBase
+    internal class WsFederationCallbackEndpoint : WsFederationEndpointBase
     {
         private readonly IConsentMessageStore _consentResponseStore;
         private readonly IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
-        public WsFederationEndpointCallback(
+        public WsFederationCallbackEndpoint(
             IEventService events,
             IWsFederationRequestValidator validator, 
             ISignInInteractionResponseGenerator interaction, 
             ISignInResponseGenerator generator, 
             IUserSession userSession, 
-            ILogger<WsFederationEndpointCallback> logger,
+            ILogger<WsFederationCallbackEndpoint> logger,
             IConsentMessageStore consentResponseStore,
             IAuthorizationParametersMessageStore authorizationParametersMessageStore = null) 
             : base(events, validator, interaction, generator, userSession, logger)

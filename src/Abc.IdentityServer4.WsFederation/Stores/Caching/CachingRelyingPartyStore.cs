@@ -41,11 +41,11 @@ namespace Abc.IdentityServer4.WsFederation.Stores
         /// <returns>
         /// The relying party
         /// </returns>
-        public async Task<RelyingParty> FindRelyingPartyByRealm(string realm)
+        public async Task<RelyingParty> FindRelyingPartyByRealmAsync(string realm)
         {
             var relyingParty = await _cache.GetAsync(realm,
                 _options.Caching.ClientStoreExpiration,
-                () => _inner.FindRelyingPartyByRealm(realm),
+                () => _inner.FindRelyingPartyByRealmAsync(realm),
                 _logger);
 
             return relyingParty;

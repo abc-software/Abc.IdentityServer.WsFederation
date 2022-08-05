@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
 
             builder.AddEndpoint<WsFederationEndpoint>(WsFederationConstants.EndpointNames.WsFederation, WsFederationConstants.ProtocolRoutePaths.WsFederation.EnsureLeadingSlash());
-            builder.AddEndpoint<WsFederationEndpointCallback>(WsFederationConstants.EndpointNames.WsFederationCallback, WsFederationConstants.ProtocolRoutePaths.WsFederationCallback.EnsureLeadingSlash());
+            builder.AddEndpoint<WsFederationCallbackEndpoint>(WsFederationConstants.EndpointNames.WsFederationCallback, WsFederationConstants.ProtocolRoutePaths.WsFederationCallback.EnsureLeadingSlash());
             builder.AddEndpoint<WsFederationMetadataEndpoint>(WsFederationConstants.EndpointNames.Metadata, WsFederationConstants.ProtocolRoutePaths.Metadata.EnsureLeadingSlash());
             return builder;
         }

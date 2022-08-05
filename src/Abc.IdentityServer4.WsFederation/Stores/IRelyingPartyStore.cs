@@ -8,6 +8,6 @@ namespace Abc.IdentityServer4.WsFederation.Stores
 {
     public interface IRelyingPartyStore
     {
-        Task<RelyingParty> FindRelyingPartyByRealm(string realm);
+        Task<RelyingParty> FindRelyingPartyByRealmAsync(string realm);
     }
 }

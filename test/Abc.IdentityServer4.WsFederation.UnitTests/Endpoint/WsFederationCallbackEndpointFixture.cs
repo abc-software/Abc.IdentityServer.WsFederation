@@ -22,13 +22,13 @@ using StatusCodeResult = IdentityServer4.Endpoints.Results.StatusCodeResult;
 
 namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
 {
-    public class WsFederationEndpointCallbackFixture
+    public class WsFederationCallbackEndpointFixture
     {
-        private const string Category = "WsFederation Endpoint";
-        private WsFederationEndpointCallback _subject;
+        private const string Category = "WsFederationCallback Endpoint";
+        private WsFederationCallbackEndpoint _subject;
 
         private TestEventService _fakeEventService;
-        private ILogger<WsFederationEndpointCallback> _fakeLogger = TestLogger.Create<WsFederationEndpointCallback>();
+        private ILogger<WsFederationCallbackEndpoint> _fakeLogger = TestLogger.Create<WsFederationCallbackEndpoint>();
         private IdentityServerOptions _options = TestIdentityServerOptions.Create();
         private MockUserSession _mockUserSession = new MockUserSession();
         private ClaimsPrincipal _user = new IdentityServerUser("bob").CreatePrincipal();
@@ -42,7 +42,10 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
         private ValidatedWsFederationRequest _validatedAuthorizeRequest;
         private AuthorizationParametersMessageStoreMock _mockAuthorizationParametersMessageStore;
 
-        public WsFederationEndpointCallbackFixture()
+        private string ClientId = "client";
+        private string AuthContext = "some_context";
+
+        public WsFederationCallbackEndpointFixture()
         {
             _context = new DefaultHttpContext();
             _context.SetIdentityServerOrigin("https://server");
@@ -57,15 +60,15 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
             _mockAuthorizationParametersMessageStore = new AuthorizationParametersMessageStoreMock();
             _mockUserConsentResponseMessageStore = new MockConsentMessageStore();
 
-            _signIn = new WsFederationMessage() { Wa = "wsignin1.0", Wtrealm = "client", Wct = "some_nonce" };
+            _signIn = new WsFederationMessage() { Wa = "wsignin1.0", Wtrealm = ClientId, Wct = AuthContext };
 
             _validatedAuthorizeRequest = new ValidatedWsFederationRequest()
             {
                 ReplyUrl = "http://client/callback",
-                ClientId = "client",
+                ClientId = ClientId,
                 Client = new Client
                 {
-                    ClientId = "client",
+                    ClientId = ClientId,
                     ClientName = "Test Client"
                 },
                 //Raw = _params,
@@ -76,7 +79,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
 
             _stubSignInRequestValidator.Result = new WsFederationValidationResult(_validatedAuthorizeRequest);
 
-            _subject = new WsFederationEndpointCallback(
+            _subject = new WsFederationCallbackEndpoint(
                 _fakeEventService,
                 _stubSignInRequestValidator,
                 _stubInteractionGenerator,
@@ -106,8 +109,8 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
         {
             var parameters = new NameValueCollection()
             {
-                { "client_id", "client" },
-                { "nonce", "some_nonce" },
+                { "client_id", ClientId },
+                { "nonce", AuthContext },
             };
             var request = new ConsentRequest(parameters, _user.GetSubjectId());
             _mockUserConsentResponseMessageStore.Messages.Add(request.Id, new Message<ConsentResponse>(new ConsentResponse(), DateTime.UtcNow));
@@ -170,8 +173,8 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
         {
             var parameters = new NameValueCollection()
             {
-                { "client_id", "client" },
-                { "nonce", "some_nonce" },
+                { "client_id", ClientId },
+                { "nonce", AuthContext },
             };
             var request = new ConsentRequest(parameters, _user.GetSubjectId());
             _mockUserConsentResponseMessageStore.Messages.Add(request.Id, new Message<ConsentResponse>(null, DateTime.UtcNow));
@@ -196,8 +199,8 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
         {
              var parameters = new NameValueCollection()
             {
-                { "client_id", "client" },
-                { "nonce", "some_nonce" },
+                { "client_id", ClientId },
+                { "nonce", AuthContext },
             };
             var request = new ConsentRequest(parameters, _user.GetSubjectId());
             _mockUserConsentResponseMessageStore.Messages.Add(request.Id, new Message<ConsentResponse>(new ConsentResponse() { ScopesValuesConsented = new string[] { "api1", "api2" } }, DateTime.UtcNow));
@@ -208,7 +211,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
             _mockUserSession.User = _user;
 
             _context.Request.Method = "GET";
-            _context.Request.Path = new PathString("/connect/authorize/callback");
+            _context.Request.Path = new PathString("/wsfed/callback");
             _context.Request.QueryString = new QueryString("?authzId=" + key);
 
             var result = await _subject.ProcessAsync(_context);
@@ -223,8 +226,8 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
         {
             var parameters = new NameValueCollection()
             {
-                { "client_id", "client" },
-                { "nonce", "some_nonce" },
+                { "client_id", ClientId },
+                { "nonce", AuthContext },
             };
 
             var request = new ConsentRequest(parameters, _user.GetSubjectId());

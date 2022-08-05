@@ -16,7 +16,7 @@ namespace Abc.IdentityServer4.WsFederation.Stores.UnitTests
         [Fact()]
         public async Task FindRelyingPartyByRealmTest()
         {
-            var relyingParty = await _target.FindRelyingPartyByRealm("");
+            var relyingParty = await _target.FindRelyingPartyByRealmAsync("");
             relyingParty.Should().BeNull();
         }
     }

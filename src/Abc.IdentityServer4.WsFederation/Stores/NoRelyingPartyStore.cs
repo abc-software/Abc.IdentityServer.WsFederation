@@ -8,7 +8,7 @@ namespace Abc.IdentityServer4.WsFederation.Stores
 {
     public class NoRelyingPartyStore : IRelyingPartyStore
     {
-        public Task<RelyingParty> FindRelyingPartyByRealm(string realm)
+        public Task<RelyingParty> FindRelyingPartyByRealmAsync(string realm)
         {
             return Task.FromResult<RelyingParty>(null);
         }
