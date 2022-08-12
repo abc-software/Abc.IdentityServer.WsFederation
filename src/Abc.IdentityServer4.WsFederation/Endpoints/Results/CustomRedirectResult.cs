@@ -52,7 +52,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
             else
             {
                 //returnUrl = returnUrl.AddQueryString(_request.Raw.ToQueryString());
-                returnUrl = returnUrl.AddQueryString(_request.WsFederationMessage.ToQueryString());
+                returnUrl = returnUrl.AddQueryString(_request.WsFederationMessage.Parameters);
             }
 
             if (!_url.IsLocalUrl())

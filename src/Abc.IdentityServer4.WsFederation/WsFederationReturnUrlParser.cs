@@ -60,7 +60,7 @@ namespace Abc.IdentityServer4.WsFederation
                 return null;
             }
 
-            var signInMessage = await GetSignInRequestMessage(returnUrl);
+            var signInMessage = await GetSignInRequestMessageAsync(returnUrl);
             if (signInMessage == null)
             {
                 return null;
@@ -92,7 +92,7 @@ namespace Abc.IdentityServer4.WsFederation
             return request;
         }
 
-        private async Task<WsFederationMessage> GetSignInRequestMessage(string returnUrl)
+        private async Task<WsFederationMessage> GetSignInRequestMessageAsync(string returnUrl)
         {
             int index = returnUrl.IndexOf('?');
             if (0 <= index)

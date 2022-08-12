@@ -63,7 +63,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
 
             if (!message.IsSignInMessage)
             {
-                return await CreateSignInErrorResult("WS-Federation message is not sing in message");
+                return await CreateSignInErrorResultAsync("WS-Federation message is not sing in message");
             }
 
             // user can be null here (this differs from HttpContext.User where the anonymous user is filled in)
@@ -78,7 +78,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
             var consent = await _consentResponseStore.ReadAsync(consentRequest.Id);
             if (consent != null && consent.Data == null)
             {
-                return await CreateSignInErrorResult("consent message is missing data");
+                return await CreateSignInErrorResultAsync("consent message is missing data");
             }
 
             try

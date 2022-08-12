@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4;
 using MockProfileService = IdentityServer4.Services.MockProfileService;
+using System;
 
 namespace Abc.IdentityServer4.WsFederation.Services.UnitTests
 {
@@ -46,6 +47,20 @@ namespace Abc.IdentityServer4.WsFederation.Services.UnitTests
         }
 
         [Fact]
+        public void Ctor_DefaultClaimsService_should_throws_exception()
+        {
+            {
+                Action act = () => new DefaultClaimsService(null, TestLogger.Create<DefaultClaimsService>());
+                act.Should().Throw<ArgumentNullException>();
+            }
+
+            {
+                Action act = () => new DefaultClaimsService(_mockMockProfileService, null);
+                act.Should().Throw<ArgumentNullException>();
+            }
+        }
+
+        [Fact]
         public async Task GetClaimsAsync_should_return_profile_user_claims()
         {
             _mockMockProfileService.ProfileClaims.Add(new Claim(JwtClaimTypes.Subject, "sub"));
@@ -57,13 +72,16 @@ namespace Abc.IdentityServer4.WsFederation.Services.UnitTests
             types.Should().Contain(JwtClaimTypes.Subject);
         }
 
-        [Fact]
-        public void MapAsync_should_return_mapped_saml2_claims()
+        [Theory]
+        [InlineData(WsFederationConstants.TokenTypes.OasisWssSaml2TokenProfile11)]
+        [InlineData(WsFederationConstants.TokenTypes.Saml2TokenProfile11)]
+        public void MapAsync_should_return_mapped_saml2_claims(string tokenType)
         {
             var claims = new List<Claim>() {
                 new Claim(JwtClaimTypes.Subject, "sub"),
                 new Claim(JwtClaimTypes.Name, "bob").AddProperty("property", "p_val"),
                 new Claim(JwtClaimTypes.NickName, "bob_nick"),
+                new Claim(ClaimTypes.Email, "bob@a.lv"), // long claim name
             };
 
             var mapping = new Dictionary<string, string>()
@@ -71,8 +89,6 @@ namespace Abc.IdentityServer4.WsFederation.Services.UnitTests
                 { JwtClaimTypes.Subject, "urn:nameidentifier" },
                 { JwtClaimTypes.Name, "http://test.org/name" },
             };
-
-            var tokenType = WsFederationConstants.TokenTypes.OasisWssSaml2TokenProfile11;
 
             var mappedClaims = _target.MapClaims(mapping, tokenType, claims);
 
@@ -80,18 +96,23 @@ namespace Abc.IdentityServer4.WsFederation.Services.UnitTests
                 new Claim("urn:nameidentifier", "sub").AddProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName", JwtClaimTypes.Subject),
                 new Claim("http://test.org/name", "bob").AddProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName", JwtClaimTypes.Name).AddProperty("property", "p_val"),
                 new Claim(JwtClaimTypes.NickName, "bob_nick"),
+                new Claim(ClaimTypes.Email, "bob@a.lv"),
             };
 
             mappedClaims.Should().BeEquivalentTo(expected);
         }
 
-        [Fact]
-        public void MapAsync_should_return_mapped_saml11_claims()
+        [Theory]
+        [InlineData(WsFederationConstants.TokenTypes.OasisWssSaml11TokenProfile11)]
+        [InlineData(WsFederationConstants.TokenTypes.Saml11TokenProfile11)]
+        public void MapAsync_should_return_mapped_saml11_claims(string tokenType)
         {
             var claims = new List<Claim>() {
                 new Claim(JwtClaimTypes.Subject, "sub").AddProperty("format", "f1"),
                 new Claim(JwtClaimTypes.Name, "bob"),
                 new Claim(JwtClaimTypes.NickName, "bob_nick"),
+                new Claim("/address", "address"), // invalid claim name
+                new Claim(ClaimTypes.Email, "bob@a.lv"), // long claim name
             };
 
             var mapping = new Dictionary<string, string>()
@@ -100,13 +121,12 @@ namespace Abc.IdentityServer4.WsFederation.Services.UnitTests
                 { JwtClaimTypes.Name, "http://test.org/name" },
             };
 
-            var tokenType = WsFederationConstants.TokenTypes.OasisWssSaml11TokenProfile11;
-
             var mappedClaims = _target.MapClaims(mapping, tokenType, claims);
 
             var expected = new List<Claim>() {
                 new Claim("urn:nameidentifier", "sub").AddProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName", JwtClaimTypes.Subject).AddProperty("format", "f1"),
                 new Claim("http://test.org/name", "bob").AddProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName", JwtClaimTypes.Name),
+                new Claim(ClaimTypes.Email, "bob@a.lv"),
             };
 
             mappedClaims.Should().BeEquivalentTo(expected);

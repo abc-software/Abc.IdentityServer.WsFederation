@@ -35,8 +35,8 @@ namespace Abc.IdentityServer4.WsFederation.Services
         /// <param name="logger">The logger.</param>
         public DefaultClaimsService(IProfileService profile, ILogger<DefaultClaimsService> logger)
         {
-            Profile = profile;
-            Logger = logger;
+            Profile = profile ?? throw new System.ArgumentNullException(nameof(profile));
+            Logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>

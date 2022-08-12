@@ -9,17 +9,25 @@ namespace Abc.IdentityServer4.WsFederation.Events
 {
     public class SignInTokenIssuedSuccessEvent : TokenIssuedSuccessEvent
     {
-        public SignInTokenIssuedSuccessEvent(WsFederationMessage responseMessage, WsFederationValidationResult request)
+        public SignInTokenIssuedSuccessEvent(WsFederationMessage responseMessage, ValidatedWsFederationRequest request)
             : base()
         {
-            ClientId = request.ValidatedRequest.Client.ClientId;
-            ClientName = request.ValidatedRequest.Client.ClientName;
+            if (request != null)
+            {
+                ClientId = request.ClientId;
+                ClientName = request.Client?.ClientName;
+                SubjectId = request.Subject?.GetSubjectId();
+                Scopes = request.ValidatedResources?.RawScopeValues.ToSpaceSeparatedString();
+            }
+
             Endpoint = WsFederationConstants.EndpointNames.WsFederation;
-            SubjectId = request.ValidatedRequest.Subject?.GetSubjectId();
-            Scopes = request.ValidatedRequest.ValidatedResources?.RawScopeValues.ToSpaceSeparatedString();
 
             var tokens = new List<Token>();
-            tokens.Add(new Token("SecurityToken", responseMessage.GetToken()));
+            if (responseMessage != null)
+            {
+                tokens.Add(new Token("SecurityToken", responseMessage.Wresult));
+            }
+
             Tokens = tokens;
         }
     }

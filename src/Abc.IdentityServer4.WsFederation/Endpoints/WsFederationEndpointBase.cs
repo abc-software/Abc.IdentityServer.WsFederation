@@ -55,7 +55,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
             var validationResult = await _validator.ValidateSignInRequestAsync(signin, user);
             if (validationResult.IsError)
             {
-                return await CreateSignInErrorResult(
+                return await CreateSignInErrorResultAsync(
                     "WS-Federation sign in request validation failed", 
                     validationResult.ValidatedRequest, 
                     validationResult.Error, 
@@ -65,7 +65,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
             var interactionResult = await _interaction.ProcessInteractionAsync(validationResult.ValidatedRequest, consent);
             if (interactionResult.IsError)
             {
-                return await CreateSignInErrorResult(
+                return await CreateSignInErrorResultAsync(
                     "WS-Federation interaction generator error", 
                     validationResult.ValidatedRequest, 
                     interactionResult.Error, 
@@ -86,7 +86,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
             var responseMessage = await _generator.GenerateResponseAsync(validationResult);
             await UserSession.AddClientIdAsync(validationResult.ValidatedRequest.ClientId);
             
-            await _events.RaiseAsync(new Events.SignInTokenIssuedSuccessEvent(responseMessage, validationResult));
+            await _events.RaiseAsync(new Events.SignInTokenIssuedSuccessEvent(responseMessage, validationResult.ValidatedRequest));
             
             return new Results.SignInResult(responseMessage);
         }
@@ -102,7 +102,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
             var validationResult = await _validator.ValidateSignOutRequestAsync(message);
             if (validationResult.IsError)
             {
-                return await CreateSignOutErrorResult(
+                return await CreateSignOutErrorResultAsync(
                     "WS-Federation sign out request validation failed", 
                     validationResult.ValidatedRequest, 
                     validationResult.Error, 
@@ -112,7 +112,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
             return new Results.SignOutResult(validationResult.ValidatedRequest);
         }
 
-        protected async Task<IEndpointResult> CreateSignInErrorResult(
+        protected async Task<IEndpointResult> CreateSignInErrorResultAsync(
             string logMessage, 
             ValidatedWsFederationRequest request = null, 
             string error = "Server", 
@@ -134,7 +134,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
             return new Results.ErrorPageResult(error, errorDescription);
         }
 
-        protected Task<IEndpointResult> CreateSignOutErrorResult(
+        protected Task<IEndpointResult> CreateSignOutErrorResultAsync(
             string logMessage, 
             ValidatedWsFederationRequest request = null, 
             string error = "Server", 

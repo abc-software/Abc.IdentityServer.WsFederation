@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -18,7 +19,7 @@ namespace Abc.IdentityServer4.Extensions
                 return string.Empty;
             }
 
-            return string.Join(" ", list);
+            return string.Join(" ", list.Where(i => i.IsPresent()));
         }
 
         [DebuggerStepThrough]
@@ -47,6 +48,7 @@ namespace Abc.IdentityServer4.Extensions
             {
                 return true;
             }
+
             if (value.Length > maxLength)
             {
                 return true;
@@ -94,27 +96,16 @@ namespace Abc.IdentityServer4.Extensions
             return null;
         }
 
-        public static string AddQueryString(this string url, string query)
+        [DebuggerStepThrough]
+        public static string AddQueryString(this string url, IDictionary<string, string> queryString)
         {
-            if (!url.Contains("?"))
-            {
-                if (!query.StartsWith("?"))
-                {
-                    url += "?";
-                }
-            }
-            else if (!url.EndsWith("&"))
-            {
-                url += "&";
-            }
-
-            return url + query;
+            return QueryHelpers.AddQueryString(url, queryString);
         }
 
         [DebuggerStepThrough]
         public static string AddQueryString(this string url, string name, string value)
         {
-            return url.AddQueryString(name + "=" + UrlEncoder.Default.Encode(value));
+            return QueryHelpers.AddQueryString(url, name, value);
         }
 
         [DebuggerStepThrough]

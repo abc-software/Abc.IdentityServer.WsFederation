@@ -4,9 +4,9 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Abc.IdentityServer4.WsFederation</AssemblyName>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/IdentityServer/IdentityServer4.WsFederation</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/abc-software/Abc.IdentityServer4.WsFederation</PackageProjectUrl>
     <PackageTags>identityserver;idsrv;wsfed;wsfederation;authentication;auth</PackageTags>
-    <RepositoryUrl>https://github.com/IdentityServer/IdentityServer4.WsFederation.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/abc-software/Abc.IdentityServer4.WsFederation.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>Abc.IdentityServer4.WsFederation</PackageId>
     <Version>2.8.0-rc3</Version>
@@ -31,12 +31,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="6.21.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.21.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.21.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.21.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="6.21.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Xml" Version="6.21.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="6.22.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.22.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.22.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.22.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="6.22.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Xml" Version="6.22.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.44">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

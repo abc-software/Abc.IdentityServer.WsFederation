@@ -11,7 +11,7 @@ namespace Abc.IdentityServer4.WsFederation.Events
         {
             if (request != null)
             {
-                ClientId = request.Client?.ClientId;
+                ClientId = request.ClientId;
                 ClientName = request.Client?.ClientName;
 
                 if (request.Subject.IsAuthenticated())
