@@ -247,28 +247,5 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
 
             result.IsLogin.Should().BeTrue();
         }
-
-        [Fact]
-        public async Task wfresh_for_signin_should_remove_from_wsfed()
-        {
-            var request = new ValidatedWsFederationRequest
-            {
-                ClientId = "foo",
-                Subject = new IdentityServerUser("123")
-                {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider,
-                    AuthenticationTime = _clock.UtcNow.UtcDateTime.Subtract(TimeSpan.FromSeconds(3700)),
-                }.CreatePrincipal(),
-                Freshness = 0,
-                WsFederationMessage = new WsFederationMessage()
-                {
-                    Wfresh = "0"
-                }
-            };
-
-            var result = await _subject.ProcessLoginAsync(request);
-
-            request.WsFederationMessage.Wfresh.Should().BeNull();
-        }
     }
 }

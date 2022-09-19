@@ -63,14 +63,9 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var message = request.WsFederationMessage;
             var freshness = request.Freshness;
             if (freshness.HasValue && freshness.Value == 0)
             {
-                // remove wfresh so when we redirect back in from login page
-                // we won't think we need to force a login again
-                message.Wfresh = null;
-
                 Logger.LogInformation("Showing login: Requested wfresh=0.");
                 return Task.FromResult(new InteractionResponse { IsLogin = true });
             }

@@ -3,13 +3,15 @@ using Microsoft.IdentityModel.Protocols.WsFederation;
 using Xunit;
 using System;
 using System.Threading.Tasks;
+using FluentAssertions.Common;
+using IdentityServer4;
 
 namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
 {
     public class WsFederationRequestValidatorSignInFixture : WsFederationRequestValidatorBase
     {
         [Fact]
-        public async Task Valid_request()
+        public async Task valid_request_should_be_ok()
         {
             var message = new WsFederationMessage()
             {
@@ -23,7 +25,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Valid_request_with_all_paramters()
+        public async Task valid_request_with_all_paramters_should_be_ok()
         {
             var message = new WsFederationMessage()
             {
@@ -43,14 +45,14 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public void Null_Parameter()
+        public void null_wsfed_should_be_exception()
         {
             Func<Task> act = () => validator.ValidateSignInRequestAsync(null, null);
             act.Should().ThrowAsync<ArgumentNullException>();
         }
 
         [Fact]
-        public async Task Empty_Parameters()
+        public async Task empty_wsfed_should_be_error()
         {
             var result = await validator.ValidateSignInRequestAsync(new WsFederationMessage(), null);
 
@@ -59,7 +61,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Missing_Wtrealm()
+        public async Task wsfed_without_wtrealm_should_be_error()
         {
             var parameters = new WsFederationMessage()
             {
@@ -73,7 +75,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Invalid_Protocol_Client()
+        public async Task wsfed_invalid_wtrealm_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -88,7 +90,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Malformed_Wreply()
+        public async Task wsfed_malformed_wreply_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -104,7 +106,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Ignore_Invalid_Wreply()
+        public async Task wsfed_invalid_wreply_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -119,7 +121,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Malformed_Wreply_Triple_Slash()
+        public async Task wsfed_malformed_triple_slash_wreply_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -135,7 +137,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Malformed_Wfresh()
+        public async Task wsfed_malformed_wfresh_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -151,7 +153,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Negative_Wfresh()
+        public async Task wsfed_negative_wfresh_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -167,7 +169,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Malformed_Wct()
+        public async Task wsfed_malformed_wct_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -183,7 +185,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Invalid_Wct_in_funture()
+        public async Task wsfed_wct_in_future_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -199,7 +201,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task Invalid_Wct_in_past()
+        public async Task wsfed_wct_in_past_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -216,7 +218,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
 
 
         [Fact]
-        public async Task Both_Wreq_and_Wreqptr()
+        public async Task wsfed_wreq_and_wregptr_should_be_error()
         {
             var message = new WsFederationMessage()
             {
@@ -232,5 +234,49 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
             result.Error.Should().Be("invalid_request");
         }
 
+        [Fact]
+        public async Task wfresh_zero_should_remove_from_wsfed()
+        {
+            var message = new WsFederationMessage()
+            {
+                Wa = "wsignin1.0",
+                Wtrealm = "urn:test",
+                Wfresh = "0",
+            };
+
+            var result = await validator.ValidateSignInRequestAsync(message, null);
+
+            result.ValidatedRequest.WsFederationMessage.Wfresh.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task whr_should_remove_from_wsfed()
+        {
+            var message = new WsFederationMessage()
+            {
+                Wa = "wsignin1.0",
+                Wtrealm = "urn:test",
+                Whr = "test",
+            };
+
+            var result = await validator.ValidateSignInRequestAsync(message, null);
+
+            result.ValidatedRequest.WsFederationMessage.Whr.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task wct_should_remove_from_wsfed()
+        {
+            var message = new WsFederationMessage()
+            {
+                Wa = "wsignin1.0",
+                Wtrealm = "urn:test",
+                Wct = clock.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+            };
+
+            var result = await validator.ValidateSignInRequestAsync(message, null);
+
+            result.ValidatedRequest.WsFederationMessage.Wct.Should().BeNull();
+        }
     }
 }

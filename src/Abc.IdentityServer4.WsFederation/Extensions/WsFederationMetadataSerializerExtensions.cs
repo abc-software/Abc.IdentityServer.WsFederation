@@ -51,8 +51,8 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
             // @ID
             writer.WriteAttributeString(Attributes.Id, entityDescriptorId);
 
-            // if (envelopeWriter != null)
-            //     envelopeWriter.WriteSignature();
+            if (envelopeWriter != null)
+                envelopeWriter.WriteSignature();
 
             WriteSecurityTokenServiceTypeRoleDescriptor(configuration, writer);
 

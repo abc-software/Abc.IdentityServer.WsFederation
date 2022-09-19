@@ -301,6 +301,13 @@ namespace Abc.IdentityServer4.WsFederation.Validation
                     return new WsFederationValidationResult(request, "invalid_request", "Invalid freshness value");
                 }
 
+                if (maxAgeInMinutes == 0)
+                {
+                    // remove wfresh so when we redirect back in from login page
+                    // we won't think we need to force a login again
+                    message.Wfresh = null;
+                }
+
                 request.Freshness = maxAgeInMinutes;
             }
 
@@ -313,11 +320,14 @@ namespace Abc.IdentityServer4.WsFederation.Validation
                     && !request.Client.IdentityProviderRestrictions.Contains(idp))
                 {
                     _logger.LogWarning("WHR (idp) requested '{whr}' is not in client restriction list.", idp);
-                    message.Whr = null;
                 }
                 else {
                     request.HomeRealm = idp;
                 }
+
+                // remove whr so when we get access denied back from external provider
+                // we must redirect to login page
+                message.Whr = null;
             }
 
             return new WsFederationValidationResult(request);
