@@ -1,3 +1,12 @@
+// ----------------------------------------------------------------------------
+// <copyright file="RequestSecurityTokenResponse.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml;
 using Microsoft.IdentityModel.Xml;
@@ -11,12 +20,14 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
 {
     internal class RequestSecurityTokenResponse
     {
-        public DateTime CreatedAt { get;set; }
-        public DateTime ExpiresAt { get;set; }
+#pragma warning disable SA1516 // Elements should be separated by blank line
+        public DateTime CreatedAt { get; set; }
+        public DateTime ExpiresAt { get; set; }
         public string AppliesTo { get; set; }
         public string Context { get; set; }
         public string TokenType { get; set; }
         public SecurityToken RequestedSecurityToken { get; set; }
+#pragma warning restore SA1516 // Elements should be separated by blank line
 
         public string Serialize(SecurityTokenHandler securityTokenHandler, WsTrustVersion trustVersion)
         {
@@ -30,12 +41,14 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
                 bool flag;
                 string prefix;
                 string ns;
-                if (trustVersion == WsTrustVersion.WsTrust2005) {
+                if (trustVersion == WsTrustVersion.WsTrust2005)
+                {
                     flag = false;
                     prefix = WsTrustConstants_2005.PreferredPrefix;
                     ns = WsTrustConstants.Namespaces.WsTrust2005;
                 }
-                else {
+                else
+                {
                     flag = true;
                     prefix = WsTrustConstants_1_3.PreferredPrefix;
                     ns = WsTrustConstants.Namespaces.WsTrust1_3;
@@ -48,9 +61,10 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
                     {
                         writer.WriteStartElement(prefix, WsFederationConstants.Elements.RequestSecurityTokenResponseCollection, ns);
                     }
-                
+
                     // <t:RequestSecurityTokenResponse>
                     writer.WriteStartElement(prefix, WsTrustConstants.Elements.RequestSecurityTokenResponse, ns);
+                    
                     // @Context
                     writer.WriteAttributeString(WsFederationConstants.Attributes.Context, Context);
 
@@ -59,6 +73,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
 
                     // <wsu:Created></wsu:Created>
                     writer.WriteElementString(WsUtility.PreferredPrefix, WsUtility.Elements.Created, WsFederationConstants.WsUtility.Namespace, CreatedAt.ToString(SamlConstants.GeneratedDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
+                    
                     // <wsu:Expires></wsu:Expires>
                     writer.WriteElementString(WsUtility.PreferredPrefix, WsUtility.Elements.Expires, WsFederationConstants.WsUtility.Namespace, ExpiresAt.ToString(SamlConstants.GeneratedDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
 

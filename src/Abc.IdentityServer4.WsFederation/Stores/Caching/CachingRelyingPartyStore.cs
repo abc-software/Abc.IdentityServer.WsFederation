@@ -1,4 +1,13 @@
-﻿using IdentityServer4.Configuration;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="CachingRelyingPartyStore.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using Microsoft.Extensions.Logging;
@@ -7,7 +16,7 @@ using System.Threading.Tasks;
 namespace Abc.IdentityServer4.WsFederation.Stores
 {
     /// <summary>
-    /// Cache decorator for IRelyingPartyStore
+    /// Cache decorator for IRelyingPartyStore.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="IdentityServer4.WsFederation.Stores.IRelyingPartyStore"/>
@@ -43,7 +52,8 @@ namespace Abc.IdentityServer4.WsFederation.Stores
         /// </returns>
         public async Task<RelyingParty> FindRelyingPartyByRealmAsync(string realm)
         {
-            var relyingParty = await _cache.GetAsync(realm,
+            var relyingParty = await _cache.GetAsync(
+                realm,
                 _options.Caching.ClientStoreExpiration,
                 () => _inner.FindRelyingPartyByRealmAsync(realm),
                 _logger);

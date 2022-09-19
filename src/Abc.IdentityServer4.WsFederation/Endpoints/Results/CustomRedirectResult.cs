@@ -1,4 +1,13 @@
-﻿using Abc.IdentityServer4.Extensions;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="CustomRedirectResult.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Validation;
 using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
@@ -24,8 +33,15 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
 
         public CustomRedirectResult(ValidatedWsFederationRequest request, string url)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
-            if (url.IsMissing()) throw new ArgumentNullException(nameof(url));
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (url.IsMissing())
+            {
+                throw new ArgumentNullException(nameof(url));
+            }
 
             _request = request;
             _url = url;
@@ -51,7 +67,6 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
             }
             else
             {
-                //returnUrl = returnUrl.AddQueryString(_request.Raw.ToQueryString());
                 returnUrl = returnUrl.AddQueryString(_request.WsFederationMessage.Parameters);
             }
 

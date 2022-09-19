@@ -1,15 +1,23 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="StringExtensions.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.Encodings.Web;
 
 namespace Abc.IdentityServer4.Extensions
 {
-    internal static class Extensions
+    internal static class StringExtensions
     {
         [DebuggerStepThrough]
         public static string ToSpaceSeparatedString(this IEnumerable<string> list)
@@ -140,6 +148,5 @@ namespace Abc.IdentityServer4.Extensions
 
             return url;
         }
-
     }
 }

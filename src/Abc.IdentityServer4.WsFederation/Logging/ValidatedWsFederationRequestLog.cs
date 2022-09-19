@@ -1,4 +1,13 @@
-﻿using Abc.IdentityServer4.Extensions;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="ValidatedWsFederationRequestLog.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Validation;
 using IdentityModel;
 using IdentityServer4.Extensions;
@@ -31,6 +40,7 @@ namespace Abc.IdentityServer4.WsFederation.Logging
             }
         }
 
+#pragma warning disable SA1516 // Elements should be separated by blank line
         public string ClientId { get; set; }
         public string ClientName { get; set; }
         public string ReplyUrl { get; set; }
@@ -40,6 +50,7 @@ namespace Abc.IdentityServer4.WsFederation.Logging
         public Dictionary<string, string> Raw { get; set; }
         public int? Freshness { get; set; }
         public string HomeRealm { get; set; }
+#pragma warning restore SA1516 // Elements should be separated by blank line
 
         public override string ToString()
         {

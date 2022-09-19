@@ -1,4 +1,13 @@
-﻿using Abc.IdentityServer4.Extensions;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="WsFederationRequestValidator.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Stores;
 using IdentityServer4;
 using IdentityServer4.Configuration;
@@ -16,6 +25,9 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer4.WsFederation.Validation
 {
+    /// <summary>
+    /// Validates requests to the WS-Federation endpoint.
+    /// </summary>
     public class WsFederationRequestValidator : IWsFederationRequestValidator
     {
         private readonly IClientStore _clients;
@@ -26,6 +38,16 @@ namespace Abc.IdentityServer4.WsFederation.Validation
         private readonly ISystemClock _clock;
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WsFederationRequestValidator"/> class.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="clients"></param>
+        /// <param name="relyingParties"></param>
+        /// <param name="uriValidator"></param>
+        /// <param name="userSession"></param>
+        /// <param name="clock"></param>
+        /// <param name="logger"></param>
         public WsFederationRequestValidator(
             IdentityServerOptions options,
             IClientStore clients,
@@ -44,6 +66,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation
             _logger = logger;
         }
 
+        /// <inheritdoc/>
         public virtual async Task<WsFederationValidationResult> ValidateSignInRequestAsync(WsFederationMessage message, ClaimsPrincipal user)
         {
             _logger.LogInformation("Start WS-Federation sign in request validation");
@@ -95,6 +118,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation
             return new WsFederationValidationResult(request);
         }
 
+        /// <inheritdoc/>
         public virtual async Task<WsFederationValidationResult> ValidateSignOutRequestAsync(WsFederationMessage message)
         {
             _logger.LogInformation("Start WS-Federation sign out request validation");
@@ -142,7 +166,13 @@ namespace Abc.IdentityServer4.WsFederation.Validation
             return new WsFederationValidationResult(request);
         }
 
-        protected virtual Task ValidateRequestedResourcesAsync(ValidatedWsFederationRequest validatedRequest) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="validatedRequest">The validated WS-federation request.</param>
+        /// <returns></returns>
+        protected virtual Task ValidateRequestedResourcesAsync(ValidatedWsFederationRequest validatedRequest)
+        {
             /*
             var resourceValidationResult = await resourceValidator.ValidateRequestedResourcesAsync(new ResourceValidationRequest
             {
@@ -320,14 +350,12 @@ namespace Abc.IdentityServer4.WsFederation.Validation
                     && !request.Client.IdentityProviderRestrictions.Contains(idp))
                 {
                     _logger.LogWarning("WHR (idp) requested '{whr}' is not in client restriction list.", idp);
+                    message.Whr = null;
                 }
-                else {
+                else
+                {
                     request.HomeRealm = idp;
                 }
-
-                // remove whr so when we get access denied back from external provider
-                // we must redirect to login page
-                message.Whr = null;
             }
 
             return new WsFederationValidationResult(request);

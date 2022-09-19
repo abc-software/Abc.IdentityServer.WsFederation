@@ -1,4 +1,13 @@
-﻿using IdentityServer4.Extensions;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="DefaultClaimsService.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
@@ -42,9 +51,10 @@ namespace Abc.IdentityServer4.WsFederation.Services
         /// <inheritdoc/>
         public virtual async Task<IEnumerable<Claim>> GetClaimsAsync(ValidatedRequest validatedRequest, IEnumerable<string> requestedClaimTypes)
         {
-            Logger.LogDebug("Getting claims for WS-Federation security token for subject: {subject} and client: {clientId}",
-                            validatedRequest.Subject.GetSubjectId(),
-                            validatedRequest.Client.ClientId);
+            Logger.LogDebug(
+                "Getting claims for WS-Federation security token for subject: {subject} and client: {clientId}",
+                validatedRequest.Subject.GetSubjectId(),
+                validatedRequest.Client.ClientId);
 
             var ctx = new ProfileDataRequestContext(validatedRequest.Subject, validatedRequest.Client, "WS-Federation", requestedClaimTypes)
             {

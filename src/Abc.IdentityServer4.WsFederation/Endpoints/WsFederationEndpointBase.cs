@@ -1,4 +1,13 @@
-﻿using Abc.IdentityServer4.WsFederation.ResponseProcessing;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="WsFederationEndpointBase.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Abc.IdentityServer4.WsFederation.ResponseProcessing;
 using Abc.IdentityServer4.WsFederation.Validation;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
@@ -19,7 +28,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints
         private readonly ISignInInteractionResponseGenerator _interaction;
         private readonly IWsFederationRequestValidator _validator;
 
-        public WsFederationEndpointBase(
+        protected WsFederationEndpointBase(
             IEventService events,
             IWsFederationRequestValidator validator,
             ISignInInteractionResponseGenerator interaction,

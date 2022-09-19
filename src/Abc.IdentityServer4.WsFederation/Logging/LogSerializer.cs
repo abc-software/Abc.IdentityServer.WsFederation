@@ -1,4 +1,13 @@
-﻿using System.Text.Json;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="LogSerializer.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Abc.IdentityServer4.WsFederation.Logging
@@ -25,7 +34,7 @@ namespace Abc.IdentityServer4.WsFederation.Logging
             var options = new JsonSerializerOptions
             {
                 IgnoreNullValues = true,
-                WriteIndented = true
+                WriteIndented = true,
             };
 
             options.Converters.Add(new JsonStringEnumConverter());

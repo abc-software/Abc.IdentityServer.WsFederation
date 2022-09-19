@@ -1,4 +1,13 @@
-﻿using Abc.IdentityServer4.Extensions;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="MetadataResponseGenerator.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Abc.IdentityServer4.Extensions;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Http;
@@ -46,7 +55,8 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
             config.SigningKeys.Add(signingKey);
             config.KeyInfos.Add(new KeyInfo(cert));
 
-            foreach(var token in _options.SecurityTokenHandlers.Select(x => x.TokenType)) {
+            foreach (var token in _options.SecurityTokenHandlers.Select(x => x.TokenType))
+            {
                 var tokenType = WsFederationConstants.TokenTypeMap.FirstOrDefault(x => x.Value == token);
                 if (tokenType.Key != null)
                 {

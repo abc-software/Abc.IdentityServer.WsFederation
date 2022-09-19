@@ -36,7 +36,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
                 Wfresh = "1",
                 Wct = clock.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 Wreq = "<xml/>",
-                Whr = "local",
+                Whr = "test",
             };
 
             var result = await validator.ValidateSignInRequestAsync(message, null);
@@ -250,13 +250,13 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
         }
 
         [Fact]
-        public async Task whr_should_remove_from_wsfed()
+        public async Task whr_in_restrictions_should_remove_from_wsfed()
         {
             var message = new WsFederationMessage()
             {
                 Wa = "wsignin1.0",
                 Wtrealm = "urn:test",
-                Whr = "test",
+                Whr = "local",
             };
 
             var result = await validator.ValidateSignInRequestAsync(message, null);

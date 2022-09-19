@@ -1,4 +1,13 @@
-﻿using IdentityServer4.Configuration;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="HttpResponseExtensionsEx.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Http;
