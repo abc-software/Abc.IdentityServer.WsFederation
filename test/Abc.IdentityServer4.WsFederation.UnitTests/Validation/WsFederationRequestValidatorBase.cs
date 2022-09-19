@@ -25,26 +25,31 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
                     Realm = "urn:test",
                 }
             });
+
+            var client = new Client
+            {
+                ClientId = "urn:test",
+                ClientName = "WS-Fed Client",
+                ProtocolType = IdentityServerConstants.ProtocolTypes.WsFederation,
+                Enabled = true,
+                RedirectUris = { "https://wsfed/callback" },
+                PostLogoutRedirectUris = { "https://wsfed/postlogout" },
+            };
+
+            client.IdentityProviderRestrictions.Add("test");
+
             var clients = new InMemoryClientStore(new[]
             {
-                  new Client
-                    {
-                        ClientId = "urn:test",
-                        ClientName = "WS-Fed Client",
-                        ProtocolType = IdentityServerConstants.ProtocolTypes.WsFederation,
-                        Enabled = true,
-                        RedirectUris = { "https://wsfed/callback"  },
-                        PostLogoutRedirectUris = { "https://wsfed/postlogout" }
-                    },
-                    new Client
-                    {
-                        ClientName = "Code Client",
-                        Enabled = true,
-                        ClientId = "codeclient",
-                    },
-                });
+                client,
+                new Client
+                {
+                    ClientName = "Code Client",
+                    Enabled = true,
+                    ClientId = "codeclient",
+                },
+            });
 
-                var uriValidator = new StrictRedirectUriValidator();
+            var uriValidator = new StrictRedirectUriValidator();
 
             //    wstrustRequestValidator = new WsTrustRequestValidator("https://identityserver", new LoggerFactory().CreateLogger<JwtRequestValidator>());
             //    wstrustRequestUriHttpClient = new DefaultWsTrustRequestUriHttpClient(new HttpClient(new NetworkHandler(new Exception("no jwt request uri response configured"))), options, new LoggerFactory());

@@ -1,4 +1,13 @@
-﻿using Abc.IdentityServer4.WsFederation.Validation;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="SignInResponseGenerator.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Abc.IdentityServer4.WsFederation.Validation;
 using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
@@ -72,7 +81,8 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
             var outboundClaims = new List<Claim>();
             outboundClaims.AddRange(_claimsService.MapClaims(claimMapping, tokenType, issuedClaims));
 
-            if (!outboundClaims.Exists(x => x.Type == ClaimTypes.NameIdentifier)) {
+            if (!outboundClaims.Exists(x => x.Type == ClaimTypes.NameIdentifier))
+            {
                 var nameid = new Claim(ClaimTypes.NameIdentifier, validatedRequest.Subject.GetSubjectId());
                 nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] =
                     validatedRequest.RelyingParty?.NameIdentifierFormat ?? _options.DefaultNameIdentifierFormat;
@@ -85,11 +95,12 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
             // System.IdentityModel.Tokens.AuthenticationMethods.
             // Password is the only one that can be directly matched, everything
             // else defaults to Unspecified.
-            if (!outboundClaims.Exists(x => x.Type == ClaimTypes.AuthenticationMethod)) {
-                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod,
-                validatedRequest.Subject.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password
-                    ? SamlConstants.AuthenticationMethods.PasswordString
-                    : SamlConstants.AuthenticationMethods.UnspecifiedString));
+            if (!outboundClaims.Exists(x => x.Type == ClaimTypes.AuthenticationMethod))
+            {
+                var authenticationMehod = validatedRequest.Subject.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password
+                        ? SamlConstants.AuthenticationMethods.PasswordString
+                        : SamlConstants.AuthenticationMethods.UnspecifiedString;
+                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, authenticationMehod));
             }
 
             // authentication instant claim is required
@@ -212,7 +223,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
                 IssuerAddress = validatedRequest.ReplyUrl,
                 Wa = Microsoft.IdentityModel.Protocols.WsFederation.WsFederationConstants.WsFederationActions.SignIn,
                 Wresult = rstr.Serialize(handler, trustVersion),
-                Wctx = validatedRequest.WsFederationMessage.Wctx
+                Wctx = validatedRequest.WsFederationMessage.Wctx,
             };
 
             return responseMessage;

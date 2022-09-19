@@ -1,4 +1,13 @@
-﻿using Abc.IdentityServer4.Extensions;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="ErrorPageResult.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Abc.IdentityServer4.Extensions;
 using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
@@ -32,6 +41,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
         }
 
         public string Error { get; }
+
         public string ErrorDescription { get; }
 
         public async Task ExecuteAsync(HttpContext context)
@@ -42,7 +52,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
             {
                 RequestId = context.TraceIdentifier,
                 Error = Error,
-                ErrorDescription = ErrorDescription
+                ErrorDescription = ErrorDescription,
             };
 
             var message = new Message<ErrorMessage>(errorMessage, _clock.UtcNow.UtcDateTime);

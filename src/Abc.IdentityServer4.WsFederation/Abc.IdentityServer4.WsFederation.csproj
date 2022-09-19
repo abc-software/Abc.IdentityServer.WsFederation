@@ -2,17 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>Abc.IdentityServer4.WsFederation</AssemblyName>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/abc-software/Abc.IdentityServer4.WsFederation</PackageProjectUrl>
-    <PackageTags>identityserver;idsrv;wsfed;wsfederation;authentication;auth</PackageTags>
-    <RepositoryUrl>https://github.com/abc-software/Abc.IdentityServer4.WsFederation.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageId>Abc.IdentityServer4.WsFederation</PackageId>
-    <Version>2.8.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>ids.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,10 +27,6 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.23.1" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="6.23.1" />
     <PackageReference Include="Microsoft.IdentityModel.Xml" Version="6.23.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.44">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

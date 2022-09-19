@@ -1,4 +1,5 @@
-# Abc.IdentityServer4.WsFederation
+# Abc.IdentityServer4.WsFederation ![](https://github.com/abc-software/Abc.IdentityServer4.WsFederation/actions/workflows/dotnet.yml/badge.svg)
+
 
 ## Overview
 Implementation WS-Federation IdP support for IdentityServer4 with .NET core.

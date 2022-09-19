@@ -1,4 +1,13 @@
-﻿using Abc.IdentityServer4.Extensions;
+﻿// ----------------------------------------------------------------------------
+// <copyright file="WsFederationReturnUrlParser.cs" company="ABC software Ltd">
+//    Copyright © ABC SOFTWARE. All rights reserved.
+//
+//    Licensed under the Apache License, Version 2.0.
+//    See LICENSE in the project root for license information.
+// </copyright>
+// ----------------------------------------------------------------------------
+
+using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Validation;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -37,12 +46,12 @@ namespace Abc.IdentityServer4.WsFederation
             if (returnUrl != null && returnUrl.IsLocalUrl())
             {
                 int index = returnUrl.IndexOf('?');
-                if (0 <= index)
+                if (index >= 0)
                 {
                     returnUrl = returnUrl.Substring(0, index);
                 }
 
-                if (returnUrl.EndsWith(WsFederationConstants.ProtocolRoutePaths.WsFederationCallback, StringComparison.Ordinal) && 0 <= index)
+                if (returnUrl.EndsWith(WsFederationConstants.ProtocolRoutePaths.WsFederationCallback, StringComparison.Ordinal) && index >= 0)
                 {
                     _logger.LogTrace("wsfed - returnUrl is valid");
                     return true;
@@ -95,7 +104,7 @@ namespace Abc.IdentityServer4.WsFederation
         private async Task<WsFederationMessage> GetSignInRequestMessageAsync(string returnUrl)
         {
             int index = returnUrl.IndexOf('?');
-            if (0 <= index)
+            if (index >= 0)
             {
                 returnUrl = returnUrl.Substring(index);
             }
