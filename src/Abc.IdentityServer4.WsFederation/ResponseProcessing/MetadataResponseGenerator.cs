@@ -8,8 +8,6 @@
 // ----------------------------------------------------------------------------
 
 using Abc.IdentityServer4.Extensions;
-using IdentityServer4.Extensions;
-using IdentityServer4.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using Microsoft.IdentityModel.Tokens;

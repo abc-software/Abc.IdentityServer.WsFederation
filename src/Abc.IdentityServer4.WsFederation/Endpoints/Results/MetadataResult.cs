@@ -7,7 +7,6 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using IdentityServer4.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.IO;

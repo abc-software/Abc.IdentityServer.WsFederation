@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />  
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>ids.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.IdentityServer4.WsFederation.UnitTests' or '$(MSBuildProjectName)' == 'Abc.IdentityServer4.WsFederation.IntegrationTests'">
+    <BaseIntermediateOutputPath>obj\IDS4\</BaseIntermediateOutputPath>
+    <OutputPath>bin\IDS4\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation.UnitTests' or '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation.IntegrationTests'">
+    <BaseIntermediateOutputPath>obj\DuendeIDS\</BaseIntermediateOutputPath>
+    <OutputPath>bin\DuendeIDS\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.10.0" />
+    <PackageReference Include="FluentAssertions.Analyzers" Version="0.17.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

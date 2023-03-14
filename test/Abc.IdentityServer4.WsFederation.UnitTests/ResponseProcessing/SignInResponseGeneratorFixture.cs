@@ -1,12 +1,6 @@
-﻿using Abc.IdentityServer4.WsFederation.ResponseProcessing;
-using Abc.IdentityServer4.WsFederation.Services;
+﻿using Abc.IdentityServer4.WsFederation.Services;
 using Abc.IdentityServer4.WsFederation.Validation;
 using FluentAssertions;
-using IdentityServer4;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -312,7 +306,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
             canReadToken.Should().BeTrue();
         }
 
-        private static ValidatedWsFederationRequest CreateDefaultWsFederationRequest(IdentityServerUser user)
+        private static ValidatedWsFederationRequest CreateDefaultWsFederationRequest(Ids.IdentityServerUser user)
         {
             return new ValidatedWsFederationRequest
             {
@@ -323,11 +317,11 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
                 ReplyUrl = "https://reply",
             };
         }
-        private IdentityServerUser CreateDefaultUser()
+        private Ids.IdentityServerUser CreateDefaultUser()
         {
-            var user = new IdentityServerUser("123")
+            var user = new Ids.IdentityServerUser("123")
             {
-                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+                IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider
             };
 
             user.AuthenticationMethods.Add("pwd");

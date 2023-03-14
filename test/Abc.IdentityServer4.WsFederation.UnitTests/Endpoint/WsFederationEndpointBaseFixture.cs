@@ -1,19 +1,14 @@
-﻿using FluentAssertions;
-using IdentityServer4.Configuration;
-using IdentityServer4.Hosting;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using Abc.IdentityServer4.WsFederation.Endpoints;
-using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer4.WsFederation.Endpoints;
 using Abc.IdentityServer4.WsFederation.ResponseProcessing;
+using Abc.IdentityServer4.WsFederation.Validation;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
-using Xunit;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityServer4;
+using Xunit;
 
 namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
 {
@@ -26,7 +21,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
         private ILogger<TestWsFederationEndpoint> _fakeLogger = TestLogger.Create<TestWsFederationEndpoint>();
         private IdentityServerOptions _options = TestIdentityServerOptions.Create();
         private MockUserSession _mockUserSession = new MockUserSession();
-        private ClaimsPrincipal _user = new IdentityServerUser("bob").CreatePrincipal();
+        private ClaimsPrincipal _user = new Ids.IdentityServerUser("bob").CreatePrincipal();
 
         private StubWsFederationRequestValidator _stubSignInRequestValidator = new StubWsFederationRequestValidator();
         private StubSignInInteractionResponseGenerator _stubInteractionGenerator = new StubSignInInteractionResponseGenerator();

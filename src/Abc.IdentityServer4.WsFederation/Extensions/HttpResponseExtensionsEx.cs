@@ -7,9 +7,6 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using IdentityServer4.Configuration;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace Abc.IdentityServer4.Extensions

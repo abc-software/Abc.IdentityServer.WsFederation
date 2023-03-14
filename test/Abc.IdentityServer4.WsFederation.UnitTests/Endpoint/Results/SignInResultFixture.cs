@@ -1,15 +1,11 @@
 ﻿using FluentAssertions;
-using IdentityServer4.Configuration;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using Abc.IdentityServer4.WsFederation.Endpoints.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Protocols.WsFederation;
-using Xunit;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Abc.IdentityServer4.WsFederation.Endpoints.Results.UnitTests
 {

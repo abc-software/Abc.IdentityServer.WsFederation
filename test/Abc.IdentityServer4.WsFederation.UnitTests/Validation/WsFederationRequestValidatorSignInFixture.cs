@@ -4,7 +4,6 @@ using Xunit;
 using System;
 using System.Threading.Tasks;
 using FluentAssertions.Common;
-using IdentityServer4;
 
 namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
 {

@@ -9,12 +9,6 @@
 
 using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Stores;
-using IdentityServer4;
-using IdentityServer4.Configuration;
-using IdentityServer4.Extensions;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
@@ -32,7 +26,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation
     {
         private readonly IClientStore _clients;
         private readonly IRelyingPartyStore _relyingParties;
-        private readonly IRedirectUriValidator _uriValidator;
+        private readonly Ids.Validation.IRedirectUriValidator _uriValidator;
         private readonly IdentityServerOptions _options;
         private readonly IUserSession _userSession;
         private readonly ISystemClock _clock;
@@ -52,7 +46,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation
             IdentityServerOptions options,
             IClientStore clients,
             IRelyingPartyStore relyingParties,
-            IRedirectUriValidator uriValidator,
+            Ids.Validation.IRedirectUriValidator uriValidator,
             IUserSession userSession,
             ISystemClock clock,
             ILogger<WsFederationRequestValidator> logger)
@@ -192,11 +186,11 @@ namespace Abc.IdentityServer4.WsFederation.Validation
                 return false;
             }
             */
-            var resourceValidationResult = new ResourceValidationResult();
+            var resourceValidationResult = new Ids.Validation.ResourceValidationResult();
 
             foreach (var item in validatedRequest.Client.AllowedScopes)
             {
-                resourceValidationResult.ParsedScopes.Add(new ParsedScopeValue(item));
+                resourceValidationResult.ParsedScopes.Add(new Ids.Validation.ParsedScopeValue(item));
             }
 
             validatedRequest.ValidatedResources = resourceValidationResult;
@@ -381,7 +375,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation
                 return new WsFederationValidationResult(request, "invalid_relying_party", "Cannot find Client configuration");
             }
 
-            if (client.ProtocolType != IdentityServerConstants.ProtocolTypes.WsFederation)
+            if (client.ProtocolType != Ids.IdentityServerConstants.ProtocolTypes.WsFederation)
             {
                 return new WsFederationValidationResult(request, "invalid_relying_party", "Client is not configured for WS-Federation");
             }

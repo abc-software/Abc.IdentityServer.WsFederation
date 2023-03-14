@@ -1,11 +1,14 @@
 ﻿using FluentAssertions;
-using IdentityServer4.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+#if DUENDE
+namespace Duende.IdentityServer.Services
+#else
 namespace IdentityServer4.Services
+#endif
 {
     public class TestEventService : IEventService
     {

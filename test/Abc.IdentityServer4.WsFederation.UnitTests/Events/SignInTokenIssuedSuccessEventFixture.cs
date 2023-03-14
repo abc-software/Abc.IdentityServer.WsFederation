@@ -1,9 +1,5 @@
 ﻿using Abc.IdentityServer4.WsFederation.Validation;
 using FluentAssertions;
-using IdentityServer4;
-using IdentityServer4.Events;
-using IdentityServer4.Models;
-using IdentityServer4.Validation;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using Xunit;
 
@@ -26,7 +22,7 @@ namespace Abc.IdentityServer4.WsFederation.Events.UnitTests
                     ClientId = "client",
                     ClientName = "clientName",
                 },
-                Subject = new IdentityServerUser("bob").CreatePrincipal(),
+                Subject = new Ids.IdentityServerUser("bob").CreatePrincipal(),
                 ValidatedResources = validatedResources,
             };
 

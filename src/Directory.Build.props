@@ -9,11 +9,19 @@
     <RepositoryUrl>https://github.com/abc-software/Abc.IdentityServer4.WsFederation.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
-    <Description>WS-Federation protocol for IdentityServer4</Description>
-    <Version>2.8.1-rc.0</Version>
+    <Version>2.9.0-dev1</Version>
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>ids.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.IdentityServer4.WsFederation'">
+    <BaseIntermediateOutputPath>obj\IDS4\</BaseIntermediateOutputPath>
+    <OutputPath>bin\IDS4\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation'">
+    <BaseIntermediateOutputPath>obj\DuendeIDS\</BaseIntermediateOutputPath>
+    <OutputPath>bin\DuendeIDS\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

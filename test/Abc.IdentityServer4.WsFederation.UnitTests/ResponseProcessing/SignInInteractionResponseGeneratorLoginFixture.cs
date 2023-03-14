@@ -1,16 +1,11 @@
-﻿using FluentAssertions;
+﻿using Abc.IdentityServer4.WsFederation.Validation;
+using FluentAssertions;
 using IdentityModel;
-using IdentityServer4.Models;
-using IdentityServer4.Validation;
-using Abc.IdentityServer4.WsFederation.Validation;
-using Abc.IdentityServer4.WsFederation.ResponseProcessing;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.IdentityModel.Protocols.WsFederation;
-using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IdentityServer4;
+using Xunit;
 
 namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
 {
@@ -48,9 +43,9 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
                 ClientId = "foo",
                 Client = new Client(),
                 ValidatedResources = new ResourceValidationResult(),
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+                    IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider
                 }.CreatePrincipal()
             };
 
@@ -65,15 +60,15 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
             var request = new ValidatedWsFederationRequest
             {
                 ClientId = "foo",
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+                    IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider
                 }.CreatePrincipal(),
                 Client = new Client
                 {
                     IdentityProviderRestrictions = new List<string>
                     {
-                        IdentityServerConstants.LocalIdentityProvider
+                        Ids.IdentityServerConstants.LocalIdentityProvider
                     }
                 }
             };
@@ -89,7 +84,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
             var request = new ValidatedWsFederationRequest
             {
                 ClientId = "foo",
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
                     IdentityProvider = "idp"
                 }.CreatePrincipal(),
@@ -115,10 +110,10 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
             {
                 ClientId = "foo",
                 Client = new Client(),
-                HomeRealm = IdentityServerConstants.LocalIdentityProvider,
-                Subject = new IdentityServerUser("123")
+                HomeRealm = Ids.IdentityServerConstants.LocalIdentityProvider,
+                Subject = new Ids.IdentityServerUser("123")
                 {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+                    IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider
                 }.CreatePrincipal()
             };
 
@@ -135,9 +130,9 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
                 ClientId = "foo",
                 Client = new Client(),
                 HomeRealm = "some_id",
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+                    IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider
                 }.CreatePrincipal()
             };
 
@@ -156,7 +151,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
                 {
                     UserSsoLifetime = 3600 // 1h
                 },
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
                     IdentityProvider = "local",
                     AuthenticationTime = _clock.UtcNow.UtcDateTime.Subtract(TimeSpan.FromSeconds(10))
@@ -178,7 +173,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
                 {
                     UserSsoLifetime = 3600 // 1h
                 },
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
                     IdentityProvider = "local",
                     AuthenticationTime = _clock.UtcNow.UtcDateTime.Subtract(TimeSpan.FromSeconds(3700))
@@ -200,9 +195,9 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
                 {
                     EnableLocalLogin = false
                 },
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+                    IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider
                 }.CreatePrincipal()
             };
 
@@ -217,9 +212,9 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
             var request = new ValidatedWsFederationRequest
             {
                 ClientId = "foo",
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+                    IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider
                 }.CreatePrincipal(),
                 Freshness = 0,
             };
@@ -235,9 +230,9 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
             var request = new ValidatedWsFederationRequest
             {
                 ClientId = "foo",
-                Subject = new IdentityServerUser("123")
+                Subject = new Ids.IdentityServerUser("123")
                 {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider,
+                    IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider,
                     AuthenticationTime = _clock.UtcNow.UtcDateTime.Subtract(TimeSpan.FromSeconds(3700)),
                 }.CreatePrincipal(),
                 Freshness = 60, // 1 hour

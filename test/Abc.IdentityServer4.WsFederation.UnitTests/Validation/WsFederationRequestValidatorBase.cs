@@ -1,12 +1,5 @@
 ﻿using Abc.IdentityServer4.WsFederation.Stores;
-using Abc.IdentityServer4.WsFederation.Validation;
-using IdentityServer4;
-using IdentityServer4.Configuration;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
-using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
-using MockUserSession = IdentityServer4.Services.MockUserSession;
 
 namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
 {
@@ -30,7 +23,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
             {
                 ClientId = "urn:test",
                 ClientName = "WS-Fed Client",
-                ProtocolType = IdentityServerConstants.ProtocolTypes.WsFederation,
+                ProtocolType = Ids.IdentityServerConstants.ProtocolTypes.WsFederation,
                 Enabled = true,
                 RedirectUris = { "https://wsfed/callback" },
                 PostLogoutRedirectUris = { "https://wsfed/postlogout" },

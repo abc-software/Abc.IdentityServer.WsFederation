@@ -1,10 +1,13 @@
-﻿using IdentityServer4.Models;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+#if DUENDE
+namespace Duende.IdentityServer.Services
+#else
 namespace IdentityServer4.Services
+#endif
 {
     internal class MockKeyMaterialService : IKeyMaterialService
     {

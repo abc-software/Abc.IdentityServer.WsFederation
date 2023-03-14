@@ -8,8 +8,6 @@
 // ----------------------------------------------------------------------------
 
 using Abc.IdentityServer4.WsFederation.ResponseProcessing;
-using IdentityServer4.Endpoints.Results;
-using IdentityServer4.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;

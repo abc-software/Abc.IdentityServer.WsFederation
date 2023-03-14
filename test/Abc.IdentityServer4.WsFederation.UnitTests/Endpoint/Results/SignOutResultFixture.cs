@@ -1,19 +1,13 @@
-﻿using FluentAssertions;
-using IdentityServer4.Configuration;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
-using Abc.IdentityServer4.WsFederation.Endpoints.Results;
-using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer4.WsFederation.Validation;
+using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.IdentityModel.Protocols.WsFederation;
-using Xunit;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Abc.IdentityServer4.WsFederation.Endpoints.Results.UnitTests
 {

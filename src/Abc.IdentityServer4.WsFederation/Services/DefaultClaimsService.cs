@@ -7,10 +7,6 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Validation;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -49,7 +45,7 @@ namespace Abc.IdentityServer4.WsFederation.Services
         }
 
         /// <inheritdoc/>
-        public virtual async Task<IEnumerable<Claim>> GetClaimsAsync(ValidatedRequest validatedRequest, IEnumerable<string> requestedClaimTypes)
+        public virtual async Task<IEnumerable<Claim>> GetClaimsAsync(Ids.Validation.ValidatedRequest validatedRequest, IEnumerable<string> requestedClaimTypes)
         {
             Logger.LogDebug(
                 "Getting claims for WS-Federation security token for subject: {subject} and client: {clientId}",

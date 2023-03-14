@@ -2,10 +2,6 @@
 using Abc.IdentityServer4.WsFederation.Endpoint.UnitTests;
 using Abc.IdentityServer4.WsFederation.Validation;
 using FluentAssertions;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System;

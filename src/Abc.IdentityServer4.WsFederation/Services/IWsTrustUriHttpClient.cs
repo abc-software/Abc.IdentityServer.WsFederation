@@ -7,7 +7,6 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using IdentityServer4.Models;
 using System.Threading.Tasks;
 
 namespace Abc.IdentityServer4.WsFederation.Services

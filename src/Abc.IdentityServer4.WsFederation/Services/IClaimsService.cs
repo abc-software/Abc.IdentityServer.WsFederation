@@ -7,7 +7,6 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using IdentityServer4.Validation;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -27,7 +26,7 @@ namespace Abc.IdentityServer4.WsFederation.Services
         /// <returns>
         /// Claims for the security token.
         /// </returns>
-        Task<IEnumerable<Claim>> GetClaimsAsync(ValidatedRequest validatedRequest, IEnumerable<string> requestedClaimTypes);
+        Task<IEnumerable<Claim>> GetClaimsAsync(Ids.Validation.ValidatedRequest validatedRequest, IEnumerable<string> requestedClaimTypes);
 
         /// <summary>
         /// Maps the claims.

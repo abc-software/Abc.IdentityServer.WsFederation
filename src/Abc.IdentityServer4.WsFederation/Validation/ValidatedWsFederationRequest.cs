@@ -8,7 +8,6 @@
 // ----------------------------------------------------------------------------
 
 using Abc.IdentityServer4.WsFederation.Stores;
-using IdentityServer4.Validation;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Collections.Generic;
 
@@ -17,7 +16,7 @@ namespace Abc.IdentityServer4.WsFederation.Validation
     /// <summary>
     /// Models a validated request to the sign in endpoint.
     /// </summary>
-    public class ValidatedWsFederationRequest : ValidatedRequest
+    public class ValidatedWsFederationRequest : Ids.Validation.ValidatedRequest
     {
         public WsFederationMessage WsFederationMessage { get; set; } = new WsFederationMessage();
 

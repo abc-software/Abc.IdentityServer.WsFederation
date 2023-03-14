@@ -1,10 +1,11 @@
-﻿using IdentityServer4.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
+#if DUENDE
+namespace Duende.IdentityServer.Stores
+#else
 namespace IdentityServer4.Stores
+#endif
 {
     public class MockConsentMessageStore : IConsentMessageStore
     {
@@ -16,6 +17,7 @@ namespace IdentityServer4.Stores
             {
                 Messages.Remove(id);
             }
+
             return Task.CompletedTask;
         }
 
@@ -26,6 +28,7 @@ namespace IdentityServer4.Stores
             {
                 Messages.TryGetValue(id, out val);
             }
+
             return Task.FromResult(val);
         }
 

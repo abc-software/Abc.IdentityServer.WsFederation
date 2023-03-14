@@ -9,10 +9,6 @@
 
 using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Validation;
-using IdentityServer4;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.ResponseHandling;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using System;
@@ -108,7 +104,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
             }
 
             // check local idp restrictions
-            if (currentIdp == IdentityServerConstants.LocalIdentityProvider)
+            if (currentIdp == Ids.IdentityServerConstants.LocalIdentityProvider)
             {
                 if (!request.Client.EnableLocalLogin)
                 {

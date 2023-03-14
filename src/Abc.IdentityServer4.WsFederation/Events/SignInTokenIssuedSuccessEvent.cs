@@ -9,8 +9,6 @@
 
 using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Validation;
-using IdentityServer4.Events;
-using IdentityServer4.Extensions;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Collections.Generic;
 

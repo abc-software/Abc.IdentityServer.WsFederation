@@ -14,7 +14,6 @@ using Abc.IdentityServer4.WsFederation.ResponseProcessing;
 using Abc.IdentityServer4.WsFederation.Services;
 using Abc.IdentityServer4.WsFederation.Stores;
 using Abc.IdentityServer4.WsFederation.Validation;
-using IdentityServer4.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -52,8 +51,8 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<ISignInResponseGenerator, SignInResponseGenerator>();
             builder.Services.AddTransient<IWsFederationRequestValidator, WsFederationRequestValidator>();
             builder.Services.AddTransient<ISignInInteractionResponseGenerator, SignInInteractionResponseGenerator>();
-            builder.Services.AddTransient<IdentityServer4.Services.IReturnUrlParser, WsFederationReturnUrlParser>();
-            builder.Services.AddTransient<IClaimsService, DefaultClaimsService>();
+            builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
+            builder.Services.AddTransient<Abc.IdentityServer4.WsFederation.Services.IClaimsService, Abc.IdentityServer4.WsFederation.Services.DefaultClaimsService>();
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
 
             builder.AddEndpoint<WsFederationEndpoint>(WsFederationConstants.EndpointNames.WsFederation, WsFederationConstants.ProtocolRoutePaths.WsFederation.EnsureLeadingSlash());

@@ -7,15 +7,13 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using IdentityServer4.Validation;
-
 namespace Abc.IdentityServer4.WsFederation.Validation
 {
     /// <summary>
     /// Validation result for WS-Federation requests.
     /// </summary>
     /// <seealso cref="ValidationResult" />
-    public class WsFederationValidationResult : ValidationResult
+    public class WsFederationValidationResult : Ids.Validation.ValidationResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="WsFederationValidationResult" /> class.

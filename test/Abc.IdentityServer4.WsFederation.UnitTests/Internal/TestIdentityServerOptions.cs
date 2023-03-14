@@ -1,4 +1,8 @@
-﻿namespace IdentityServer4.Configuration
+﻿#if DUENDE
+namespace Duende.IdentityServer.Configuration
+#else
+namespace IdentityServer4.Configuration
+#endif
 {
     internal class TestIdentityServerOptions
     {

@@ -1,13 +1,7 @@
 ﻿using Abc.IdentityServer4.WsFederation.Validation;
-using IdentityServer4.Models;
-using IdentityServer4;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
 using FluentAssertions;
 using Microsoft.IdentityModel.Protocols.WsFederation;
+using Xunit;
 
 namespace Abc.IdentityServer4.WsFederation.Logging.UnitTests
 {
@@ -25,7 +19,7 @@ namespace Abc.IdentityServer4.WsFederation.Logging.UnitTests
                     ClientId = "client",
                     ClientName = "clientName",
                 },
-                Subject = new IdentityServerUser("bob").CreatePrincipal(),
+                Subject = new Ids.IdentityServerUser("bob").CreatePrincipal(),
                 WsFederationMessage = new WsFederationMessage()
                 {
                     Wa = "wsignin1.0",

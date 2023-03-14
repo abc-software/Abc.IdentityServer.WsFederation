@@ -1,24 +1,16 @@
-﻿using FluentAssertions;
-using IdentityServer4.Configuration;
-using IdentityServer4.Hosting;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
+﻿using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Endpoints;
 using Abc.IdentityServer4.WsFederation.Validation;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
-using Xunit;
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityServer4.Extensions;
-using IdentityServer4.Stores;
-using System.Collections.Specialized;
-using System.Collections.Generic;
-using Abc.IdentityServer4.Extensions;
-using IdentityServer4;
-using StatusCodeResult = IdentityServer4.Endpoints.Results.StatusCodeResult;
+using Xunit;
 
 namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
 {
@@ -31,7 +23,7 @@ namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
         private ILogger<WsFederationCallbackEndpoint> _fakeLogger = TestLogger.Create<WsFederationCallbackEndpoint>();
         private IdentityServerOptions _options = TestIdentityServerOptions.Create();
         private MockUserSession _mockUserSession = new MockUserSession();
-        private ClaimsPrincipal _user = new IdentityServerUser("bob").CreatePrincipal();
+        private ClaimsPrincipal _user = new Ids.IdentityServerUser("bob").CreatePrincipal();
         private DefaultHttpContext _context;
         private StubWsFederationRequestValidator _stubSignInRequestValidator;
         private StubSignInInteractionResponseGenerator _stubInteractionGenerator;

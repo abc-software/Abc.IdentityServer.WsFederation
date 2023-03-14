@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
+  
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <DefineConstants>$(DefineConstants);DUENDE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="idsrvtest.pfx" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Abc.IdentityServer4.WsFederation\Abc.DuendeIdentityServer.WsFederation.csproj" />
+  </ItemGroup>
+</Project>

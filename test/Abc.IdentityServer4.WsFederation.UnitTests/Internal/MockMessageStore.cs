@@ -1,9 +1,12 @@
-﻿using IdentityServer4.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+#if DUENDE
+namespace Duende.IdentityServer.Stores
+#else
 namespace IdentityServer4.Stores
+#endif
 {
     public class MockMessageStore<TModel> : IMessageStore<TModel>
     {
@@ -48,7 +51,7 @@ namespace IdentityServer4.Stores
         async Task<Message<IDictionary<string, string[]>>> IAuthorizationParametersMessageStore.ReadAsync(string id)
         {
             var message = await base.ReadAsync(id);
-            return new Message<IDictionary<string, string[]>>(message.Data, DateTime.UtcNow);
+            return new Message<IDictionary<string, string[]>>(message?.Data, DateTime.UtcNow);
         }
     }
 }

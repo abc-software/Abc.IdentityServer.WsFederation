@@ -1,7 +1,5 @@
 ﻿using Abc.IdentityServer4.WsFederation.ResponseProcessing;
 using FluentAssertions;
-using IdentityServer4.Endpoints.Results;
-using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Xunit;

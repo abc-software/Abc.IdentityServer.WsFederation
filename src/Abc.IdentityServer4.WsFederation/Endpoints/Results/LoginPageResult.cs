@@ -9,11 +9,6 @@
 
 using Abc.IdentityServer4.Extensions;
 using Abc.IdentityServer4.WsFederation.Validation;
-using IdentityServer4.Configuration;
-using IdentityServer4.Extensions;
-using IdentityServer4.Hosting;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;

@@ -9,10 +9,6 @@
 
 using Abc.IdentityServer4.WsFederation.ResponseProcessing;
 using Abc.IdentityServer4.WsFederation.Validation;
-using IdentityServer4.Extensions;
-using IdentityServer4.Hosting;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
