@@ -26,10 +26,12 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
         /// <summary>
         /// Initializes a new instance of the <see cref="SignInInteractionResponseGenerator"/> class.
         /// </summary>
+        /// <param name="profile">The profile.</param>
         /// <param name="clock">The clock.</param>
         /// <param name="logger">The logger.</param>
-        public SignInInteractionResponseGenerator(ISystemClock clock, ILogger<SignInInteractionResponseGenerator> logger)
+        public SignInInteractionResponseGenerator(IProfileService profile, ISystemClock clock, ILogger<SignInInteractionResponseGenerator> logger)
         {
+            Profile = profile;
             Clock = clock;
             Logger = logger;
         }
@@ -40,9 +42,14 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
         protected ILogger Logger { get; }
 
         /// <summary>
-        /// The clock
+        /// The clock.
         /// </summary>
         protected ISystemClock Clock { get; }
+
+        /// <summary>
+        /// The profile service.
+        /// </summary>
+        protected IProfileService Profile { get; }
 
         /// <inheritdoc/>
         public virtual async Task<InteractionResponse> ProcessInteractionAsync(ValidatedWsFederationRequest request, ConsentResponse consent = null)
@@ -61,7 +68,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>The interaction response.</returns>
-        protected internal virtual Task<InteractionResponse> ProcessLoginAsync(ValidatedWsFederationRequest request)
+        protected internal virtual async Task<InteractionResponse> ProcessLoginAsync(ValidatedWsFederationRequest request)
         {
             if (request is null)
             {
@@ -72,7 +79,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
             if (freshness.HasValue && freshness.Value == 0)
             {
                 Logger.LogInformation("Showing login: Requested wfresh=0.");
-                return Task.FromResult(new InteractionResponse { IsLogin = true });
+                return new InteractionResponse { IsLogin = true };
             }
 
             // unauthenticated user
@@ -80,7 +87,16 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
             if (!user.IsAuthenticated())
             {
                 Logger.LogInformation("Showing login: user not authenticated.");
-                return Task.FromResult(new InteractionResponse { IsLogin = true });
+                return new InteractionResponse { IsLogin = true };
+            }
+
+            // user de-activated
+            var isActiveCtx = new IsActiveContext(user, request.Client, "WS-Federation");
+            await Profile.IsActiveAsync(isActiveCtx);
+            if (!isActiveCtx.IsActive)
+            {
+                Logger.LogInformation("Showing login: User is not active");
+                return new InteractionResponse { IsLogin = true };
             }
 
             // check if idp login hint matches current provider
@@ -89,7 +105,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
             if (idp.IsPresent() && idp != currentIdp)
             {
                 Logger.LogInformation("Showing login: Current IdP ({currentIdp}) is not the requested IdP ({idp})", currentIdp, idp);
-                return Task.FromResult(new InteractionResponse { IsLogin = true });
+                return new InteractionResponse { IsLogin = true };
             }
 
             // check authentication freshness
@@ -99,7 +115,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
                 if (Clock.UtcNow.UtcDateTime > authTime.AddMinutes(freshness.Value))
                 {
                     Logger.LogInformation("Showing login: Requested wfresh time exceeded.");
-                    return Task.FromResult(new InteractionResponse { IsLogin = true });
+                    return new InteractionResponse { IsLogin = true };
                 }
             }
 
@@ -109,7 +125,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
                 if (!request.Client.EnableLocalLogin)
                 {
                     Logger.LogInformation("Showing login: User logged in locally, but client does not allow local logins");
-                    return Task.FromResult(new InteractionResponse { IsLogin = true });
+                    return new InteractionResponse { IsLogin = true };
                 }
             }
             // check external idp restrictions if user not using local idp
@@ -118,7 +134,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
                 !request.Client.IdentityProviderRestrictions.Contains(currentIdp))
             {
                 Logger.LogInformation("Showing login: User is logged in with idp: {idp}, but idp not in client restriction list.", currentIdp);
-                return Task.FromResult(new InteractionResponse { IsLogin = true });
+                return new InteractionResponse { IsLogin = true };
             }
 
             // check client's user SSO timeout
@@ -129,11 +145,11 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
                 if (diff > request.Client.UserSsoLifetime.Value)
                 {
                     Logger.LogInformation("Showing login: User's auth session duration: {sessionDuration} exceeds client's user SSO lifetime: {userSsoLifetime}.", diff, request.Client.UserSsoLifetime);
-                    return Task.FromResult(new InteractionResponse { IsLogin = true });
+                    return new InteractionResponse { IsLogin = true };
                 }
             }
 
-            return Task.FromResult(new InteractionResponse());
+            return new InteractionResponse();
         }
 
         /// <summary>

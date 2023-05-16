@@ -11,12 +11,16 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
 {
     public class SignInInteractionResponseGeneratorLoginFixture
     {
+        private MockProfileService _profile;
         private SignInInteractionResponseGenerator _subject;
         private StubClock _clock = new StubClock();
 
         public SignInInteractionResponseGeneratorLoginFixture()
         {
+            _profile = new MockProfileService();
+
             _subject = new SignInInteractionResponseGenerator(
+               _profile,
                _clock,
                TestLogger.Create<SignInInteractionResponseGenerator>());
         }
@@ -230,6 +234,7 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
             var request = new ValidatedWsFederationRequest
             {
                 ClientId = "foo",
+                Client = new Client(),
                 Subject = new Ids.IdentityServerUser("123")
                 {
                     IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider,
@@ -239,6 +244,27 @@ namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
             };
 
             var result = await _subject.ProcessLoginAsync(request);
+
+            result.IsLogin.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Inactive_User_should_sign_in()
+        {
+            _profile.IsActive = false;
+
+            var request = new ValidatedWsFederationRequest
+            {
+                ClientId = "foo",
+                Client = new Client(),
+                ValidatedResources = new ResourceValidationResult(),
+                Subject = new Ids.IdentityServerUser("123")
+                {
+                    IdentityProvider = Ids.IdentityServerConstants.LocalIdentityProvider
+                }.CreatePrincipal()
+            };
+
+            var result = await _subject.ProcessInteractionAsync(request);
 
             result.IsLogin.Should().BeTrue();
         }
