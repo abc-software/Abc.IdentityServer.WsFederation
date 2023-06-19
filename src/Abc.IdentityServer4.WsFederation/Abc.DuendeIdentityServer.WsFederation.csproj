@@ -25,15 +25,15 @@
   </ItemGroup>
 
   <ItemGroup>
-   <PackageReference Include="Duende.IdentityServer" Version="5.2.2" />
+   <PackageReference Include="Duende.IdentityServer" Version="5.2.*" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="6.23.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.23.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.23.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.23.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="6.23.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Xml" Version="6.23.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="6.31.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.31.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.31.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.31.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="6.31.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Xml" Version="6.31.0" />
   </ItemGroup>
   
   <ItemGroup>
