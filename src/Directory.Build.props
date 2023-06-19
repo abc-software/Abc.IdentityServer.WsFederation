@@ -3,13 +3,13 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />  
   <PropertyGroup>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/abc-software/Abc.IdentityServer4.WsFederation</PackageProjectUrl>
-    <PackageTags>identityserver;idsrv;wsfed;wsfederation;authentication;auth</PackageTags>
+    <PackageProjectUrl>https://github.com/abc-software/Abc.IdentityServer.WsFederation</PackageProjectUrl>
+    <PackageTags>ASP.NET Core;IdentityServer;idsrv;wsfed;wsfederation;authentication;auth;security</PackageTags>
 
-    <RepositoryUrl>https://github.com/abc-software/Abc.IdentityServer4.WsFederation.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/abc-software/Abc.IdentityServer.WsFederation.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
-    <Version>2.9.0-dev3</Version>
+    <Version>3.0.0-dev0</Version>
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>ids.snk</AssemblyOriginatorKeyFile>
@@ -18,10 +18,12 @@
   <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.IdentityServer4.WsFederation'">
     <BaseIntermediateOutputPath>obj\IDS4\</BaseIntermediateOutputPath>
     <OutputPath>bin\IDS4\</OutputPath>
+    <PackageTags>$(PackageTags);IdentityServer4</PackageTags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation'">
     <BaseIntermediateOutputPath>obj\DuendeIDS\</BaseIntermediateOutputPath>
     <OutputPath>bin\DuendeIDS\</OutputPath>
+    <PackageTags>$(PackageTags);Duende</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
