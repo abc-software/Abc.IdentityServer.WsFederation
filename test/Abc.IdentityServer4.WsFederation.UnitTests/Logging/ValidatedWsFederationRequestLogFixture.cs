@@ -1,9 +1,9 @@
-﻿using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Logging.UnitTests
+namespace Abc.IdentityServer.WsFederation.Logging.UnitTests
 {
     public class ValidatedWsFederationRequestLogFixture
     {

@@ -1,9 +1,9 @@
-﻿using Abc.IdentityServer4.Extensions;
+﻿using Abc.IdentityServer.Extensions;
 using FluentAssertions;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Extensions.UnitTests
+namespace Abc.IdentityServer.WsFederation.Extensions.UnitTests
 {
     public class StringExtensionsFixture {
         #region GetOrigin

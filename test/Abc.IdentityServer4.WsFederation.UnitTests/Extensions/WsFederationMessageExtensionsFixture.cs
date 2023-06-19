@@ -1,10 +1,10 @@
-﻿using Abc.IdentityServer4.Extensions;
+﻿using Abc.IdentityServer.Extensions;
 using FluentAssertions;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Extensions.UnitTests
+namespace Abc.IdentityServer.WsFederation.Extensions.UnitTests
 {
     public class WsFederationMessageExtensionsFixture
     {

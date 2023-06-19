@@ -1,9 +1,9 @@
-﻿using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer.WsFederation.Validation;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
+namespace Abc.IdentityServer.WsFederation.Endpoint.UnitTests
 {
     internal class StubWsFederationRequestValidator : IWsFederationRequestValidator
     {

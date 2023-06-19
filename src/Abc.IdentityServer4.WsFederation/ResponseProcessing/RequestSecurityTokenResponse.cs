@@ -16,7 +16,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 
-namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
+namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
     internal class RequestSecurityTokenResponse
     {

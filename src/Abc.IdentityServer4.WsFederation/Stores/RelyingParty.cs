@@ -10,7 +10,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Abc.IdentityServer4.WsFederation.Stores
+namespace Abc.IdentityServer.WsFederation.Stores
 {
     /// <summary>
     /// The relying party.

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Stores
+namespace Abc.IdentityServer.WsFederation.Stores
 {
     public class InMemoryRelyingPartyStore : IRelyingPartyStore
     {

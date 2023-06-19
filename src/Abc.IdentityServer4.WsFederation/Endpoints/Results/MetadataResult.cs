@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
+namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
     public class MetadataResult : IEndpointResult
     {

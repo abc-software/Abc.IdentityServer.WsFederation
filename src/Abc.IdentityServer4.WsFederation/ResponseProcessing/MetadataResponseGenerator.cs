@@ -7,7 +7,7 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
+using Abc.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +16,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
+namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
     public class MetadataResponseGenerator : IMetadataResponseGenerator
     {

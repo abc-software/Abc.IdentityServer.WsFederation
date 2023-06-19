@@ -7,13 +7,13 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
+using Abc.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
+namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
     public class SignInResult : IEndpointResult
     {

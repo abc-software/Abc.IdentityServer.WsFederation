@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Validation
+namespace Abc.IdentityServer.WsFederation.Validation
 {
     /// <summary>
     /// WS-Federation endpoint request validator.

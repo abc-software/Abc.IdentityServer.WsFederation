@@ -1,4 +1,4 @@
-# Abc.IdentityServer4.WsFederation ![](https://github.com/abc-software/Abc.IdentityServer4.WsFederation/actions/workflows/dotnet.yml/badge.svg)
+# Abc.IdentityServer.WsFederation ![](https://github.com/abc-software/Abc.IdentityServer4.WsFederation/actions/workflows/dotnet.yml/badge.svg)
 
 
 ## Overview

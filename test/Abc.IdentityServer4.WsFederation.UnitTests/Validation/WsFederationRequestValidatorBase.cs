@@ -1,7 +1,7 @@
-﻿using Abc.IdentityServer4.WsFederation.Stores;
+﻿using Abc.IdentityServer.WsFederation.Stores;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
+namespace Abc.IdentityServer.WsFederation.Validation.UnitTests
 {
     public abstract class WsFederationRequestValidatorBase
     {

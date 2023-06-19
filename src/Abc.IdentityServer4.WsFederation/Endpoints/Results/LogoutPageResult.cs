@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
+namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
     internal class LogoutPageResult : IEndpointResult
     {

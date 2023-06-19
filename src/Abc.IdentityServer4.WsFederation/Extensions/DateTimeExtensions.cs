@@ -11,7 +11,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace Abc.IdentityServer4.Extensions
+namespace Abc.IdentityServer.Extensions
 {
     internal static class DateTimeExtensions
     {

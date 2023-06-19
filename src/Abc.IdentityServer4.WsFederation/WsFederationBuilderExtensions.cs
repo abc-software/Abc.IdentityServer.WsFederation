@@ -7,13 +7,12 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation;
-using Abc.IdentityServer4.WsFederation.Endpoints;
-using Abc.IdentityServer4.WsFederation.ResponseProcessing;
-using Abc.IdentityServer4.WsFederation.Services;
-using Abc.IdentityServer4.WsFederation.Stores;
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation;
+using Abc.IdentityServer.WsFederation.Endpoints;
+using Abc.IdentityServer.WsFederation.ResponseProcessing;
+using Abc.IdentityServer.WsFederation.Stores;
+using Abc.IdentityServer.WsFederation.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -52,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<IWsFederationRequestValidator, WsFederationRequestValidator>();
             builder.Services.AddTransient<ISignInInteractionResponseGenerator, SignInInteractionResponseGenerator>();
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
-            builder.Services.AddTransient<Abc.IdentityServer4.WsFederation.Services.IClaimsService, Abc.IdentityServer4.WsFederation.Services.DefaultClaimsService>();
+            builder.Services.AddTransient<Abc.IdentityServer.WsFederation.Services.IClaimsService, Abc.IdentityServer.WsFederation.Services.DefaultClaimsService>();
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
 
             builder.AddEndpoint<WsFederationEndpoint>(WsFederationConstants.EndpointNames.WsFederation, WsFederationConstants.ProtocolRoutePaths.WsFederation.EnsureLeadingSlash());

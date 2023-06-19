@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Services
+namespace Abc.IdentityServer.WsFederation.Services
 {
     /// <summary>
     /// The claims service is responsible for determining which claims to include in tokens.

@@ -9,7 +9,7 @@
 
 using Microsoft.AspNetCore.Http;
 
-namespace Abc.IdentityServer4.Extensions
+namespace Abc.IdentityServer.Extensions
 {
     internal static class HttpResponseExtensionsEx
     {

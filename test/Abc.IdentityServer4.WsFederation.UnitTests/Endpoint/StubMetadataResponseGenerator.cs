@@ -1,8 +1,8 @@
-﻿using Abc.IdentityServer4.WsFederation.ResponseProcessing;
+﻿using Abc.IdentityServer.WsFederation.ResponseProcessing;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.UnitTests
+namespace Abc.IdentityServer.WsFederation.Endpoints.UnitTests
 {
     internal class StubMetadataResponseGenerator : IMetadataResponseGenerator
     {

@@ -7,9 +7,9 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation.ResponseProcessing;
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.ResponseProcessing;
+using Abc.IdentityServer.WsFederation.Validation;
 using IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -18,7 +18,7 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints
+namespace Abc.IdentityServer.WsFederation.Endpoints
 {
     internal class WsFederationCallbackEndpoint : WsFederationEndpointBase
     {

@@ -7,8 +7,8 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.Results
+namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
     public class LoginPageResult : IEndpointResult
     {

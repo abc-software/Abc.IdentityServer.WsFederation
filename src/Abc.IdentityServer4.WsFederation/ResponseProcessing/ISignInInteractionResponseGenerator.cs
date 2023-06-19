@@ -7,10 +7,10 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.WsFederation.Validation;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
+namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
     /// <summary>
     /// Interface for determining if user must login when making requests to the WS-Federation endpoint.

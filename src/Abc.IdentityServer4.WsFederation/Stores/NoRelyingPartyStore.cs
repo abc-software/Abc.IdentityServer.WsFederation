@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Stores
+namespace Abc.IdentityServer.WsFederation.Stores
 {
     public class NoRelyingPartyStore : IRelyingPartyStore
     {

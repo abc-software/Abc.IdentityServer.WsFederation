@@ -7,11 +7,11 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.WsFederation.Stores;
+using Abc.IdentityServer.WsFederation.Stores;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Collections.Generic;
 
-namespace Abc.IdentityServer4.WsFederation.Validation
+namespace Abc.IdentityServer.WsFederation.Validation
 {
     /// <summary>
     /// Models a validated request to the sign in endpoint.

@@ -7,15 +7,15 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
+namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
     /// <summary>
     /// Default logic for determining if user must login or consent when making requests to the sign in endpoint.

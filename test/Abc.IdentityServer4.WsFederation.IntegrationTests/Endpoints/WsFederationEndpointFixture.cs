@@ -1,4 +1,4 @@
-﻿using Abc.IdentityServer4.WsFederation.IntegrationTests.Common;
+﻿using Abc.IdentityServer.WsFederation.IntegrationTests.Common;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.WsFederation;
@@ -12,7 +12,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.IntegrationTests
+namespace Abc.IdentityServer.WsFederation.Endpoints.IntegrationTests
 {
     public class WsFederationEndpointFixture
     {

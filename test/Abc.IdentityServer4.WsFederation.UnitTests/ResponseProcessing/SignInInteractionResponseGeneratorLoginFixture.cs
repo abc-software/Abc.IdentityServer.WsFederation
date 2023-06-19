@@ -1,4 +1,4 @@
-﻿using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
+namespace Abc.IdentityServer.WsFederation.ResponseProcessing.UnitTests
 {
     public class SignInInteractionResponseGeneratorLoginFixture
     {

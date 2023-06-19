@@ -91,9 +91,9 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
 
             // <RoleDescriptorr>
             writer.WriteStartElement(Elements.RoleDescriptor);
-            writer.WriteAttributeString(Abc.IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Xmlns, Abc.IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Xsi, null, XmlSignatureConstants.XmlSchemaNamespace);
-            writer.WriteAttributeString(Abc.IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Xmlns, WsFederationConstants.PreferredPrefix, null, WsFederationConstants.Namespace);
-            writer.WriteAttributeString(Abc.IdentityServer4.WsFederation.WsFederationConstants.Attributes.ProtocolSupportEnumeration, WsFederationConstants.Namespace);
+            writer.WriteAttributeString(Abc.IdentityServer.WsFederation.WsFederationConstants.Prefixes.Xmlns, Abc.IdentityServer.WsFederation.WsFederationConstants.Prefixes.Xsi, null, XmlSignatureConstants.XmlSchemaNamespace);
+            writer.WriteAttributeString(Abc.IdentityServer.WsFederation.WsFederationConstants.Prefixes.Xmlns, WsFederationConstants.PreferredPrefix, null, WsFederationConstants.Namespace);
+            writer.WriteAttributeString(Abc.IdentityServer.WsFederation.WsFederationConstants.Attributes.ProtocolSupportEnumeration, WsFederationConstants.Namespace);
             writer.WriteStartAttribute(Attributes.Type, XmlSignatureConstants.XmlSchemaNamespace);
             writer.WriteQualifiedName(Types.SecurityTokenServiceType, WsFederationConstants.Namespace);
             writer.WriteEndAttribute();
@@ -102,12 +102,12 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
 
             if (configuration.TokenTypesOffered.Any())
             {
-                writer.WriteStartElement(Abc.IdentityServer4.WsFederation.WsFederationConstants.Attributes.TokenTypesOffered, WsFederationConstants.Namespace);
+                writer.WriteStartElement(Abc.IdentityServer.WsFederation.WsFederationConstants.Attributes.TokenTypesOffered, WsFederationConstants.Namespace);
                 foreach (string tokenTypeUri in configuration.TokenTypesOffered)
                 {
                     // <TokenType>
-                    writer.WriteStartElement(Abc.IdentityServer4.WsFederation.WsFederationConstants.Attributes.TokenType, WsFederationConstants.Namespace);
-                    writer.WriteAttributeString(Abc.IdentityServer4.WsFederation.WsFederationConstants.Attributes.Uri, tokenTypeUri);
+                    writer.WriteStartElement(Abc.IdentityServer.WsFederation.WsFederationConstants.Attributes.TokenType, WsFederationConstants.Namespace);
+                    writer.WriteAttributeString(Abc.IdentityServer.WsFederation.WsFederationConstants.Attributes.Uri, tokenTypeUri);
                     
                     // </TokenType>
                     writer.WriteEndElement();
@@ -127,7 +127,7 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
         private static void WriteSecurityTokenEndpoint(WsFederationConfiguration configuration, XmlWriter writer)
         {
             // <SecurityTokenServiceEndpoint>
-            writer.WriteStartElement(Abc.IdentityServer4.WsFederation.WsFederationConstants.Elements.SecurityTokenServiceEndpoint, WsFederationConstants.Namespace);
+            writer.WriteStartElement(Abc.IdentityServer.WsFederation.WsFederationConstants.Elements.SecurityTokenServiceEndpoint, WsFederationConstants.Namespace);
 
             // <EndpointReference>
             writer.WriteStartElement(WsAddressing.PreferredPrefix, WsAddressing.Elements.EndpointReference, WsAddressing.Namespace);  // EndpointReference

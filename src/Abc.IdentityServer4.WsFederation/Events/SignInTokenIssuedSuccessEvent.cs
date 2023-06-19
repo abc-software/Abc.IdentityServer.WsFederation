@@ -7,12 +7,12 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Validation;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Collections.Generic;
 
-namespace Abc.IdentityServer4.WsFederation.Events
+namespace Abc.IdentityServer.WsFederation.Events
 {
     public class SignInTokenIssuedSuccessEvent : TokenIssuedSuccessEvent
     {

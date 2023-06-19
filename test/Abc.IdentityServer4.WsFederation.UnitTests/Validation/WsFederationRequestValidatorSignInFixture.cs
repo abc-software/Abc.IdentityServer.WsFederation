@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions.Common;
 
-namespace Abc.IdentityServer4.WsFederation.Validation.UnitTests
+namespace Abc.IdentityServer.WsFederation.Validation.UnitTests
 {
     public class WsFederationRequestValidatorSignInFixture : WsFederationRequestValidatorBase
     {

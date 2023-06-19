@@ -1,9 +1,9 @@
-﻿using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Events.UnitTests
+namespace Abc.IdentityServer.WsFederation.Events.UnitTests
 {
     public class SignInTokenIssuedSuccessEventFixture
     {

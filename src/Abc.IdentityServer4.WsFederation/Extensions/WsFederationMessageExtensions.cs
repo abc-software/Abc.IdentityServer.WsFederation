@@ -15,7 +15,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 
-namespace Abc.IdentityServer4.Extensions
+namespace Abc.IdentityServer.Extensions
 {
     internal static class WsFederationMessageExtensions
     {

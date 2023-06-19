@@ -7,8 +7,8 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation.Stores;
+using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Stores;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
@@ -17,7 +17,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Validation
+namespace Abc.IdentityServer.WsFederation.Validation
 {
     /// <summary>
     /// Validates requests to the WS-Federation endpoint.

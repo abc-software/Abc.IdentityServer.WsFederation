@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Abc.IdentityServer4.WsFederation
+namespace Abc.IdentityServer.WsFederation
 {
     public static class WsFederationConstants
     {

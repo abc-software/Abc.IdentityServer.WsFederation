@@ -3,7 +3,7 @@ using System;
 using System.Net.Http;
 using Actions = Microsoft.IdentityModel.Protocols.WsFederation.WsFederationConstants.WsFederationActions;
 
-namespace Abc.IdentityServer4.WsFederation.IntegrationTests.Common
+namespace Abc.IdentityServer.WsFederation.IntegrationTests.Common
 {
     public partial class IdentityServerPipeline
     {

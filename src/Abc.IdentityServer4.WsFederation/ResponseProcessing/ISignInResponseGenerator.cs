@@ -7,11 +7,11 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.WsFederation.Validation;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.ResponseProcessing
+namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
     public interface ISignInResponseGenerator
     {

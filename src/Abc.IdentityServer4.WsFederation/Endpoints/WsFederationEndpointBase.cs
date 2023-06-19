@@ -7,15 +7,15 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.WsFederation.ResponseProcessing;
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.WsFederation.ResponseProcessing;
+using Abc.IdentityServer.WsFederation.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints
+namespace Abc.IdentityServer.WsFederation.Endpoints
 {
     internal abstract class WsFederationEndpointBase : IEndpointHandler
     {

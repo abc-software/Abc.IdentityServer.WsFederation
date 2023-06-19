@@ -9,7 +9,7 @@
 
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Services
+namespace Abc.IdentityServer.WsFederation.Services
 {
     /// <summary>
     /// Models making HTTP requests for WS-Trust request or response from the authorize endpoint.

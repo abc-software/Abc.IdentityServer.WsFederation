@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System;
 
-namespace Abc.IdentityServer4.Extensions
+namespace Abc.IdentityServer.Extensions
 {
     internal static class HttpRequestExtensionsEx
     {

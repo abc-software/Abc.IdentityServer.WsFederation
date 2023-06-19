@@ -7,9 +7,9 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.WsFederation.Validation;
 
-namespace Abc.IdentityServer4.WsFederation.Events
+namespace Abc.IdentityServer.WsFederation.Events
 {
     public class SignInTokenIssuedFailureEvent : TokenIssuedFailureEvent
     {

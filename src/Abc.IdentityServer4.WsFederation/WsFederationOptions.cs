@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Security.Claims;
 
-namespace Abc.IdentityServer4.WsFederation
+namespace Abc.IdentityServer.WsFederation
 {
     /// <summary>
     /// The default options for the relying party's behavior.

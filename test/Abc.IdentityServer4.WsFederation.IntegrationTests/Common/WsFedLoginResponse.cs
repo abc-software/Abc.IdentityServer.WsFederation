@@ -4,7 +4,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Abc.IdentityServer4.WsFederation.IntegrationTests.Common
+namespace Abc.IdentityServer.WsFederation.IntegrationTests.Common
 {
     public class WsFedLoginResponse
     {

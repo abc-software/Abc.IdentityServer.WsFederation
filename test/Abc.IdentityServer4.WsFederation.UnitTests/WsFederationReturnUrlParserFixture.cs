@@ -1,6 +1,6 @@
-﻿using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation.Endpoint.UnitTests;
-using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Endpoint.UnitTests;
+using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.UnitTests
+namespace Abc.IdentityServer.WsFederation.UnitTests
 {
     public class WsFederationReturnUrlParserFixture
     {

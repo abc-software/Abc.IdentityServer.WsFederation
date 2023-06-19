@@ -7,15 +7,15 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.Extensions;
-using Abc.IdentityServer4.WsFederation.Validation;
+using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Validation;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation
+namespace Abc.IdentityServer.WsFederation
 {
     public class WsFederationReturnUrlParser : IReturnUrlParser
     {

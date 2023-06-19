@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Services.UnitTests
+namespace Abc.IdentityServer.WsFederation.Services.UnitTests
 {
     public class DefaultClaimServiceFixture
     {

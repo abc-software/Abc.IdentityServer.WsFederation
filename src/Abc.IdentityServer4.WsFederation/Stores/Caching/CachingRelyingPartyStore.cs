@@ -10,7 +10,7 @@
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Stores
+namespace Abc.IdentityServer.WsFederation.Stores
 {
     /// <summary>
     /// Cache decorator for IRelyingPartyStore.

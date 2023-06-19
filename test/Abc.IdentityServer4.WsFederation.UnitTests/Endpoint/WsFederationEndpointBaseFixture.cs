@@ -1,6 +1,6 @@
-﻿using Abc.IdentityServer4.WsFederation.Endpoints;
-using Abc.IdentityServer4.WsFederation.ResponseProcessing;
-using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer.WsFederation.Endpoints;
+using Abc.IdentityServer.WsFederation.ResponseProcessing;
+using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoint.UnitTests
+namespace Abc.IdentityServer.WsFederation.Endpoint.UnitTests
 {
     public class WsFederationEndpointBaseFixture
     {

@@ -7,7 +7,7 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-namespace Abc.IdentityServer4.WsFederation.Validation
+namespace Abc.IdentityServer.WsFederation.Validation
 {
     /// <summary>
     /// Validation result for WS-Federation requests.

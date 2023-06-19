@@ -10,7 +10,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Abc.IdentityServer4.WsFederation.Logging
+namespace Abc.IdentityServer.WsFederation.Logging
 {
     /// <summary>
     /// Helper to JSON serialize object data for logging.

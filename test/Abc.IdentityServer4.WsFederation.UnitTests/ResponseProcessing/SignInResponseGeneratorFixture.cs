@@ -1,5 +1,5 @@
-﻿using Abc.IdentityServer4.WsFederation.Services;
-using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer.WsFederation.Services;
+using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -12,7 +12,7 @@ using Xunit;
 using Saml11 = Microsoft.IdentityModel.Tokens.Saml;
 using Saml2 = Microsoft.IdentityModel.Tokens.Saml2;
 
-namespace Abc.IdentityServer4.WsFederation.ResponseProcessing.UnitTests
+namespace Abc.IdentityServer.WsFederation.ResponseProcessing.UnitTests
 {
     public class SignInResponseGeneratorFixture
     {

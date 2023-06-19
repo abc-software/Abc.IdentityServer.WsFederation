@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Services
+namespace Abc.IdentityServer.WsFederation.Services
 {
     internal class MockClaimsService : IClaimsService
     {

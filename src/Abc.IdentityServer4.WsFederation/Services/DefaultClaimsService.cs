@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Services
+namespace Abc.IdentityServer.WsFederation.Services
 {
     /// <summary>
     /// Default claims service implementation.

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Stores.UnitTests
+namespace Abc.IdentityServer.WsFederation.Stores.UnitTests
 {
     public class NoRelyingPartyStoreFixture
     {

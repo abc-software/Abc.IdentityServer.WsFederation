@@ -1,10 +1,10 @@
-﻿using Abc.IdentityServer4.WsFederation.ResponseProcessing;
+﻿using Abc.IdentityServer.WsFederation.ResponseProcessing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.UnitTests
+namespace Abc.IdentityServer.WsFederation.Endpoints.UnitTests
 {
     public class WsFederationMetadataEndpointFixture
     {

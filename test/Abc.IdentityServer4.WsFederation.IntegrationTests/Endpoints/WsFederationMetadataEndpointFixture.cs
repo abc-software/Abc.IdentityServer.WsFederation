@@ -1,4 +1,4 @@
-﻿using Abc.IdentityServer4.WsFederation.IntegrationTests.Common;
+﻿using Abc.IdentityServer.WsFederation.IntegrationTests.Common;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.IntegrationTests
+namespace Abc.IdentityServer.WsFederation.Endpoints.IntegrationTests
 {
     public class WsFederationMetadataEndpointFixture
     {

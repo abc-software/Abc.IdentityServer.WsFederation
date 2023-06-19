@@ -7,13 +7,13 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Abc.IdentityServer4.WsFederation.ResponseProcessing;
+using Abc.IdentityServer.WsFederation.ResponseProcessing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints
+namespace Abc.IdentityServer.WsFederation.Endpoints
 {
     internal class WsFederationMetadataEndpoint : IEndpointHandler
     {

@@ -1,4 +1,4 @@
-﻿using Abc.IdentityServer4.WsFederation.Validation;
+﻿using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Abc.IdentityServer4.WsFederation.Endpoints.Results.UnitTests
+namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
 {
     public class SignOutResultFixture
     {

@@ -7,7 +7,7 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-namespace Abc.IdentityServer4.WsFederation
+namespace Abc.IdentityServer.WsFederation
 {
     /// <summary>
     /// WS-Trust versions.
