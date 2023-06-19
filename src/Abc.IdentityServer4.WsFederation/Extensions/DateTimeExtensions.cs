@@ -15,15 +15,15 @@ namespace Abc.IdentityServer.Extensions
 {
     internal static class DateTimeExtensions
     {
-        private static volatile string[] s_dateTimeFormats;
+        private static volatile string[] dateTimeFormats;
 
         private static string[] AcceptedDateTimeFormats
         {
             get
             {
-                if (s_dateTimeFormats == null)
+                if (dateTimeFormats == null)
                 {
-                    s_dateTimeFormats = new string[]
+                    dateTimeFormats = new string[]
                     {
                         "yyyy-MM-ddTHH:mm:ss.fffffffZ", "yyyy-MM-ddTHH:mm:ss.ffffffZ",
                         "yyyy-MM-ddTHH:mm:ss.fffffZ", "yyyy-MM-ddTHH:mm:ss.ffffZ",
@@ -36,7 +36,7 @@ namespace Abc.IdentityServer.Extensions
                     };
                 }
 
-                return s_dateTimeFormats;
+                return dateTimeFormats;
             }
         }
 

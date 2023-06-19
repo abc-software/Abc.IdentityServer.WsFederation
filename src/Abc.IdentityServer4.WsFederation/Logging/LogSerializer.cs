@@ -33,7 +33,11 @@ namespace Abc.IdentityServer.WsFederation.Logging
         {
             var options = new JsonSerializerOptions
             {
+#if NET6_0_OR_GREATER
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+#else
                 IgnoreNullValues = true,
+#endif
                 WriteIndented = true,
             };
 

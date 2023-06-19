@@ -119,7 +119,7 @@ namespace Abc.IdentityServer.Extensions
         [DebuggerStepThrough]
         public static string EnsureTrailingSlash(this string url)
         {
-            if (url != null && !url.EndsWith("/"))
+            if (url != null && !url.EndsWith('/'))
             {
                 return url + "/";
             }
@@ -130,7 +130,7 @@ namespace Abc.IdentityServer.Extensions
         [DebuggerStepThrough]
         public static string EnsureLeadingSlash(this string url)
         {
-            if (url != null && !url.StartsWith("/"))
+            if (url != null && !url.StartsWith('/'))
             {
                 return "/" + url;
             }
@@ -141,7 +141,7 @@ namespace Abc.IdentityServer.Extensions
         [DebuggerStepThrough]
         public static string RemoveLeadingSlash(this string url)
         {
-            if (url != null && url.StartsWith("/"))
+            if (url != null && url.StartsWith('/'))
             {
                 url = url.Substring(1);
             }

@@ -32,16 +32,6 @@ namespace Abc.IdentityServer.WsFederation.Validation
         private readonly ISystemClock _clock;
         private readonly ILogger _logger;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WsFederationRequestValidator"/> class.
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="clients"></param>
-        /// <param name="relyingParties"></param>
-        /// <param name="uriValidator"></param>
-        /// <param name="userSession"></param>
-        /// <param name="clock"></param>
-        /// <param name="logger"></param>
         public WsFederationRequestValidator(
             IdentityServerOptions options,
             IClientStore clients,

@@ -1,17 +1,17 @@
-# Abc.IdentityServer.WsFederation ![](https://github.com/abc-software/Abc.IdentityServer4.WsFederation/actions/workflows/dotnet.yml/badge.svg)
+# Abc.IdentityServer.WsFederation ![](https://github.com/abc-software/Abc.IdentityServer.WsFederation/actions/workflows/dotnet.yml/badge.svg)
 
 
 ## Overview
-Implementation WS-Federation IdP support for IdentityServer4 with .NET core.
+Implementation WS-Federation IdP support for Duende IdentityServer and IdentityServer4 with .NET CORE.
 This project is a continuation of the [IdentityServer4.WsFederation](https://github.com/IdentityServer/IdentityServer4.WsFederation) project
 
-This is useful for connecting SharePoint or older ASP.NET relying parties to IdentityServer4.
+This is useful for connecting SharePoint or older ASP.NET relying parties to Duende IdentityServer.
 
 ## .NET Support
 The underlying WS-Federation classes use .NET Core.
 
 ## WS-Federation endpoint
-The WS-Federation endpoints is implemented via an `IdentityServer4.Hosting.IEndpointHanlder`.
+The WS-Federation endpoints is implemented via an `Duende.IdentityServer.Hosting.IEndpointHanlder`.
 Endpoint _~/wsfed/metadata_ returns WS-Federation metadata, _~/wsfed_ process WS-Federation sing-in and sign-out requests.
 This endpoints handles the WS-Federation protocol requests and redirects the user to the login page if needed.
 
@@ -29,7 +29,7 @@ The `SignInResponseGenerator` class does the heavy lifting of creating the conte
 The outcome of these operations is a `SignInResponseMessage` object which then gets turned into a WS-Federation response and sent back to the relying party.
 
 ## Configuration
-For most parts, the WS-Federation endpoint can use the standard IdentityServer4 client configuration for relying parties.
+For most parts, the WS-Federation endpoint can use the standard IdentityServer client configuration for relying parties.
 But there are also options available for setting WS-Federation specific options.
 
 ### Defaults
@@ -98,7 +98,7 @@ services.AddIdentityServer()
 ```
 
 ### Enable encrypted SAML1.1/2.0 tokens
-Add to project Abc.IdentityModel.Tokens.Saml via nuget and change SecurityTokenHandlers, e.g.:
+Add to project [Abc.IdentityModel.Tokens.Saml](https://www.nuget.org/packages/Abc.IdentityModel.Tokens.Saml) via nuget and change SecurityTokenHandlers, e.g.:
 
 ```csharp
 builder.AddWsFederation(options => {

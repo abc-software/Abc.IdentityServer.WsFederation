@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer.WsFederation
 {
+    /// <summary>
+    /// WS-Federation the return URL parser.
+    /// </summary>
     public class WsFederationReturnUrlParser : IReturnUrlParser
     {
         private readonly ILogger<WsFederationReturnUrlParser> _logger;
@@ -24,6 +27,13 @@ namespace Abc.IdentityServer.WsFederation
         private readonly IUserSession _userSession;
         private readonly IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WsFederationReturnUrlParser"/> class.
+        /// </summary>
+        /// <param name="userSession">The user session.</param>
+        /// <param name="validator">The WS-Federation request validator.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="authorizationParametersMessageStore">The autorization parameters message store.</param>
         public WsFederationReturnUrlParser(
             IUserSession userSession,
             IWsFederationRequestValidator validator,
@@ -36,6 +46,7 @@ namespace Abc.IdentityServer.WsFederation
             _authorizationParametersMessageStore = authorizationParametersMessageStore;
         }
 
+        /// <inheritdoc/>
         public bool IsValidReturnUrl(string returnUrl)
         {
             if (returnUrl != null && returnUrl.IsLocalUrl())
@@ -57,6 +68,7 @@ namespace Abc.IdentityServer.WsFederation
             return false;
         }
 
+        /// <inheritdoc/>
         public async Task<AuthorizationRequest> ParseAsync(string returnUrl)
         {
             if (!IsValidReturnUrl(returnUrl))

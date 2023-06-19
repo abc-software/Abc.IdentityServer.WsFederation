@@ -37,17 +37,17 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         }
 
         /// <summary>
-        /// The logger.
+        /// Gets the logger.
         /// </summary>
         protected ILogger Logger { get; }
 
         /// <summary>
-        /// The clock.
+        /// Gets the clock.
         /// </summary>
         protected ISystemClock Clock { get; }
 
         /// <summary>
-        /// The profile service.
+        /// Gets the profile service.
         /// </summary>
         protected IProfileService Profile { get; }
 
