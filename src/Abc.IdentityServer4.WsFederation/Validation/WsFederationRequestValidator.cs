@@ -95,7 +95,11 @@ namespace Abc.IdentityServer.WsFederation.Validation
             request.SessionId = await _userSession.GetSessionIdAsync();
             request.Subject = user;
 
-            await ValidateRequestedResourcesAsync(request);
+            var resourcesResult = await ValidateRequestedResourcesAsync(request);
+            if (resourcesResult.IsError)
+            {
+                return resourcesResult;
+            }
 
             _logger.LogTrace("WS-Federation sign in request validation successful");
 
@@ -155,7 +159,7 @@ namespace Abc.IdentityServer.WsFederation.Validation
         /// </summary>
         /// <param name="validatedRequest">The validated WS-federation request.</param>
         /// <returns></returns>
-        protected virtual Task ValidateRequestedResourcesAsync(ValidatedWsFederationRequest validatedRequest)
+        protected virtual Task<WsFederationValidationResult> ValidateRequestedResourcesAsync(ValidatedWsFederationRequest validatedRequest)
         {
             /*
             var resourceValidationResult = await resourceValidator.ValidateRequestedResourcesAsync(new ResourceValidationRequest
@@ -184,7 +188,7 @@ namespace Abc.IdentityServer.WsFederation.Validation
             }
 
             validatedRequest.ValidatedResources = resourceValidationResult;
-            return Task.CompletedTask;
+            return Task.FromResult(new WsFederationValidationResult(validatedRequest));
         }
 
         private WsFederationValidationResult ValidateRequest(ValidatedWsFederationRequest request)
