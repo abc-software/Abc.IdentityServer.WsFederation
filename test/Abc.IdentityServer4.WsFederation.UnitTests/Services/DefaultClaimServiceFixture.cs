@@ -11,6 +11,8 @@ namespace Abc.IdentityServer.WsFederation.Services.UnitTests
 {
     public class DefaultClaimServiceFixture
     {
+        const string ShortClaimTypeProperty = "http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName";
+
         private DefaultClaimsService _target;
         private ValidatedRequest _validatedRequest;
         private MockProfileService _mockMockProfileService = new MockProfileService();
@@ -73,9 +75,9 @@ namespace Abc.IdentityServer.WsFederation.Services.UnitTests
         {
             var claims = new List<Claim>() {
                 new Claim(JwtClaimTypes.Subject, "sub"),
-                new Claim(JwtClaimTypes.Name, "bob").AddProperty("property", "p_val"),
+                new Claim(JwtClaimTypes.Name, "bob").AddProperty("property", "p_val"), // claim with property,
                 new Claim(JwtClaimTypes.NickName, "bob_nick"),
-                new Claim(ClaimTypes.Email, "bob@a.lv"), // long claim name
+                new Claim(ClaimTypes.Email, "bob@a.lv"), // long claim type
             };
 
             var mapping = new Dictionary<string, string>()
@@ -87,8 +89,8 @@ namespace Abc.IdentityServer.WsFederation.Services.UnitTests
             var mappedClaims = _target.MapClaims(mapping, tokenType, claims);
 
             var expected = new List<Claim>() {
-                new Claim("urn:nameidentifier", "sub").AddProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName", JwtClaimTypes.Subject),
-                new Claim("http://test.org/name", "bob").AddProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName", JwtClaimTypes.Name).AddProperty("property", "p_val"),
+                new Claim("urn:nameidentifier", "sub").AddProperty(ShortClaimTypeProperty, JwtClaimTypes.Subject),
+                new Claim("http://test.org/name", "bob").AddProperty(ShortClaimTypeProperty, JwtClaimTypes.Name).AddProperty("property", "p_val"),
                 new Claim(JwtClaimTypes.NickName, "bob_nick"),
                 new Claim(ClaimTypes.Email, "bob@a.lv"),
             };
@@ -102,11 +104,11 @@ namespace Abc.IdentityServer.WsFederation.Services.UnitTests
         public void MapAsync_should_return_mapped_saml11_claims(string tokenType)
         {
             var claims = new List<Claim>() {
-                new Claim(JwtClaimTypes.Subject, "sub").AddProperty("format", "f1"),
-                new Claim(JwtClaimTypes.Name, "bob"),
+                new Claim(JwtClaimTypes.Subject, "sub").AddProperty("format", "f1"), // claim with property
+                new Claim(JwtClaimTypes.Name, "bob").AddProperty(ShortClaimTypeProperty, "name"), // claim with ShortTypeName property
                 new Claim(JwtClaimTypes.NickName, "bob_nick"),
-                new Claim("/address", "address"), // invalid claim name
-                new Claim(ClaimTypes.Email, "bob@a.lv"), // long claim name
+                new Claim("/address", "address"), // invalid claim type
+                new Claim(ClaimTypes.Email, "bob@a.lv"), // long claim type
             };
 
             var mapping = new Dictionary<string, string>()
@@ -118,8 +120,8 @@ namespace Abc.IdentityServer.WsFederation.Services.UnitTests
             var mappedClaims = _target.MapClaims(mapping, tokenType, claims);
 
             var expected = new List<Claim>() {
-                new Claim("urn:nameidentifier", "sub").AddProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName", JwtClaimTypes.Subject).AddProperty("format", "f1"),
-                new Claim("http://test.org/name", "bob").AddProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/ShortTypeName", JwtClaimTypes.Name),
+                new Claim("urn:nameidentifier", "sub").AddProperty(ShortClaimTypeProperty, JwtClaimTypes.Subject).AddProperty("format", "f1"),
+                new Claim("http://test.org/name", "bob").AddProperty(ShortClaimTypeProperty, JwtClaimTypes.Name),
                 new Claim(ClaimTypes.Email, "bob@a.lv"),
             };
 

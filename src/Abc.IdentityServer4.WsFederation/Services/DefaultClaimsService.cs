@@ -75,6 +75,11 @@ namespace Abc.IdentityServer.WsFederation.Services
                     outboundClaim.Properties.Add(ShortClaimTypeProperty, claimType);
                     foreach (var claimProperty in claim.Properties)
                     {
+                        if (claimProperty.Key == ShortClaimTypeProperty)
+                        {
+                            continue;
+                        }
+
                         outboundClaim.Properties.Add(claimProperty);
                     }
 
