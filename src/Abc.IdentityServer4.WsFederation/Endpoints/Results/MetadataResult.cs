@@ -7,8 +7,9 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
+using Abc.IdentityModel.Metadata;
 using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Protocols.WsFederation;
+using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,25 +19,32 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
     public class MetadataResult : IEndpointResult
     {
-        private readonly WsFederationConfigurationEx _configuration;
+        private readonly DescriptorBase _metadata;
+        private MetadataSerializer _serializer;
 
-        public MetadataResult(WsFederationConfigurationEx configuration)
+        public MetadataResult(DescriptorBase metadata)
         {
-            _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            _metadata = metadata ?? throw new System.ArgumentNullException(nameof(metadata));
         }
 
-        public async Task ExecuteAsync(HttpContext context)
+        public Task ExecuteAsync(HttpContext context)
         {
-            var ser = new WsFederationMetadataSerializer();
-            using (var ms = new MemoryStream())
-            using (var writer = XmlDictionaryWriter.CreateTextWriter(ms, Encoding.UTF8, false))
+            Init(context);
+
+            using var stream = new MemoryStream();
+            using (var writer = XmlWriter.Create(stream))
             {
-                ser.WriteMetadataEx(writer, _configuration);
-                await writer.FlushAsync();
-                context.Response.ContentType = "application/xml";
-                var metaAsString = Encoding.UTF8.GetString(ms.ToArray());
-                await context.Response.WriteAsync(metaAsString);
+                _serializer.WriteMetadata(writer, _metadata);
             }
+
+            context.Response.ContentType = "application/xml";
+            var metaAsString = Encoding.UTF8.GetString(stream.ToArray());
+            return context.Response.WriteAsync(metaAsString);
+        }
+
+        private void Init(HttpContext context)
+        {
+            _serializer ??= context.RequestServices.GetService<MetadataSerializer>() ?? new MetadataSerializer();
         }
     }
 }

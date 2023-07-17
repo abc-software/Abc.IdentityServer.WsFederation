@@ -1,5 +1,5 @@
-using Abc.IdentityServer4.WsFederation;
-using Abc.IdentityServer4.WsFederation.Stores;
+using Abc.IdentityServer.WsFederation;
+using Abc.IdentityServer.WsFederation.Stores;
 using IdentityModel;
 using IdentityServer4.Models;
 using Microsoft.IdentityModel.Tokens;

@@ -7,13 +7,13 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Protocols.WsFederation;
+using Abc.IdentityModel.Metadata;
 using System.Threading.Tasks;
 
 namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
     public interface IMetadataResponseGenerator
     {
-        Task<WsFederationConfigurationEx> GenerateAsync();
+        Task<DescriptorBase> GenerateAsync();
     }
 }

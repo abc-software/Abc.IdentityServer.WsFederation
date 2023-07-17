@@ -7,6 +7,7 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
+using Abc.IdentityServer.Extensions;
 using Abc.IdentityServer.WsFederation.Validation;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
@@ -127,16 +128,11 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 
         private async Task<WsFederationMessage> CreateResponseAsync(ValidatedWsFederationRequest validatedRequest, ClaimsIdentity outgoingSubject)
         {
-            var credential = await _keys.GetSigningCredentialsAsync();
-            var key = credential.Key as Microsoft.IdentityModel.Tokens.X509SecurityKey;
-            if (key == null)
-            {
-                throw new InvalidOperationException("Missing signing key");
-            }
+            var signingKey = await _keys.GetX509SigningKeyAsync();
 
             var issueInstant = _clock.UtcNow.UtcDateTime;
             var signingCredentials = new SigningCredentials(
-                key,
+                signingKey,
                 validatedRequest.RelyingParty?.SignatureAlgorithm ?? _options.DefaultSignatureAlgorithm,
                 validatedRequest.RelyingParty?.DigestAlgorithm ?? _options.DefaultDigestAlgorithm);
 

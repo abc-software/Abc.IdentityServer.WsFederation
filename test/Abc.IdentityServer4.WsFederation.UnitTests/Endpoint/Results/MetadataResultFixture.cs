@@ -1,5 +1,7 @@
-﻿using FluentAssertions;
+﻿using Abc.IdentityModel.Metadata;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System;
 using System.IO;
@@ -10,7 +12,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
 {
     public class MetadataResultFixture
     {
-        private WsFederationConfigurationEx _config;
+        private EntityDescriptor _descriptor;
         private MetadataResult _target;
         private DefaultHttpContext _context;
 
@@ -20,14 +22,16 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             _context.SetIdentityServerOrigin("https://server");
             _context.SetIdentityServerBasePath("/");
             _context.Response.Body = new MemoryStream();
+            _context.RequestServices = new ServiceCollection().BuildServiceProvider();
 
-            _config = new WsFederationConfigurationEx()
-            {
-                Issuer = "urn:issuer",
-                TokenEndpoint = "https://localhost/wsfed",
-            };
+            var applicationDescriptor = new SecurityTokenServiceDescriptor();
+            applicationDescriptor.SecurityTokenServiceEndpoints.Add(new EndpointReference("https://localhost/wsfed"));
+            applicationDescriptor.ProtocolsSupported.Add(new Uri(Microsoft.IdentityModel.Protocols.WsFederation.WsFederationConstants.Namespace));
 
-            _target = new MetadataResult(_config);
+            _descriptor = new EntityDescriptor(new EntityId("urn:issuer"));
+            _descriptor.RoleDescriptors.Add(applicationDescriptor);
+
+            _target = new MetadataResult(_descriptor);
         }
 
         [Fact]
@@ -52,7 +56,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             using (var rdr = new StreamReader(_context.Response.Body))
             {
                 var xml = rdr.ReadToEnd();
-                xml.Should().Contain(@"<EntityDescriptor entityID=""urn:issuer""");
+                xml.Should().Contain(@"<mt:EntityDescriptor entityID=""urn:issuer""");
             }
         }
     }
