@@ -32,6 +32,16 @@ namespace Abc.IdentityServer.WsFederation.Validation
         private readonly ISystemClock _clock;
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WsFederationRequestValidator"/> class.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="clients">The client store.</param>
+        /// <param name="relyingParties">The relying party store.</param>
+        /// <param name="uriValidator">The URI validator.</param>
+        /// <param name="userSession">The user session.</param>
+        /// <param name="clock">The clock.</param>
+        /// <param name="logger">The logger.</param>
         public WsFederationRequestValidator(
             IdentityServerOptions options,
             IClientStore clients,
@@ -155,10 +165,10 @@ namespace Abc.IdentityServer.WsFederation.Validation
         }
 
         /// <summary>
-        /// 
+        /// Validates the requested resources for the client. 
         /// </summary>
-        /// <param name="validatedRequest">The validated WS-federation request.</param>
-        /// <returns></returns>
+        /// <param name="validatedRequest">The validated WS-Federation request.</param>
+        /// <returns>The WS-Federation request validation result.</returns>
         protected virtual Task<WsFederationValidationResult> ValidateRequestedResourcesAsync(ValidatedWsFederationRequest validatedRequest)
         {
             /*

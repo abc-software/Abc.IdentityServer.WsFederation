@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 
+#pragma warning disable SA1600 // Elements should be documented
+
 namespace Abc.IdentityServer.WsFederation
 {
     public static class WsFederationConstants
@@ -93,3 +95,5 @@ namespace Abc.IdentityServer.WsFederation
         };
     }
 }
+
+#pragma warning restore SA1600 // Elements should be documented

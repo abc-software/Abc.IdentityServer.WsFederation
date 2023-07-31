@@ -15,10 +15,17 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
+    /// <summary>
+    /// Result for sign in.
+    /// </summary>
     public class SignInResult : IEndpointResult
     {
         private IdentityServerOptions _options;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignInResult"/> class.
+        /// </summary>
+        /// <param name="message">The WS-Federation message.</param>
         public SignInResult(WsFederationMessage message)
         {
             Message = message ?? throw new System.ArgumentNullException(nameof(message));

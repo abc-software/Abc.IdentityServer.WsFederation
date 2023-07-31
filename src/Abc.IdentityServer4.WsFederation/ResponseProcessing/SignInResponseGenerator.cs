@@ -25,6 +25,9 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
+    /// <summary>
+    /// The sign-in response generator.
+    /// </summary>
     public class SignInResponseGenerator : ISignInResponseGenerator
     {
         private readonly WsFederationOptions _options;
@@ -35,6 +38,16 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         private readonly ISystemClock _clock;
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignInResponseGenerator"/> class.
+        /// </summary>
+        /// <param name="contextAccessor">The context accessor.</param>
+        /// <param name="options">The WS-Federation options.</param>
+        /// <param name="claimsService">The claims service.</param>
+        /// <param name="keys">The keys.</param>
+        /// <param name="resources">The resource store.</param>
+        /// <param name="clock">The clock.</param>
+        /// <param name="logger">The logger.</param>
         public SignInResponseGenerator(
             IHttpContextAccessor contextAccessor,
             WsFederationOptions options,
@@ -53,6 +66,7 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
             _logger = logger;
         }
 
+        /// <inheritdoc/>
         public async Task<WsFederationMessage> GenerateResponseAsync(WsFederationValidationResult validationResult)
         {
             _logger.LogDebug("Creating WS-Federation signin response");
@@ -62,6 +76,11 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
             return await CreateResponseAsync(validationResult.ValidatedRequest, outgoingSubject);
         }
 
+        /// <summary>
+        /// Creates the subject.
+        /// </summary>
+        /// <param name="result">The WS-Federation validation result.</param>
+        /// <returns>The subject.</returns>
         protected virtual async Task<ClaimsIdentity> CreateSubjectAsync(WsFederationValidationResult result)
         {
             var validatedRequest = result.ValidatedRequest;
@@ -110,6 +129,11 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
             return new ClaimsIdentity(outboundClaims, "idsrv");
         }
 
+        /// <summary>
+        /// Get requested claim types.
+        /// </summary>
+        /// <param name="scopes">The requested scopes.</param>
+        /// <returns>The claim types.</returns>
         protected virtual async Task<IList<string>> GetRequestedClaimTypesAsync(IEnumerable<string> scopes)
         {
             var requestedClaimTypes = new List<string>();

@@ -10,11 +10,8 @@
 using Abc.IdentityModel.Metadata;
 using Abc.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Protocols.WsFederation;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.IdentityModel.Tokens.Saml2;
 using Microsoft.IdentityModel.Xml;
-using Microsoft.VisualBasic;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -22,6 +19,9 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
+    /// <summary>
+    /// Default implementation of the meta data endpoint response generator.
+    /// </summary>
     public class MetadataResponseGenerator : IMetadataResponseGenerator
     {
         private readonly IdentityServerOptions _options;
@@ -31,10 +31,19 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         private readonly WsFederationOptions _wsFederationOptions;
         private readonly IHttpContextAccessor _contextAccessor;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MetadataResponseGenerator"/> class.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="resources">The resource store.</param>
+        /// <param name="claimsService">The claims service.</param>
+        /// <param name="contextAccessor">The context accessor.</param>
+        /// <param name="keys">The keys.</param>
+        /// <param name="wsFederationOptions">The WS-Federation options.</param>
         public MetadataResponseGenerator(
             IdentityServerOptions options,
             IResourceStore resources,
-            Services.IClaimsService claims,
+            Services.IClaimsService claimsService,
             IHttpContextAccessor contextAccessor,
             IKeyMaterialService keys,
             WsFederationOptions wsFederationOptions)
@@ -43,10 +52,11 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
             _wsFederationOptions = wsFederationOptions;
             _options = options;
             _resources = resources;
-            _claims = claims;
+            _claims = claimsService;
             _contextAccessor = contextAccessor;
         }
 
+        /// <inheritdoc/>
         public virtual async Task<DescriptorBase> GenerateAsync()
         {
             var signingKey = await _keys.GetX509SigningKeyAsync();

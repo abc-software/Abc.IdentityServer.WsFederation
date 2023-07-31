@@ -12,8 +12,15 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer.WsFederation.ResponseProcessing
 {
+    /// <summary>
+    /// Interface for metadata endpoint response generator.
+    /// </summary>
     public interface IMetadataResponseGenerator
     {
+        /// <summary>
+        ///  Creates the metadata document.
+        /// </summary>
+        /// <returns>The metadata document.</returns>
         Task<DescriptorBase> GenerateAsync();
     }
 }

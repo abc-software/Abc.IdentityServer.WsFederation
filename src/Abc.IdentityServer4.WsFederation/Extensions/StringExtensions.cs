@@ -37,7 +37,13 @@ namespace Abc.IdentityServer.Extensions
 
             foreach (var field in collection)
             {
-                nv.Add(field.Key, field.Value.First());
+                foreach (string item in field.Value)
+                {
+                    if (!string.IsNullOrWhiteSpace(item))
+                    {
+                        nv.Add(field.Key, item);
+                    }
+                }
             }
 
             return nv;

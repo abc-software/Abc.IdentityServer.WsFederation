@@ -23,14 +23,14 @@ namespace Abc.IdentityServer.WsFederation.Validation
         /// </summary>
         /// <param name="message">The WS-Federation message.</param>
         /// <param name="user">The user.</param>
-        /// <returns></returns>
+        /// <returns>The WS-Federation sign in request validation result.</returns>
         Task<WsFederationValidationResult> ValidateSignInRequestAsync(WsFederationMessage message, ClaimsPrincipal user);
 
         /// <summary>
         /// Validates the sign out request.
         /// </summary>
         /// <param name="message">The WS-Federation message.</param>
-        /// <returns></returns>
+        /// <returns>The WS-Federation sign out request validation result.</returns>
         Task<WsFederationValidationResult> ValidateSignOutRequestAsync(WsFederationMessage message);
     }
 }

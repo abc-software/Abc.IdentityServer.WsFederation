@@ -17,16 +17,24 @@ using System.Xml;
 
 namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
+    /// <summary>
+    /// Result for meta data.
+    /// </summary>
     public class MetadataResult : IEndpointResult
     {
         private readonly DescriptorBase _metadata;
         private MetadataSerializer _serializer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MetadataResult"/> class.
+        /// </summary>
+        /// <param name="metadata">The meta data descriptor.</param>
         public MetadataResult(DescriptorBase metadata)
         {
             _metadata = metadata ?? throw new System.ArgumentNullException(nameof(metadata));
         }
 
+        /// <inheritdoc/>
         public Task ExecuteAsync(HttpContext context)
         {
             Init(context);
