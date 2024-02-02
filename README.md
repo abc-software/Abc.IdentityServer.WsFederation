@@ -66,7 +66,7 @@ public static IEnumerable<Client> GetClients()
             LogoutUri = "http://localhost:10313/home/signoutcleanup",
             
             // lifetime of SAML token
-            AccessTokenLifetime = 36000,
+            IdentityTokenLifetime = 36000,
 
             // identity scopes - the associated claims will be used to call the profile service
             AllowedScopes = { "openid", "profile" }

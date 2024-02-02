@@ -114,10 +114,10 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
             // else defaults to Unspecified.
             if (!outboundClaims.Exists(x => x.Type == ClaimTypes.AuthenticationMethod))
             {
-                var authenticationMehod = validatedRequest.Subject.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password
+                var authenticationMethod = validatedRequest.Subject.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password
                         ? SamlConstants.AuthenticationMethods.PasswordString
                         : SamlConstants.AuthenticationMethods.UnspecifiedString;
-                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, authenticationMehod));
+                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, authenticationMethod));
             }
 
             // authentication instant claim is required
@@ -165,7 +165,7 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
                 Audience = validatedRequest.Client.ClientId,
                 IssuedAt = issueInstant,
                 NotBefore = issueInstant,
-                Expires = issueInstant.AddSeconds(validatedRequest.Client.AccessTokenLifetime),
+                Expires = issueInstant.AddSeconds(validatedRequest.Client.IdentityTokenLifetime),
                 SigningCredentials = signingCredentials,
                 Subject = outgoingSubject,
                 Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
