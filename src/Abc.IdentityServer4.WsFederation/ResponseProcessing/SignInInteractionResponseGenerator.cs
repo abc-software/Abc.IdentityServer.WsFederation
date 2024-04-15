@@ -29,7 +29,7 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         /// <param name="profile">The profile.</param>
         /// <param name="clock">The clock.</param>
         /// <param name="logger">The logger.</param>
-        public SignInInteractionResponseGenerator(IProfileService profile, ISystemClock clock, ILogger<SignInInteractionResponseGenerator> logger)
+        public SignInInteractionResponseGenerator(IProfileService profile, IClock clock, ILogger<SignInInteractionResponseGenerator> logger)
         {
             Profile = profile;
             Clock = clock;
@@ -44,7 +44,7 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         /// <summary>
         /// Gets the clock.
         /// </summary>
-        protected ISystemClock Clock { get; }
+        protected IClock Clock { get; }
 
         /// <summary>
         /// Gets the profile service.

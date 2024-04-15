@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using Abc.IdentityServer.Extensions;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Linq;
@@ -12,18 +13,23 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         private LogoutPageResult _target;
         private IdentityServerOptions _options;
         private DefaultHttpContext _context;
+        private IServerUrls _urls;
 
         public LogoutPageResultFixture()
         {
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
             _context.Response.Body = new MemoryStream();
 
             _options = new IdentityServerOptions();
             _options.UserInteraction.LogoutUrl = "~/logout";
 
-            _target = new LogoutPageResult(_options);
+            _urls = new MockServerUrls()
+            {
+                Origin = "https://server",
+                BasePath = "/".RemoveTrailingSlash(), // as in DefaultServerUrls
+            };
+
+            _target = new LogoutPageResult(_options, _urls);
         }
 
         [Fact]

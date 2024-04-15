@@ -7,6 +7,7 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
+using Abc.IdentityServer;
 using Abc.IdentityServer.Extensions;
 using Abc.IdentityServer.WsFederation;
 using Abc.IdentityServer.WsFederation.Endpoints;
@@ -40,12 +41,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <typeparam name="TStore">The store type.</typeparam>
         /// <param name="builder">The builder.</param>
+        /// <returns></returns>
         public static IIdentityServerBuilder AddWsFederation<TStore>(this IIdentityServerBuilder builder) 
             where TStore : class, IRelyingPartyStore
         {
             builder.Services.AddSingleton(
                 resolver => resolver.GetRequiredService<IOptions<WsFederationOptions>>().Value);
 
+            builder.Services.AddTransient<IServerUrls, DefaultServerUrls>();
+            builder.Services.AddTransient<IIssuerNameService, DefaultIssuerNameService>();
             builder.Services.AddTransient<IMetadataResponseGenerator, MetadataResponseGenerator>();
             builder.Services.AddTransient<ISignInResponseGenerator, SignInResponseGenerator>();
             builder.Services.AddTransient<IWsFederationRequestValidator, WsFederationRequestValidator>();
@@ -53,6 +57,11 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
             builder.Services.AddTransient<Abc.IdentityServer.WsFederation.Services.IClaimsService, Abc.IdentityServer.WsFederation.Services.DefaultClaimsService>();
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
+#if NET8_0_OR_GREATER
+            builder.Services.TryAddTransient<IClock, DefaultClock>();
+#else
+            builder.Services.TryAddTransient<IClock, LegacyClock>();
+#endif
 
             builder.AddEndpoint<WsFederationEndpoint>(WsFederationConstants.EndpointNames.WsFederation, WsFederationConstants.ProtocolRoutePaths.WsFederation.EnsureLeadingSlash());
             builder.AddEndpoint<WsFederationCallbackEndpoint>(WsFederationConstants.EndpointNames.WsFederationCallback, WsFederationConstants.ProtocolRoutePaths.WsFederationCallback.EnsureLeadingSlash());
@@ -63,8 +72,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds the WS-federation service provider with setup action.
         /// </summary>
-        /// <param name="builder">The builder.</param>
+        /// <param name="builder">The <see cref="IIdentityServerBuilder"/>.</param>
         /// <param name="setupAction">The setup action.</param>
+        /// <returns>A <see cref="IIdentityServerBuilder"/> that can be used to further configure identity server.</returns>
         public static IIdentityServerBuilder AddWsFederation(this IIdentityServerBuilder builder, Action<WsFederationOptions> setupAction)
         {
             builder.Services.Configure(setupAction);
@@ -74,13 +84,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds the WS-federation service provider with configuration.
         /// </summary>
-        /// <param name="builder">The builder.</param>
+        /// <param name="builder">The <see cref="IIdentityServerBuilder"/>.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <returns>A <see cref="IIdentityServerBuilder"/> that can be used to further configure identity server.</returns>
         public static IIdentityServerBuilder AddWsFederation(this IIdentityServerBuilder builder, IConfiguration configuration)
         {
             builder.Services.Configure<WsFederationOptions>(configuration);
             return builder.AddWsFederation();
         }
+
+        /// <summary>
+        /// Adds the WS-federation service provider with in memory realying parties.
+        /// </summary>
+        /// <param name="builder">The <see cref="IIdentityServerBuilder"/>.</param>
+        /// <param name="relyingParties">The relying parties.</param>
+        /// <returns>A <see cref="IIdentityServerBuilder"/> that can be used to further configure identity server.</returns>
 
         public static IIdentityServerBuilder AddInMemoryRelyingParties(this IIdentityServerBuilder builder, IEnumerable<RelyingParty> relyingParties)
         {
@@ -89,6 +107,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
+        /// <summary>
+        /// Register the realying parties store.
+        /// </summary>
+        /// <param name="builder">The <see cref="IIdentityServerBuilder"/>.</param>
+        /// <returns>A <see cref="IIdentityServerBuilder"/> that can be used to further configure identity server.</returns>
         public static IIdentityServerBuilder AddRelyingPartyStore<T>(this IIdentityServerBuilder builder)
             where T : class, IRelyingPartyStore
         {
@@ -96,6 +119,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return builder;
         }
+
+        /// <summary>
+        /// Register the cached realying parties store.
+        /// </summary>
+        /// <param name="builder">The <see cref="IIdentityServerBuilder"/>.</param>
+        /// <typeparam name="T"><seealso cref="IRelyingPartyStore"/></typeparam>
+        /// <returns>A <see cref="IIdentityServerBuilder"/> that can be used to further configure identity server.</returns>
 
         public static IIdentityServerBuilder AddRelyingPartyStoreCache<T>(this IIdentityServerBuilder builder)
             where T : class, IRelyingPartyStore

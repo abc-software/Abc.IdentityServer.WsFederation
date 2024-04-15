@@ -13,14 +13,13 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
     public class MetadataResultFixture
     {
         private EntityDescriptor _descriptor;
+        private IServerUrls _urls;
         private MetadataResult _target;
         private DefaultHttpContext _context;
 
         public MetadataResultFixture()
         {
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
             _context.Response.Body = new MemoryStream();
             _context.RequestServices = new ServiceCollection().BuildServiceProvider();
 
@@ -30,6 +29,12 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
 
             _descriptor = new EntityDescriptor(new EntityId("urn:issuer"));
             _descriptor.RoleDescriptors.Add(applicationDescriptor);
+
+            _urls = new MockServerUrls()
+            {
+                Origin = "https://server",
+                BasePath = "/",
+            };
 
             _target = new MetadataResult(_descriptor);
         }

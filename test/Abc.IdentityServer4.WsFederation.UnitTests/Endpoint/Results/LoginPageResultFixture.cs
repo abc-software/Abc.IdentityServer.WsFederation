@@ -1,6 +1,6 @@
-﻿using Abc.IdentityServer.WsFederation.Validation;
+﻿using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,15 +17,14 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         private LoginPageResult _target;
         private ValidatedWsFederationRequest _request;
         private IdentityServerOptions _options;
-        private ISystemClock _clock = new StubClock();
+        private IClock _clock = new StubClock();
         private DefaultHttpContext _context;
         private AuthorizationParametersMessageStoreMock _authorizationParametersMessageStore;
+        private IServerUrls _urls;
 
         public LoginPageResultFixture()
         {
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
             _context.RequestServices = new ServiceCollection().BuildServiceProvider();
 
             _options = new IdentityServerOptions();
@@ -40,6 +39,12 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
                 Wa = "wsigin1.0",
                 Wtrealm = "urn:owinrp",
             };
+
+            _urls = new MockServerUrls()
+            {
+                Origin = "https://server",
+                BasePath = "/".RemoveTrailingSlash(), // as in DefaultServerUrls
+            };
         }
 
         [Fact]
@@ -47,7 +52,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         {
             Action action = () =>
             {
-                _target = new LoginPageResult(null, _options, _clock, _authorizationParametersMessageStore);
+                _target = new LoginPageResult(null, _options, _clock, _urls, _authorizationParametersMessageStore);
             };
 
             action.Should().Throw<ArgumentNullException>();
@@ -56,7 +61,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         [Fact]
         public async Task login_should_redirect_to_login_page_and_passs_info()
         {
-            _target = new LoginPageResult(_request, _options, _clock, _authorizationParametersMessageStore);
+            _target = new LoginPageResult(_request, _options, _clock, _urls, _authorizationParametersMessageStore);
 
             await _target.ExecuteAsync(_context);
 
@@ -74,7 +79,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         [Fact]
         public async Task login_should_redirect_to_login_page_and_passs_info_in_query()
         {
-            _target = new LoginPageResult(_request, _options, _clock, null);
+            _target = new LoginPageResult(_request, _options, _clock, _urls, null);
 
             await _target.ExecuteAsync(_context);
 

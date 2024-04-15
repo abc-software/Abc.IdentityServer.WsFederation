@@ -29,7 +29,7 @@ namespace Abc.IdentityServer.WsFederation.Validation
         private readonly Ids.Validation.IRedirectUriValidator _uriValidator;
         private readonly IdentityServerOptions _options;
         private readonly IUserSession _userSession;
-        private readonly ISystemClock _clock;
+        private readonly IClock _clock;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Abc.IdentityServer.WsFederation.Validation
             IRelyingPartyStore relyingParties,
             Ids.Validation.IRedirectUriValidator uriValidator,
             IUserSession userSession,
-            ISystemClock clock,
+            IClock clock,
             ILogger<WsFederationRequestValidator> logger)
         {
             _options = options;

@@ -15,7 +15,7 @@ namespace Abc.IdentityServer.WsFederation.Stores
     /// <summary>
     /// Cache decorator for IRelyingPartyStore.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T"><seealso cref="IRelyingPartyStore"/></typeparam>
     /// <seealso cref="IdentityServer4.WsFederation.Stores.IRelyingPartyStore"/>
     public class CachingRelyingPartyStore<T> : IRelyingPartyStore
         where T : IRelyingPartyStore
@@ -41,11 +41,11 @@ namespace Abc.IdentityServer.WsFederation.Stores
         }
 
         /// <summary>
-        /// Finds a relying party by realm
+        /// Finds a relying party by realm.
         /// </summary>
-        /// <param name="realm">The realm</param>
+        /// <param name="realm">The realm.</param>
         /// <returns>
-        /// The relying party
+        /// The relying party.
         /// </returns>
         public async Task<RelyingParty> FindRelyingPartyByRealmAsync(string realm)
         {

@@ -16,16 +16,15 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
     {
         private CustomRedirectResult _target;
         private IdentityServerOptions _options;
-        private ISystemClock _clock = new StubClock();
+        private IClock _clock = new StubClock();
         private DefaultHttpContext _context;
         private AuthorizationParametersMessageStoreMock _authorizationParametersMessageStore;
         private ValidatedWsFederationRequest _request;
+        private IServerUrls _urls;
 
         public CutomRedirectResultFixture()
         {
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
             _context.RequestServices = new ServiceCollection().BuildServiceProvider();
 
             _options = new IdentityServerOptions();
@@ -37,6 +36,12 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
                 Wa = "wsigin1.0",
                 Wtrealm = "urn:owinrp",
             };
+
+            _urls = new MockServerUrls()
+            {
+                Origin = "https://server",
+                BasePath = "/",
+            };
         }
 
         [Fact]
@@ -45,7 +50,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             {
                 Action action = () =>
                 {
-                    _target = new CustomRedirectResult(null, "https://server/cutom", _options, _clock, _authorizationParametersMessageStore);
+                    _target = new CustomRedirectResult(null, "https://server/cutom", _options, _clock, _urls, _authorizationParametersMessageStore);
                 };
 
                 action.Should().Throw<ArgumentNullException>();
@@ -53,7 +58,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             {
                 Action action = () =>
                 {
-                    _target = new CustomRedirectResult(_request, null, _options, _clock, _authorizationParametersMessageStore);
+                    _target = new CustomRedirectResult(_request, null, _options, _clock, _urls, _authorizationParametersMessageStore);
                 };
 
                 action.Should().Throw<ArgumentNullException>();
@@ -63,7 +68,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         [Fact]
         public async Task cutomredirect_should_redirect_to_page_and_passs_info()
         {
-            _target = new CustomRedirectResult(_request, "https://server/cutom", _options, _clock, _authorizationParametersMessageStore);
+            _target = new CustomRedirectResult(_request, "https://server/cutom", _options, _clock, _urls, _authorizationParametersMessageStore);
 
             await _target.ExecuteAsync(_context);
 
@@ -81,7 +86,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         [Fact]
         public async Task cutomredirect_should_redirect_to_page_and_passs_info_in_query()
         {
-            _target = new CustomRedirectResult(_request, "https://server/cutom", _options, _clock, null);
+            _target = new CustomRedirectResult(_request, "https://server/cutom", _options, _clock, _urls, null);
 
             await _target.ExecuteAsync(_context);
 

@@ -6,7 +6,7 @@ namespace Abc.IdentityServer.WsFederation.Validation.UnitTests
     public abstract class WsFederationRequestValidatorBase
     {
         protected readonly WsFederationRequestValidator validator;
-        protected readonly ISystemClock clock;
+        protected readonly IClock clock;
 
         public WsFederationRequestValidatorBase()
         {

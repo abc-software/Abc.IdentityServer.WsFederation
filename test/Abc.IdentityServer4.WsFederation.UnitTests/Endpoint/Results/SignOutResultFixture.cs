@@ -1,6 +1,6 @@
-﻿using Abc.IdentityServer.WsFederation.Validation;
+﻿using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using System;
@@ -16,9 +16,10 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         private SignOutResult _target;
         private IdentityServerOptions _options;
         private DefaultHttpContext _context;
-        private ISystemClock _clock;
+        private IClock _clock;
         private ValidatedWsFederationRequest _request;
         private MockMessageStore<LogoutMessage> _logoutMessageStore;
+        private IServerUrls _urls;
 
         public SignOutResultFixture()
         {
@@ -27,17 +28,21 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             _options.UserInteraction.LogoutIdParameter = "logoutId";
 
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
             _context.Response.Body = new MemoryStream();
 
             _clock = new StubClock();
+
+            _urls = new MockServerUrls()
+            {
+                Origin = "https://server",
+                BasePath = "/".RemoveTrailingSlash(), // as in DefaultServerUrls
+            };
 
             _request = new ValidatedWsFederationRequest();
 
             _logoutMessageStore = new MockMessageStore<LogoutMessage>();
 
-            _target = new SignOutResult(_request, _options, _clock, _logoutMessageStore);
+            _target = new SignOutResult(_request, _options, _clock, _urls, _logoutMessageStore);
         }
 
         [Fact]
@@ -45,7 +50,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         {
             Action action = () =>
             {
-                _target = new SignOutResult(null, _options, _clock, _logoutMessageStore);
+                _target = new SignOutResult(null, _options, _clock, _urls, _logoutMessageStore);
             };
 
             action.Should().Throw<ArgumentNullException>();

@@ -31,11 +31,11 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
     public class SignInResponseGenerator : ISignInResponseGenerator
     {
         private readonly WsFederationOptions _options;
-        private readonly IHttpContextAccessor _contextAccessor;
         private readonly Services.IClaimsService _claimsService;
         private readonly IKeyMaterialService _keys;
         private readonly IResourceStore _resources;
-        private readonly ISystemClock _clock;
+        private readonly IIssuerNameService _issuerNameService;
+        private readonly IClock _clock;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -46,22 +46,23 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         /// <param name="claimsService">The claims service.</param>
         /// <param name="keys">The keys.</param>
         /// <param name="resources">The resource store.</param>
+        /// <param name="issuerNameService">The issuer name service.</param>
         /// <param name="clock">The clock.</param>
         /// <param name="logger">The logger.</param>
         public SignInResponseGenerator(
-            IHttpContextAccessor contextAccessor,
             WsFederationOptions options,
             Services.IClaimsService claimsService,
             IKeyMaterialService keys,
             IResourceStore resources,
-            ISystemClock clock,
+            IIssuerNameService issuerNameService,
+            IClock clock,
             ILogger<SignInResponseGenerator> logger)
         {
-            _contextAccessor = contextAccessor;
             _options = options;
             _claimsService = claimsService;
             _keys = keys;
             _resources = resources;
+            _issuerNameService = issuerNameService;
             _clock = clock;
             _logger = logger;
         }
@@ -168,7 +169,7 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
                 Expires = issueInstant.AddSeconds(validatedRequest.Client.IdentityTokenLifetime),
                 SigningCredentials = signingCredentials,
                 Subject = outgoingSubject,
-                Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
+                Issuer = await _issuerNameService.GetCurrentAsync(),
                 TokenType = validatedRequest.RelyingParty?.TokenType ?? _options.DefaultTokenType,
             };
 

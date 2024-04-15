@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Microsoft.AspNetCore.Authentication
+namespace Abc.IdentityServer
 {
-    internal class StubClock : ISystemClock
+    internal class StubClock : IClock
     {
         public Func<DateTime> UtcNowFunc = () => DateTime.UtcNow;
         public DateTimeOffset UtcNow => new DateTimeOffset(UtcNowFunc());

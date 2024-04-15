@@ -169,6 +169,21 @@ namespace Abc.IdentityServer.WsFederation.Extensions.UnitTests
 
             actualOrigin.Should().Be(expected);
         }
+
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData("", "")]
+        [InlineData("test/resource/", "test/resource")]
+        [InlineData("/test/resource/", "/test/resource")]
+        [InlineData("test/resource", "test/resource")]
+        [InlineData("/test/resource", "/test/resource")]
+        public void CheckRemoveTrailingSlash(string inputUrl, string expected)
+        {
+            var actualOrigin = inputUrl.RemoveTrailingSlash();
+
+            actualOrigin.Should().Be(expected);
+        }
+
         #endregion
 
         #region AddQueryString

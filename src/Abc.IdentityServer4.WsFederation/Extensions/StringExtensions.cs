@@ -154,5 +154,16 @@ namespace Abc.IdentityServer.Extensions
 
             return url;
         }
+
+        [DebuggerStepThrough]
+        public static string RemoveTrailingSlash(this string url)
+        {
+            if (url != null && url.EndsWith('/'))
+            {
+                url = url.Substring(0, url.Length - 1);
+            }
+
+            return url;
+        }
     }
 }

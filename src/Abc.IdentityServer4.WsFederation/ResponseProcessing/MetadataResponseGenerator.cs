@@ -27,9 +27,10 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         private readonly IdentityServerOptions _options;
         private readonly IResourceStore _resources;
         private readonly Services.IClaimsService _claims;
+        private readonly IServerUrls _urls;
         private readonly IKeyMaterialService _keys;
         private readonly WsFederationOptions _wsFederationOptions;
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IIssuerNameService _issuerNameService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetadataResponseGenerator"/> class.
@@ -37,14 +38,16 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         /// <param name="options">The options.</param>
         /// <param name="resources">The resource store.</param>
         /// <param name="claimsService">The claims service.</param>
-        /// <param name="contextAccessor">The context accessor.</param>
+        /// <param name="issuerNameService">The issuer name service.</param>
+        /// <param name="urls">The server urls.</param>
         /// <param name="keys">The keys.</param>
         /// <param name="wsFederationOptions">The WS-Federation options.</param>
         public MetadataResponseGenerator(
             IdentityServerOptions options,
             IResourceStore resources,
             Services.IClaimsService claimsService,
-            IHttpContextAccessor contextAccessor,
+            IIssuerNameService issuerNameService,
+            IServerUrls urls,
             IKeyMaterialService keys,
             WsFederationOptions wsFederationOptions)
         {
@@ -53,7 +56,8 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
             _options = options;
             _resources = resources;
             _claims = claimsService;
-            _contextAccessor = contextAccessor;
+            _issuerNameService = issuerNameService;
+            _urls = urls;
         }
 
         /// <inheritdoc/>
@@ -61,8 +65,8 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing
         {
             var signingKey = await _keys.GetX509SigningKeyAsync();
 
-            var issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri();
-            var baseUrl = _contextAccessor.HttpContext.GetIdentityServerBaseUrl();
+            var issuer = await _issuerNameService.GetCurrentAsync();
+            var baseUrl = _urls.BaseUrl;
             var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256Signature, SecurityAlgorithms.Sha256Digest);
 
             var entityDescriptor = new EntityDescriptor(new EntityId(issuer));

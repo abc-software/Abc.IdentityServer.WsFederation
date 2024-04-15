@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using Microsoft.AspNetCore.Authentication;
+﻿using Abc.IdentityServer.Extensions;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using System;
@@ -15,23 +15,28 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         private ErrorPageResult _target;
         private IdentityServerOptions _options;
         private MockMessageStore<ErrorMessage> _errorMessageStore;
-        private ISystemClock _clock = new StubClock();
+        private IClock _clock = new StubClock();
         private DefaultHttpContext _context;
+        private IServerUrls _urls;
 
         public ErrorPageResultFixture()
         {
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
             _context.Response.Body = new MemoryStream();
 
             _options = new IdentityServerOptions();
             _options.UserInteraction.ErrorUrl = "~/error";
             _options.UserInteraction.ErrorIdParameter = "errorId";
 
+            _urls = new MockServerUrls()
+            {
+                Origin = "https://server",
+                BasePath = "/".RemoveTrailingSlash(), // as in DefaultServerUrls
+            };
+
             _errorMessageStore = new MockMessageStore<ErrorMessage>();
 
-            _target = new ErrorPageResult("some_error", "some_desciption", _options, _clock, _errorMessageStore);
+            _target = new ErrorPageResult("some_error", "some_desciption", _options, _clock, _urls, _errorMessageStore);
         }
 
         [Fact]

@@ -21,8 +21,6 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             _options = new IdentityServerOptions();
 
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
             _context.Response.Body = new MemoryStream();
 
             _message = new WsFederationMessage();

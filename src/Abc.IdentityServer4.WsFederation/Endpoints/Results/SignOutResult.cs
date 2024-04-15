@@ -9,7 +9,6 @@
 
 using Abc.IdentityServer.Extensions;
 using Abc.IdentityServer.WsFederation.Validation;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -18,26 +17,36 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
+    /// <summary>
+    /// Result for signout response.
+    /// </summary>
     public class SignOutResult : IEndpointResult
     {
         private readonly ValidatedWsFederationRequest _validatedRequest;
         private IdentityServerOptions _options;
-        private ISystemClock _clock;
+        private IClock _clock;
+        private IServerUrls _urls;
         private IMessageStore<LogoutMessage> _logoutMessageStore;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignOutResult"/> class.
+        /// </summary>
+        /// <param name="validatedRequest">The validated request.</param>
         public SignOutResult(ValidatedWsFederationRequest validatedRequest)
         {
             _validatedRequest = validatedRequest ?? throw new ArgumentNullException(nameof(validatedRequest));
         }
 
-        internal SignOutResult(ValidatedWsFederationRequest validatedRequest, IdentityServerOptions options, ISystemClock clock, IMessageStore<LogoutMessage> logoutMessageStore) 
+        internal SignOutResult(ValidatedWsFederationRequest validatedRequest, IdentityServerOptions options, IClock clock, IServerUrls urls, IMessageStore<LogoutMessage> logoutMessageStore) 
             : this(validatedRequest)
         {
             _options = options;
             _clock = clock;
+            _urls = urls;
             _logoutMessageStore = logoutMessageStore;
         }
 
+        /// <inheritdoc/>
         public async Task ExecuteAsync(HttpContext context)
         {
             Init(context);
@@ -65,14 +74,15 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results
                 redirectUrl = redirectUrl.AddQueryString(_options.UserInteraction.LogoutIdParameter, id);
             }
 
-            context.Response.RedirectToAbsoluteUrl(redirectUrl);
+            context.Response.Redirect(_urls.GetAbsoluteUrl(redirectUrl));
         }
 
         private void Init(HttpContext context)
         {
             _options ??= context.RequestServices.GetRequiredService<IdentityServerOptions>();
             _logoutMessageStore ??= context.RequestServices.GetRequiredService<IMessageStore<LogoutMessage>>();
-            _clock ??= context.RequestServices.GetRequiredService<ISystemClock>();
+            _urls ??= context.RequestServices.GetRequiredService<IServerUrls>();
+            _clock ??= context.RequestServices.GetRequiredService<IClock>();
         }
     }
 }

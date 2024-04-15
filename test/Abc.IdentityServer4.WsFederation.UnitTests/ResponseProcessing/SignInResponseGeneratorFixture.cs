@@ -22,13 +22,13 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing.UnitTests
         private WsFederationOptions _options = new WsFederationOptions();
         private MockClaimsService _claimsService = new MockClaimsService();
         private MockKeyMaterialService _keys = new MockKeyMaterialService();
-        private MockHttpContextAccessor _contextAncessor = new MockHttpContextAccessor();
         private MockResourceStore _resources = new MockResourceStore();
+        private TestIssuerNameService _issuerNameService = new TestIssuerNameService();
 
         private class TestSignInResponseGenerator : SignInResponseGenerator
         {
-            public TestSignInResponseGenerator(IHttpContextAccessor contextAccessor, WsFederationOptions options, WsFederation.Services.IClaimsService claimsService, IKeyMaterialService keys, IResourceStore resources, ISystemClock clock, ILogger<SignInResponseGenerator> logger) 
-                : base(contextAccessor, options, claimsService, keys, resources, clock, logger)
+            public TestSignInResponseGenerator(WsFederationOptions options, WsFederation.Services.IClaimsService claimsService, IKeyMaterialService keys, IResourceStore resources, IIssuerNameService issuerNameService, IClock clock, ILogger<SignInResponseGenerator> logger) 
+                : base(options, claimsService, keys, resources, issuerNameService, clock, logger)
             {
             }
 
@@ -46,11 +46,11 @@ namespace Abc.IdentityServer.WsFederation.ResponseProcessing.UnitTests
         public SignInResponseGeneratorFixture()
         {
             _target = new TestSignInResponseGenerator(
-                _contextAncessor,
                 _options,
                 _claimsService,
                 _keys,
                 _resources,
+                _issuerNameService,
                 _clock,
                 _logger
                 );

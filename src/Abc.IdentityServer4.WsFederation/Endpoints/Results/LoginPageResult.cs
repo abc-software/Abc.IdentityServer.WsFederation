@@ -18,36 +18,41 @@ using System.Threading.Tasks;
 
 namespace Abc.IdentityServer.WsFederation.Endpoints.Results
 {
+    /// <summary>
+    /// Result for login page.
+    /// </summary>
     public class LoginPageResult : IEndpointResult
     {
         private readonly ValidatedWsFederationRequest _request;
         private IdentityServerOptions _options;
-        private ISystemClock _clock;
+        private IClock _clock;
+        private IServerUrls _urls;
         private IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LoginPageResult"/> class.
+        /// </summary>
+        /// <param name="request">The validated request.</param>
         public LoginPageResult(ValidatedWsFederationRequest request)
         {
             _request = request ?? throw new ArgumentNullException(nameof(request));
         }
 
-        internal LoginPageResult(ValidatedWsFederationRequest request, IdentityServerOptions options, ISystemClock clock, IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
+        internal LoginPageResult(ValidatedWsFederationRequest request, IdentityServerOptions options, IClock clock, IServerUrls urls, IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
             : this(request)
         {
             _options = options;
             _clock = clock;
+            _urls = urls;
             _authorizationParametersMessageStore = authorizationParametersMessageStore;
         }
 
-        /// <summary>
-        /// Executes the result.
-        /// </summary>
-        /// <param name="context">The HTTP context.</param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public async Task ExecuteAsync(HttpContext context)
         {
             Init(context);
 
-            string returnUrl = context.GetIdentityServerBasePath().EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederationCallback;
+            string returnUrl = _urls.BasePath.EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederationCallback;
             if (_authorizationParametersMessageStore != null)
             {
                 var msg = new Message<IDictionary<string, string[]>>(_request.WsFederationMessage.ToDictionary(), _clock.UtcNow.UtcDateTime);
@@ -64,18 +69,19 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results
             {
                 // this converts the relative redirect path to an absolute one if we're 
                 // redirecting to a different server
-                returnUrl = context.GetIdentityServerHost().EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
+                returnUrl = _urls.Origin.EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
             }
 
             var url = loginUrl.AddQueryString(_options.UserInteraction.LoginReturnUrlParameter, returnUrl);
-            context.Response.RedirectToAbsoluteUrl(url);
+            context.Response.Redirect(_urls.GetAbsoluteUrl(url));
         }
 
         private void Init(HttpContext context)
         {
             _options ??= context.RequestServices.GetRequiredService<IdentityServerOptions>();
             _authorizationParametersMessageStore ??= context.RequestServices.GetService<IAuthorizationParametersMessageStore>();
-            _clock ??= context.RequestServices.GetRequiredService<ISystemClock>();
+            _urls ??= context.RequestServices.GetRequiredService<IServerUrls>();
+            _clock ??= context.RequestServices.GetRequiredService<IClock>();
         }
     }
 }

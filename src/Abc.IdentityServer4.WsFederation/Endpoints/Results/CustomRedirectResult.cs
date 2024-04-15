@@ -9,7 +9,6 @@
 
 using Abc.IdentityServer.Extensions;
 using Abc.IdentityServer.WsFederation.Validation;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -23,7 +22,8 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results
         private readonly ValidatedWsFederationRequest _request;
         private readonly string _url;
         private IdentityServerOptions _options;
-        private ISystemClock _clock;
+        private IClock _clock;
+        private IServerUrls _urls;
         private IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
         public CustomRedirectResult(ValidatedWsFederationRequest request, string url)
@@ -42,11 +42,12 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results
             _url = url;
         }
 
-        internal CustomRedirectResult(ValidatedWsFederationRequest request, string url, IdentityServerOptions options, ISystemClock clock, IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
+        internal CustomRedirectResult(ValidatedWsFederationRequest request, string url, IdentityServerOptions options, IClock clock, IServerUrls urls, IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
             : this(request, url)
         {
             _options = options;
             _clock = clock;
+            _urls = urls;
             _authorizationParametersMessageStore = authorizationParametersMessageStore;
         }
 
@@ -54,7 +55,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results
         {
             Init(context);
 
-            var returnUrl = context.GetIdentityServerBasePath().EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederationCallback;
+            var returnUrl = _urls.BaseUrl.EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederationCallback;
             if (_authorizationParametersMessageStore != null)
             {
                 var msg = new Message<IDictionary<string, string[]>>(_request.WsFederationMessage.ToDictionary(), _clock.UtcNow.UtcDateTime);
@@ -69,18 +70,19 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results
             {
                 // this converts the relative redirect path to an absolute one if we're 
                 // redirecting to a different server
-                returnUrl = context.GetIdentityServerBaseUrl().EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
+                returnUrl = _urls.BaseUrl.EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
             }
 
             var url = _url.AddQueryString(_options.UserInteraction.CustomRedirectReturnUrlParameter, returnUrl);
-            context.Response.RedirectToAbsoluteUrl(url);
+            context.Response.Redirect(_urls.GetAbsoluteUrl(url));
         }
 
         private void Init(HttpContext context)
         {
             _options ??= context.RequestServices.GetRequiredService<IdentityServerOptions>();
             _authorizationParametersMessageStore ??= context.RequestServices.GetService<IAuthorizationParametersMessageStore>();
-            _clock ??= context.RequestServices.GetRequiredService<ISystemClock>();
+            _urls ??= context.RequestServices.GetRequiredService<IServerUrls>();
+            _clock ??= context.RequestServices.GetRequiredService<IClock>();
         }
     }
 }

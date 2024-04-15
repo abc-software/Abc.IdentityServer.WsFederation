@@ -15,8 +15,6 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.UnitTests
         public WsFederationMetadataEndpointFixture()
         {
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
 
             _target = new WsFederationMetadataEndpoint(
                 _stubMetadataGenerator,

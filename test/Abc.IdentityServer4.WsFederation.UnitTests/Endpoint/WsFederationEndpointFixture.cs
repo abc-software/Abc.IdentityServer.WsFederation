@@ -35,8 +35,6 @@ namespace Abc.IdentityServer.WsFederation.Endpoint.UnitTests
         public WsFederationEndpointFixture()
         {
             _context = new DefaultHttpContext();
-            _context.SetIdentityServerOrigin("https://server");
-            _context.SetIdentityServerBasePath("/");
 
             _stubSignInRequestValidator = new StubWsFederationRequestValidator();
             _stubInteractionGenerator = new StubSignInInteractionResponseGenerator();
