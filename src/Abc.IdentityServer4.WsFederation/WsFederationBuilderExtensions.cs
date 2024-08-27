@@ -57,11 +57,6 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
             builder.Services.AddTransient<Abc.IdentityServer.WsFederation.Services.IClaimsService, Abc.IdentityServer.WsFederation.Services.DefaultClaimsService>();
             builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
-#if NET8_0_OR_GREATER
-            builder.Services.TryAddTransient<IClock, DefaultClock>();
-#else
-            builder.Services.TryAddTransient<IClock, LegacyClock>();
-#endif
 
             builder.AddEndpoint<WsFederationEndpoint>(WsFederationConstants.EndpointNames.WsFederation, WsFederationConstants.ProtocolRoutePaths.WsFederation.EnsureLeadingSlash());
             builder.AddEndpoint<WsFederationCallbackEndpoint>(WsFederationConstants.EndpointNames.WsFederationCallback, WsFederationConstants.ProtocolRoutePaths.WsFederationCallback.EnsureLeadingSlash());
