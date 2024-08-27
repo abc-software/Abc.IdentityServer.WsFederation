@@ -1,6 +1,5 @@
 ﻿using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;

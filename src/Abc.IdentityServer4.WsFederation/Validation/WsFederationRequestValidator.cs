@@ -9,7 +9,6 @@
 
 using Abc.IdentityServer.Extensions;
 using Abc.IdentityServer.WsFederation.Stores;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System;
