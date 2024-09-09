@@ -9,18 +9,18 @@
     <RepositoryUrl>https://github.com/abc-software/Abc.IdentityServer.WsFederation.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
-    <Version>3.0.0-dev7</Version>
+    <Version>3.0.0-dev11</Version>
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>ids.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.IdentityServer4.WsFederation'">
+  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.IdentityServer4.WsFederation' or '$(MSBuildProjectName)' == 'Abc.IdentityServer4.WsFederation.EntityFramework.Storage'">
     <BaseIntermediateOutputPath>obj\IDS4\</BaseIntermediateOutputPath>
     <OutputPath>bin\IDS4\</OutputPath>
     <PackageTags>$(PackageTags);IdentityServer4</PackageTags>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation'">
+  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation' or '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation.EntityFramework.Storage'">
     <BaseIntermediateOutputPath>obj\DuendeIDS\</BaseIntermediateOutputPath>
     <OutputPath>bin\DuendeIDS\</OutputPath>
     <PackageTags>$(PackageTags);Duende</PackageTags>
