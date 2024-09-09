@@ -1,8 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <!--<PropertyGroup>
-    <BaseIntermediateOutputPath>obj\IDS4\</BaseIntermediateOutputPath>
-    <OutputPath>bin\IDS4\</OutputPath>
-  </PropertyGroup>-->
   <ItemGroup>
     <Compile Remove="obj\**" />
     <EmbeddedResource Remove="obj\**" />

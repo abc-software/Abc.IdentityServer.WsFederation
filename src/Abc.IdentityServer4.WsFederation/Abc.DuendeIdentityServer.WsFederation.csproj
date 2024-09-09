@@ -1,8 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <!--<PropertyGroup>
-    <BaseIntermediateOutputPath>obj\DuendeIDS\</BaseIntermediateOutputPath>
-    <OutputPath>bin\DuendeIDS\</OutputPath>
-  </PropertyGroup>-->
   <ItemGroup>
     <Compile Remove="obj\**" />
     <EmbeddedResource Remove="obj\**" />
