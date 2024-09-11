@@ -1,4 +1,5 @@
-﻿using Abc.IdentityServer.WsFederation.Validation;
+﻿using Abc.IdentityServer.Extensions;
+using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
@@ -39,7 +40,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             _urls = new MockServerUrls()
             {
                 Origin = "https://server",
-                BasePath = "/",
+                BasePath = "/".RemoveLeadingSlash(), // Duende build wrong baseUrl
             };
         }
 
@@ -49,7 +50,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             {
                 Action action = () =>
                 {
-                    _target = new CustomRedirectResult(null, "https://server/cutom", _options, _clock, _urls, _authorizationParametersMessageStore);
+                    _target = new CustomRedirectResult(null, "https://server/custom", _options, _clock, _urls, _authorizationParametersMessageStore);
                 };
 
                 action.Should().Throw<ArgumentNullException>();
@@ -65,9 +66,9 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
         }
 
         [Fact]
-        public async Task cutomredirect_should_redirect_to_page_and_passs_info()
+        public async Task external_cutomredirect_should_redirect_to_page_and_passs_info()
         {
-            _target = new CustomRedirectResult(_request, "https://server/cutom", _options, _clock, _urls, _authorizationParametersMessageStore);
+            _target = new CustomRedirectResult(_request, "https://server/custom", _options, _clock, _urls, _authorizationParametersMessageStore);
 
             await _target.ExecuteAsync(_context);
 
@@ -75,27 +76,45 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results.UnitTests
             _context.Response.StatusCode.Should().Be(302);
 
             var location = _context.Response.Headers["Location"].First();
-            location.Should().StartWith("https://server/cutom");
+            location.Should().StartWith("https://server/custom");
 
             var query = QueryHelpers.ParseQuery(new Uri(location).Query);
-            query["returnUrl"].First().Should().Contain("/wsfed/callback");
+            query["returnUrl"].First().Should().StartWith("https://server/wsfed/callback");
             query["returnUrl"].First().Should().Contain("?authzId=" + _authorizationParametersMessageStore.Messages.First().Key);
         }
 
         [Fact]
-        public async Task cutomredirect_should_redirect_to_page_and_passs_info_in_query()
+        public async Task local_cutomredirect_should_redirect_to_page_and_passs_info()
         {
-            _target = new CustomRedirectResult(_request, "https://server/cutom", _options, _clock, _urls, null);
+            _target = new CustomRedirectResult(_request, "~/custom", _options, _clock, _urls, _authorizationParametersMessageStore);
+
+            await _target.ExecuteAsync(_context);
+
+            _authorizationParametersMessageStore.Messages.Count.Should().Be(1);
+            _context.Response.StatusCode.Should().Be(302);
+
+            var location = _context.Response.Headers["Location"].First();
+            location.Should().StartWith("https://server/custom");
+
+            var query = QueryHelpers.ParseQuery(new Uri(location).Query);
+            query["returnUrl"].First().Should().StartWith("/wsfed/callback");
+            query["returnUrl"].First().Should().Contain("?authzId=" + _authorizationParametersMessageStore.Messages.First().Key);
+        }
+
+        [Fact]
+        public async Task external_cutomredirect_should_redirect_to_page_and_passs_info_in_query()
+        {
+            _target = new CustomRedirectResult(_request, "https://server/custom", _options, _clock, _urls, null);
 
             await _target.ExecuteAsync(_context);
 
             _context.Response.StatusCode.Should().Be(302);
 
             var location = _context.Response.Headers["Location"].First();
-            location.Should().StartWith("https://server/cutom");
+            location.Should().StartWith("https://server/custom");
 
             var query = QueryHelpers.ParseQuery(new Uri(location).Query);
-            query["returnUrl"].First().Should().Contain("/wsfed/callback");
+            query["returnUrl"].First().Should().StartWith("https://server/wsfed/callback");
             query["returnUrl"].First().Should().Contain("?wa=wsigin1.0&wtrealm=urn%3Aowinrp");
         }
     }

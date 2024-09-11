@@ -55,7 +55,7 @@ namespace Abc.IdentityServer.WsFederation.Endpoints.Results
         {
             Init(context);
 
-            var returnUrl = _urls.BaseUrl.EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederationCallback;
+            var returnUrl = _urls.BasePath.EnsureTrailingSlash() + WsFederationConstants.ProtocolRoutePaths.WsFederationCallback;
             if (_authorizationParametersMessageStore != null)
             {
                 var msg = new Message<IDictionary<string, string[]>>(_request.WsFederationMessage.ToDictionary(), _clock.UtcNow.UtcDateTime);
