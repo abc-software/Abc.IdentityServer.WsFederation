@@ -60,7 +60,7 @@ public class RelyingPartyStore : ClientStore, IRelyingPartyStore
     {
         var query = Context.Clients
             .Where(x => x.ClientId == realm)
-            .Join(Context.WsFedRelyingParties, x => x.Id, y => y.ClientId, (c, rp) => 
+            .Join(Context.WsFedRelyingParties.Include(c => c.EncryptionCertificate), x => x.Id, y => y.ClientId, (c, rp) => 
             new Entities.RelyingParty
             {
                 Realm = c.ClientId,

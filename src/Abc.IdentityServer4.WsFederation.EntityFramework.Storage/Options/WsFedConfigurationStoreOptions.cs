@@ -7,7 +7,6 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using Microsoft.AspNetCore.Identity;
 using System;
 
 namespace Abc.IdentityServer.WsFederation.EntityFramework.Options;
@@ -32,6 +31,14 @@ public class WsFedConfigurationStoreOptions : ConfigurationStoreOptions
     /// The relying party claim mapping.
     /// </value>
     public TableConfiguration RelyingPartyClaimMapping { get; set; } = new TableConfiguration("RelyingPartyClaimMappings");
+
+    /// <summary>
+    /// Gets or sets the relying party certificate table configuration.
+    /// </summary>
+    /// <value>
+    /// The relying party certificate.
+    /// </value>
+    public TableConfiguration RelyingPartyCertificate { get; set; } = new TableConfiguration("RelyingPartyCertificates");
 
     internal void Apply(ConfigurationStoreOptions storeOptions)
     {

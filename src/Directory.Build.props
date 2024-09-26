@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/abc-software/Abc.IdentityServer.WsFederation.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
-    <Version>3.0.0-dev12</Version>
+    <Version>3.0.0-dev16</Version>
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>ids.snk</AssemblyOriginatorKeyFile>

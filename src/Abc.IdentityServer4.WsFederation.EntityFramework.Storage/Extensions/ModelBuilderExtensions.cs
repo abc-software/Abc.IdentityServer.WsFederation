@@ -35,7 +35,6 @@ public static class ModelBuilderExtensions
             rp.Property(x => x.DigestAlgorithm).HasMaxLength(200).IsRequired();
             rp.Property(x => x.SignatureAlgorithm).HasMaxLength(200).IsRequired();
             rp.Property(x => x.NameIdentifierFormat).HasMaxLength(200);
-            rp.Property(x => x.EncryptionCertificate);
             rp.Property(x => x.EncryptionAlgorithm).HasMaxLength(200);
             rp.Property(x => x.KeyWrapAlgorithm).HasMaxLength(200);
             rp.Property(x => x.WsTrustVersion).HasMaxLength(200);
@@ -45,14 +44,30 @@ public static class ModelBuilderExtensions
             rp.HasOne(e => e.Client).WithOne().HasForeignKey<Entities.RelyingParty>(e => e.ClientId).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<Entities.RelyingPartyClaimMapping>(claimMapping =>
+        modelBuilder.Entity<Entities.RelyingPartyClaimMapping>(cm =>
         {
-            claimMapping.ToTable(storeOptions.RelyingPartyClaimMapping);
+            cm.ToTable(storeOptions.RelyingPartyClaimMapping);
 
-            claimMapping.HasKey(x => x.Id);
+            cm.HasKey(x => x.Id);
 
-            claimMapping.Property(x => x.FromClaimType).HasMaxLength(150).IsRequired();
-            claimMapping.Property(x => x.ToClaimType).HasMaxLength(150).IsRequired();
+            cm.Property(x => x.FromClaimType).HasMaxLength(150).IsRequired();
+            cm.Property(x => x.ToClaimType).HasMaxLength(150).IsRequired();
+        });
+
+        modelBuilder.Entity<Entities.RelyingPartyCertificate>(rpc =>
+        {
+            rpc.ToTable(storeOptions.RelyingPartyCertificate);
+
+            rpc.HasKey(x => x.Id);
+            rpc.Property(x => x.Name).HasMaxLength(400).IsRequired();
+            rpc.Property(x => x.Issuer).HasMaxLength(255).IsRequired();
+            rpc.Property(x => x.Subject).HasMaxLength(255).IsRequired();
+            rpc.Property(x => x.Thumbrint).HasMaxLength(20).IsFixedLength().IsRequired();
+            rpc.Property(x => x.RawData).IsRequired();
+
+            rpc.HasIndex(x => x.Thumbrint).IsUnique();
+
+            rpc.HasMany(x => x.RelyingParties).WithOne(x => x.EncryptionCertificate).IsRequired(false).OnDelete(DeleteBehavior.SetNull);
         });
     }
 

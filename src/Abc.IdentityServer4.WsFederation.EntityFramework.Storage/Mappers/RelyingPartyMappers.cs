@@ -38,7 +38,7 @@ public static class RelyingPartyMappers
                 NameIdentifierFormat = entity.NameIdentifierFormat,
 
                 ClaimMapping = entity.ClaimMappings.ToDictionary(m => m.FromClaimType, m => m.ToClaimType),
-                EncryptionCertificate = entity.EncryptionCertificate != null ? new X509Certificate2(entity.EncryptionCertificate) : null,
+                EncryptionCertificate = entity.EncryptionCertificate != null ? new X509Certificate2(entity.EncryptionCertificate.RawData) : null,
             };
     }
 
@@ -67,7 +67,22 @@ public static class RelyingPartyMappers
                     ToClaimType = c.Value,
                 }).ToList() ?? new List<Entities.RelyingPartyClaimMapping>(),
 
-                EncryptionCertificate = model.EncryptionCertificate?.GetPublicKey(),
+                EncryptionCertificate = ToCertificateEntity(model.EncryptionCertificate),
             };
+
+        Entities.RelyingPartyCertificate ToCertificateEntity(X509Certificate2 certificate)
+        {
+            return certificate == null ? null :
+                new Entities.RelyingPartyCertificate()
+                {
+                    Name = certificate.GetNameInfo(X509NameType.DnsName, forIssuer: false),
+                    Issuer = certificate.GetNameInfo(X509NameType.SimpleName, forIssuer: true),
+                    Subject = certificate.GetNameInfo(X509NameType.SimpleName, forIssuer: false),
+                    NotAfter = certificate.NotAfter,
+                    NotBefore = certificate.NotBefore,
+                    Thumbrint = certificate.GetCertHash(),
+                    RawData = certificate.GetRawCertData(),
+                };
+        }
     }
 }

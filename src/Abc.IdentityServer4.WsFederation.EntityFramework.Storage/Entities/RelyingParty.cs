@@ -8,16 +8,22 @@
 // ----------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Abc.IdentityServer.WsFederation.EntityFramework.Entities;
 
 /// <summary>
-/// 
+/// Represents WS-Federation relying party.
 /// </summary>
 public class RelyingParty
 {
+    /// <summary>
+    /// Gets or sets the primary key for this relying party.
+    /// </summary>
     public int ClientId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the relying party client.
+    /// </summary>
     public virtual IdsEntities.Client Client { get; set; }
 
     /// <summary>
@@ -34,7 +40,6 @@ public class RelyingParty
     /// <value>
     /// The type of the token.
     /// </value>
-    [Required]
     public string TokenType { get; set; }
 
     /// <summary>
@@ -43,7 +48,6 @@ public class RelyingParty
     /// <value>
     /// The digest algorithm.
     /// </value>
-    [Required]
     public string DigestAlgorithm { get; set; }
 
     /// <summary>
@@ -52,7 +56,6 @@ public class RelyingParty
     /// <value>
     /// The signature algorithm.
     /// </value>
-    [Required]
     public string SignatureAlgorithm { get; set; }
 
     /// <summary>
@@ -69,7 +72,7 @@ public class RelyingParty
     /// <value>
     /// The encryption certificate.
     /// </value>
-    public byte[] EncryptionCertificate { get; set; }
+    public virtual RelyingPartyCertificate EncryptionCertificate { get; set; }
 
     /// <summary>
     /// Gets or sets the encryption algorithm.
