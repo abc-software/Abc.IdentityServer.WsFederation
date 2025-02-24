@@ -1,8 +1,12 @@
-﻿#if IDS4
+﻿#if IDS4 || IDS8
 
 using System.Threading.Tasks;
 
+#if IDS4
 namespace IdentityServer4.Services;
+#else
+namespace IdentityServer8.Services;
+#endif
 
 /// <summary>
 /// Abstract access to the current issuer name.

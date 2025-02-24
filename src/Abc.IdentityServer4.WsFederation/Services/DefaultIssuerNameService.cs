@@ -1,11 +1,15 @@
-﻿#if IDS4
+﻿#if IDS4 || IDS8
 
 using Abc.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
 
+#if IDS4
 namespace IdentityServer4.Services;
+#else
+namespace IdentityServer8.Services;
+#endif
 
 /// <summary>
 /// Abstracts issuer name access.

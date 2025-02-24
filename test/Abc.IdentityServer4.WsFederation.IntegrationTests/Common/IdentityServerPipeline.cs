@@ -313,7 +313,7 @@ namespace Abc.IdentityServer.WsFederation.IntegrationTests.Common
             string responseMode = null,
             string codeChallenge = null,
             string codeChallengeMethod = null,
-#if DUENDE
+#if DUENDE || IDS8
             Parameters extra = null
 #else
             object extra = null

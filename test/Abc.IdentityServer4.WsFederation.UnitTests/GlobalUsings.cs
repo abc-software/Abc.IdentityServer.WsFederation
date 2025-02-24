@@ -10,6 +10,18 @@ global using Duende.IdentityServer.ResponseHandling;
 global using Duende.IdentityServer.Validation;
 global using Ids = Duende.IdentityServer;
 global using StatusCodeResult = Duende.IdentityServer.Endpoints.Results.StatusCodeResult;
+#elif IDS8
+global using IdentityServer8.Hosting;
+global using IdentityServer8.Models;
+global using IdentityServer8.Stores;
+global using IdentityServer8.Configuration;
+global using IdentityServer8.Extensions;
+global using IdentityServer8.Services;
+global using IdentityServer8.Events;
+global using IdentityServer8.ResponseHandling;
+global using IdentityServer8.Validation;
+global using Ids = IdentityServer8;
+global using StatusCodeResult = IdentityServer8.Endpoints.Results.StatusCodeResult;
 #else
 global using IdentityServer4.Hosting;
 global using IdentityServer4.Models;
@@ -27,13 +39,9 @@ global using StatusCodeResult = IdentityServer4.Endpoints.Results.StatusCodeResu
 #if NET8_0_OR_GREATER && DUENDE
 global using Duende.IdentityModel.Client;
 global using Duende.IdentityModel;
+global using IClock = Duende.IdentityServer.IClock;
 #else
 global using IdentityModel.Client;
 global using IdentityModel;
-#endif
-
-#if NET8_0_OR_GREATER
-global using IClock = Duende.IdentityServer.IClock;
-#else
 global using IClock = Microsoft.AspNetCore.Authentication.ISystemClock;
 #endif

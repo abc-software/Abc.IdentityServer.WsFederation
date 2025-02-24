@@ -23,7 +23,7 @@ namespace Abc.IdentityServer.WsFederation.EntityFramework.DbContext;
 /// <seealso cref="WsFedConfigurationDbContext" />
 public class WsFedConfigurationDbContext : WsFedConfigurationDbContext<WsFedConfigurationDbContext>
 {
-#if IDS4
+#if IDS4 || IDS8
     /// <summary>
     /// Initializes a new instance of the <see cref="WsFedConfigurationDbContext"/> class.
     /// </summary>
@@ -55,7 +55,7 @@ public class WsFedConfigurationDbContext : WsFedConfigurationDbContext<WsFedConf
 public class WsFedConfigurationDbContext<TContext> : ConfigurationDbContext<TContext>, Interfaces.IWsFedConfigurationDbContext
     where TContext : Microsoft.EntityFrameworkCore.DbContext, IConfigurationDbContext, Interfaces.IWsFedConfigurationDbContext
 {
-#if IDS4
+#if IDS4 || IDS8
     /// <summary>
     /// Initializes a new instance of the <see cref="WsFedConfigurationDbContext{TContext}"/> class.
     /// </summary>

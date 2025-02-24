@@ -11,6 +11,10 @@
     <BaseIntermediateOutputPath>obj\IDS4\</BaseIntermediateOutputPath>
     <OutputPath>bin\IDS4\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.IdentityServer8.WsFederation.UnitTests' or '$(MSBuildProjectName)' == 'Abc.IdentityServer8.WsFederation.IntegrationTests'">
+    <BaseIntermediateOutputPath>obj\IDS8\</BaseIntermediateOutputPath>
+    <OutputPath>bin\IDS4\</OutputPath>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation.UnitTests' or '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation.IntegrationTests'">
     <BaseIntermediateOutputPath>obj\DuendeIDS\</BaseIntermediateOutputPath>
     <OutputPath>bin\DuendeIDS\</OutputPath>

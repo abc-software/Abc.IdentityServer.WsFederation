@@ -20,6 +20,11 @@
     <OutputPath>bin\IDS4\</OutputPath>
     <PackageTags>$(PackageTags);IdentityServer4</PackageTags>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.IdentityServer8.WsFederation' or '$(MSBuildProjectName)' == 'Abc.IdentityServer8.WsFederation.EntityFramework.Storage'">
+    <BaseIntermediateOutputPath>obj\IDS8\</BaseIntermediateOutputPath>
+    <OutputPath>bin\IDS8\</OutputPath>
+    <PackageTags>$(PackageTags);IdentityServer8</PackageTags>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation' or '$(MSBuildProjectName)' == 'Abc.DuendeIdentityServer.WsFederation.EntityFramework.Storage'">
     <BaseIntermediateOutputPath>obj\DuendeIDS\</BaseIntermediateOutputPath>
     <OutputPath>bin\DuendeIDS\</OutputPath>

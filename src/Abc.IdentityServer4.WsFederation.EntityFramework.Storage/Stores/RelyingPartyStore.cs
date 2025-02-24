@@ -24,7 +24,7 @@ namespace Abc.IdentityServer.WsFederation.EntityFramework.Stores;
 /// <seealso cref="IRelyingPartyStore" />
 public class RelyingPartyStore : ClientStore, IRelyingPartyStore
 {
-#if IDS4
+#if IDS4 || IDS8
     /// <summary>
     /// Initializes a new instance of the <see cref="RelyingPartyStore"/> class.
     /// </summary>

@@ -1,11 +1,15 @@
-﻿#if IDS4
+﻿#if IDS4 || IDS8
 
 using Abc.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
 
+#if IDS4
 namespace IdentityServer4.Extensions;
+#else
+namespace IdentityServer8.Extensions;
+#endif
 
 /// <summary>
 /// Extension methods for <see cref="IServerUrls"/>.

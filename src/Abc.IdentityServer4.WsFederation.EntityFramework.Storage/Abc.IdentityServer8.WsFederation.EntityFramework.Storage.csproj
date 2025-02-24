@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>  
+  
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>10.0</LangVersion>
+    <DefineConstants>$(DefineConstants);IDS8</DefineConstants>
+    <RootNamespace>Abc.IdentityServer.WsFederation.EntityFramework</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <PackageReference Include="HigginsSoft.IdentityServer8.EntityFramework" Version="8.*" />
+    <PackageReference Include="HigginsSoft.IdentityServer8.EntityFramework.Storage" Version="8.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Abc.IdentityServer4.WsFederation\Abc.IdentityServer8.WsFederation.csproj" />
+  </ItemGroup>
+  
+</Project>

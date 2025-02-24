@@ -1,6 +1,10 @@
-﻿#if IDS4
+﻿#if IDS4 || IDS8
 
+#if IDS4
 namespace IdentityServer4.Services;
+#else
+namespace IdentityServer8.Services;
+#endif
 
 /// <summary>
 /// Configures the per-request URLs and paths into the current server.

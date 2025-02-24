@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 #if DUENDE
 namespace Duende.IdentityServer.Stores
+#elif IDS8
+namespace IdentityServer8.Services
 #else
 namespace IdentityServer4.Stores
 #endif
