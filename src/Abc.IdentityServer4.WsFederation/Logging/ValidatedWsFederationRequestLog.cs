@@ -9,7 +9,6 @@
 
 using Abc.IdentityServer.Extensions;
 using Abc.IdentityServer.WsFederation.Validation;
-using IdentityModel;
 using System.Collections.Generic;
 using System.Linq;
 

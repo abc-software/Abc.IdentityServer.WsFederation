@@ -1,6 +1,5 @@
 ﻿using Abc.IdentityServer.WsFederation.Validation;
 using FluentAssertions;
-using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using System;
 using System.Collections.Generic;

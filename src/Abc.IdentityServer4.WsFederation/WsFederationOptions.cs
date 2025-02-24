@@ -7,7 +7,6 @@
 // </copyright>
 // ----------------------------------------------------------------------------
 
-using IdentityModel;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

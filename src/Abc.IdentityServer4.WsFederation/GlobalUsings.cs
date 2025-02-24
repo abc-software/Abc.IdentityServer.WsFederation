@@ -22,6 +22,12 @@ global using Ids = IdentityServer4;
 global using StatusCodeResult = IdentityServer4.Endpoints.Results.StatusCodeResult;
 #endif
 
+#if NET8_0_OR_GREATER && DUENDE
+global using Duende.IdentityModel;
+#else
+global using IdentityModel;
+#endif
+
 #if NET8_0_OR_GREATER
 global using IClock = Duende.IdentityServer.IClock;
 #else

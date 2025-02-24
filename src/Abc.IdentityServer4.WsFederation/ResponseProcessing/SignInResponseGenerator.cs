@@ -9,7 +9,6 @@
 
 using Abc.IdentityServer.Extensions;
 using Abc.IdentityServer.WsFederation.Validation;
-using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
