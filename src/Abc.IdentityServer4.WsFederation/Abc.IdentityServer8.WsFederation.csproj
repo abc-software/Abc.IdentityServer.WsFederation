@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="HigginsSoft.IdentityServer8" Version="8.*" />
-    <PackageReference Include="HigginsSoft.IdentityServer8.Storage" Version="8.*" />
+    <PackageReference Include="HigginsSoft.IdentityServer8" Version="8.0.1" />
+    <PackageReference Include="HigginsSoft.IdentityServer8.Storage" Version="8.0.1" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Abc.IdentityModel.Metadata" Version="2.2.0" />

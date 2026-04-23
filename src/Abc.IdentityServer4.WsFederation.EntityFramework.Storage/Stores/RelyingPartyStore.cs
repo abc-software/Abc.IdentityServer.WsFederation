@@ -76,7 +76,7 @@ public class RelyingPartyStore : ClientStore, IRelyingPartyStore
                 EncryptionCertificate = rp.EncryptionCertificate,
             })
             .AsNoTracking()
-#if NET5_0_OR_GREATER
+#if NET5_0_OR_GREATER && !IDS4
             .AsSplitQuery()
 #endif
             ;
