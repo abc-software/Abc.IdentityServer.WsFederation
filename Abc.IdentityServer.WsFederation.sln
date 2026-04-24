@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32421.90
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11716.220 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{54D98041-C6CE-4487-AC2B-3C44C6FF14D4}"
 EndProject
@@ -56,6 +56,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abc.IdentityServer8.WsFederation.UnitTests", "test\Abc.IdentityServer4.WsFederation.UnitTests\Abc.IdentityServer8.WsFederation.UnitTests.csproj", "{28AC37CC-4418-4BA1-89D5-0D33CA988DED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abc.IdentityServer8.WsFederation.IntegrationTests", "test\Abc.IdentityServer4.WsFederation.IntegrationTests\Abc.IdentityServer8.WsFederation.IntegrationTests.csproj", "{8741F44B-152B-4A42-800B-D815E46BC26F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{FA660D5E-E2DE-418E-9AEE-09415D6D84F3}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
